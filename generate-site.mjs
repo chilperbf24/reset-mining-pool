@@ -23,6 +23,8 @@ async function fetchJSON(url) {
   catch { return null; }
 }
 const watchlist = existsSync(`${ROOT}/explorer-watch.json`) ? JSON.parse(readFileSync(`${ROOT}/explorer-watch.json`, 'utf8')) : [ledger.pool_address];
+let cachePrev = {};
+try { cachePrev = JSON.parse(readFileSync(CACHE, 'utf8')); } catch {}
 let gwState = await fetchJSON(`${GW}/v1/state`);
 const gwAccounts = {};
 for (const a of watchlist) { const acc = await fetchJSON(`${GW}/v1/account/${a}`); if (acc) gwAccounts[a] = acc; }
@@ -42,7 +44,7 @@ if (gwState) {
   }
 }
 let gwStale = false;
-if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal }, null, 2)); } catch {} }
+if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal, balances: cachePrev.balances ?? {}, balances_fetched_at: cachePrev.balances_fetched_at ?? cachePrev.fetched_at ?? null }, null, 2)); } catch {} }
 else if (existsSync(CACHE)) { const c = JSON.parse(readFileSync(CACHE, 'utf8')); gwState = c.state; Object.assign(gwAccounts, c.accounts); minersAll = c.miners ?? []; minersTotal = c.miners_total ?? minersAll.length; gwStale = true; }
 // Staking leaderboard: deposit > 0, sorted by deposit desc, address as tiebreak.
 const leaders = minersAll.filter(r => Number(r[1]) > 0)
@@ -54,10 +56,14 @@ const totalStaked = leaders.reduce((s, r) => s + BigInt(r[1]), 0n);
 // sweep is paced (chunks of 50 started at most every 14s ≈ 214/min) and a
 // 429 waits and retries. Balances from the previous run's cache are the
 // fallback for any address that cannot be fetched this time.
-let balCache = {};
-try { balCache = JSON.parse(readFileSync(CACHE, 'utf8')).balances ?? {}; } catch {}
+const balCache = cachePrev.balances ?? {};
 const balances = {};
-if (gwState && leaders.length) {
+const balCacheAt = Date.parse(cachePrev.balances_fetched_at ?? cachePrev.fetched_at ?? '') || 0;
+const balCacheFresh = gwState && leaders.length && (Date.now() - balCacheAt < 30 * 60000)
+  && leaders.every(r => balCache[r[0]] != null);
+if (balCacheFresh) {
+  for (const r of leaders) balances[r[0]] = balCache[r[0]];
+} else if (gwState && leaders.length) {
   const sleepMs = ms => new Promise(r => setTimeout(r, ms));
   async function fetchBalance(addr) {
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -165,7 +171,7 @@ if (!gwState) {
 ${watchRows}
 </table>
 <div class="card"><b data-i18n="lbTitle">Staking leaderboard</b>
-<p class="muted" data-i18n="lbCardNote">Every staking address ranked by deposit, with balances — 20 per page on its own page.</p>
+<p class="muted" data-i18n="lbCardNote">Every staking address ranked by deposit, with balances — 15 per page on its own page.</p>
 <a href="leaderboard.html"><button data-i18n="lbOpen">Open the leaderboard page</button></a></div>
 <p class="muted" data-i18n="expSourceNote">Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated${gwStale ? ' (gateway was unreachable — showing the last cached snapshot)' : ''}. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.</p>`;
 }
@@ -193,6 +199,7 @@ const html = `<!doctype html>
  ol,ul{padding-left:22px} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
  .topbtns{display:flex;gap:6px;flex-shrink:0}
  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;border-bottom:1px solid var(--border);padding-bottom:10px}
+ .tabbtn{font:inherit;background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;text-decoration:none;display:inline-block}
  .tabbtn.active{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
  section.tabpage{animation:fade .15s ease-in} @keyframes fade{from{opacity:.4}to{opacity:1}}
  .bar{height:8px;background:var(--code);border-radius:99px;overflow:hidden;margin-top:6px}
@@ -300,7 +307,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  expWatchTitle: "Watched addresses", thBalance: "Balance", thDeposit: "Deposit", thClaimNow: "Claim this round",
  thFair: "Fair estimate", thStrikes: "Strikes / clean", thLast: "Last result", expPoolTag: "pool",
  expDown: "Gateway unreachable when this page was generated — try again later.",
- lbTitle: "Staking leaderboard", lbCardNote: "Every staking address ranked by deposit, with balances — 20 per page on its own page.", lbOpen: "Open the leaderboard page", tabLeaderboard: "Leaderboard", lbMinersN: "Addresses listed", lbStakers: "Staking addresses",
+ lbTitle: "Staking leaderboard", lbCardNote: "Every staking address ranked by deposit, with balances — 15 per page on its own page.", lbOpen: "Open the leaderboard page", tabLeaderboard: "Leaderboard", lbMinersN: "Addresses listed", lbStakers: "Staking addresses",
  lbTotalStaked: "Total staked (RESET)", lbSearchHint: "Search the full leaderboard by address:",
  thRank: "#", thExiting: "Exiting", thClaimed: "Claimed", lbRank: "Rank",
  lbTopNote: "Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.",
@@ -346,7 +353,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  expWatchTitle: "关注地址", thBalance: "余额", thDeposit: "锁仓", thClaimNow: "本轮 claim",
  thFair: "预计公平份额", thStrikes: "罚分 / 干净轮", thLast: "上轮结果", expPoolTag: "池子",
  expDown: "生成本页时网关连不上——请稍后再看。",
- lbTitle: "质押榜", lbCardNote: "全部质押地址按质押额排名，带余额——独立页面，每页 20 名。", lbOpen: "打开质押榜页面", tabLeaderboard: "质押榜", lbMinersN: "上榜地址数", lbStakers: "质押地址数",
+ lbTitle: "质押榜", lbCardNote: "全部质押地址按质押额排名，带余额——独立页面，每页 15 名。", lbOpen: "打开质押榜页面", tabLeaderboard: "质押榜", lbMinersN: "上榜地址数", lbStakers: "质押地址数",
  lbTotalStaked: "质押总和（RESET）", lbSearchHint: "在完整质押榜里按地址搜索：",
  thRank: "名次", thExiting: "退出中", thClaimed: "本轮已 claim", lbRank: "名次",
  lbTopNote: "按质押额取前 100 名。完整名单已嵌在本页里——用上方搜索可查任意质押地址的名次。",
@@ -499,7 +506,7 @@ const lbPage = `<!doctype html>
 const LEADERS = ${JSON.stringify(lbRows)};
 const POOL_ADDR = ${JSON.stringify(ledger.pool_address)};
 const SNAPSHOT_MS = ${Date.now()};
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 15;
 const T = {
 en: { title: "Staking Leaderboard", langBtn: "中文", back: "← Back to the pool page",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
