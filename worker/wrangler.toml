@@ -1,0 +1,13 @@
+# RESET pool — calculation registry Worker.
+# Template: fill in the D1 database_id after `wrangler d1 create`
+# (see README.md in this directory for the full deploy runbook).
+# NO secrets live in this file — the operator lookup key is a Worker
+# secret:  wrangler secret put REGISTRY_KEY
+name = "reset-pool-registry"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[[d1_databases]]
+binding = "REGISTRY_DB"
+database_name = "reset-pool-registry"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"

@@ -14,6 +14,15 @@ import { formatCoin, totalContributed } from './lib/pool.mjs';
 const ROOT = new URL('.', import.meta.url).pathname.replace(/\/$/, '');
 const ledger = JSON.parse(readFileSync(`${ROOT}/state/live-ledger.json`, 'utf8'));
 
+// Calculation-registry Worker endpoint (worker/ in this repo — the
+// calculator files every computation there so inflows can be reconciled
+// against backend records; see worker/README.md). PLACEHOLDER until the
+// Worker is deployed: after deployment replace this ONE value with the
+// real https://…workers.dev/calc URL, regenerate and republish. Reports
+// from the page are fire-and-forget and silently dropped while this is a
+// placeholder — the calculator itself never depends on the endpoint.
+const REGISTRY_ENDPOINT = 'https://REGISTRY_NOT_DEPLOYED/calc';
+
 // --- Explorer data: public gateway reads, snapshotted at generation time.
 // The gateway sends no CORS headers, so browsers cannot call it directly;
 // this generator fetches server-side instead and embeds the result. A cache
@@ -465,6 +474,7 @@ ${marketsHtml}
 
 <script>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
+const REGISTRY_ENDPOINT = ${JSON.stringify(REGISTRY_ENDPOINT)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
  tabOverview: "Overview", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
@@ -730,7 +740,21 @@ document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'E
 // --- Join section (on the Overview tab): self-service fingerprint calculator. Runs entirely in the
 // visitor's browser (WebCrypto sha256); must agree exactly with the pool's
 // matcher (lib/fpmatch.mjs): fp = (sha256(address)[0..4] BE mod 999999) + 1.
+// Every outcome is ALSO filed to the calculation registry (reportCalc
+// below) so the operator keeps a backend record for reconciling inflows —
+// a pure fire-and-forget report: any failure is silent and never affects
+// the calculation or what the visitor sees.
 let fpUsed = false;
+const fpReported = new Set();
+function reportCalc(rec) {
+  try {
+    const key = JSON.stringify(rec);
+    if (fpReported.has(key)) return; // applyLang re-runs fpCalc — file each outcome once
+    fpReported.add(key);
+    fetch(REGISTRY_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(rec), keepalive: true }).catch(() => {});
+  } catch (e) {}
+}
 function fpFmt(u) { return (u / 100000000n).toString() + '.' + (u % 100000000n).toString().padStart(8, '0'); }
 async function fpCalc() {
   fpUsed = true;
@@ -740,16 +764,18 @@ async function fpCalc() {
   const addr = normalizeAddress(rawAddr);
   const amtStr = document.getElementById('fpAmt').value.trim();
   const err = m => { box.innerHTML = '<span style="color:var(--warn)">' + m + '</span>'; };
-  if (!addr) { err(t.fpErrAddr); return; }
-  if (addr === SNAPSHOT.pool_address) { box.innerHTML = '<div class="warnbar">' + t.fpErrPool + '</div>'; return; }
-  if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$/.test(amtStr)) { err(t.fpErrAmt); return; }
+  if (!addr) { reportCalc({ address: rawAddr, normalized: null, status: 'invalid' }); err(t.fpErrAddr); return; }
+  if (addr === SNAPSHOT.pool_address) { reportCalc({ address: rawAddr, normalized: addr, status: 'blocked_pool' }); box.innerHTML = '<div class="warnbar">' + t.fpErrPool + '</div>'; return; }
+  if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$/.test(amtStr)) { reportCalc({ address: rawAddr, normalized: addr, status: 'invalid' }); err(t.fpErrAmt); return; }
   const parts = amtStr.split('.');
   const planned = BigInt(parts[0]) * 100000000n + BigInt(((parts[1] || '') + '00000000').slice(0, 8));
-  if (planned <= 0n || planned % 1000000n !== 0n) { err(t.fpErrAmt); return; }
+  if (planned <= 0n || planned % 1000000n !== 0n) { reportCalc({ address: rawAddr, normalized: addr, status: 'invalid' }); err(t.fpErrAmt); return; }
   if (!window.crypto || !crypto.subtle) { err(t.fpErrCrypto); return; }
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(addr));
   const fp = BigInt(new DataView(buf).getUint32(0, false) % 999999 + 1);
   const send = planned + fp;
+  reportCalc({ address: rawAddr, normalized: addr, planned_units: planned.toString(),
+    fp_units: fp.toString(), exact_units: send.toString(), status: 'ok' });
   const convNote = /^trac1/i.test(rawAddr)
     ? '<div style="margin-bottom:8px">' + t.fpConverted + ' <span class="mono">' + addr + '</span></div>' : '';
   box.innerHTML = convNote + '<div class="muted">' + t.fpSendLabel + '</div>' +
