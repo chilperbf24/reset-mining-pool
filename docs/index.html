@@ -17,6 +17,7 @@
  button{background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer}
  input{background:var(--input);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;width:min(560px,90%);font-family:ui-monospace,Menlo,monospace;font-size:13px}
  code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:13px}
+ a{color:var(--accent);word-break:break-all}
  ol,ul{padding-left:22px} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
  .topbtns{display:flex;gap:6px;flex-shrink:0}
  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;border-bottom:1px solid var(--border);padding-bottom:10px}
@@ -105,10 +106,11 @@ altering a single share makes verification fail.</p>
 </div>
 
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-21 02:10:21 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-21 02:11:34 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"0","threshold_units":"1000000","rounds_settled":0,"updated":"2026-10-21 02:10:21 UTC","snapshot_ms":1792548621575,"contributors":{}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"0","threshold_units":"1000000","rounds_settled":0,"updated":"2026-10-21 02:11:34 UTC","snapshot_ms":1792548694915,"contributors":{}};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
  tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify",
@@ -141,7 +143,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  verifyTitle: "Verify it yourself",
  verify1: "Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the chain's claim record for the pool address and round), the fee and every share. Recompute:",
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
- footerGen: "Snapshot time", footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
+ footerGen: "Snapshot time", footerNote: "It is a static snapshot — no live polling, no login, no tracking.", dataSource: "Data source" },
 zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
@@ -173,7 +175,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  verifyTitle: "自己验一遍",
  verify1: "每份轮次报告都会公开全部输入：出资人快照、claim 金额（可与链上该轮池地址的 claim 记录对照）、手续费和每一份分账。复算公式：",
  verify2: "整数除法的灰尘结转到下一轮，绝不私吞。任何时刻都应有：<code>Σ claim = Σ 待分 + Σ 已分发 + 手续费 + 结转灰尘</code>。开源验证器可向池主索取——改动任何一份分账，验证都会失败。",
- footerGen: "快照时间", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
+ footerGen: "快照时间", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。", dataSource: "数据来源于" }
 };
 let lang = localStorage.getItem('pool-lang') || ((navigator.language || 'en').startsWith('zh') ? 'zh' : 'en');
 let lastQuery = '';
