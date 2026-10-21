@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // Claim a parked (unclaimed) pool inflow with nothing but the address it
 // belongs to:
-//   node claim-unclaimed.mjs <entry-id | amount-units> <reset-address>
+//   node claim-unclaimed.mjs <entry-id | amount-units> <reset-address | trac1-address>
 //   node claim-unclaimed.mjs list
+// The address may be spelled either way — 64-hex or trac1 are the same key.
 // The claim check is the fingerprint itself: the entry amount's tail must
 // equal fp(address) — an amount constructed for that address. No GitHub
 // account, no signature, no operator discretion: the math either matches
@@ -31,14 +32,14 @@ if (ref === 'list' || ref === undefined) {
     amount_units: e.amount_units, tail_units: e.tail_units, kind: e.kind, detected_at: e.detected_at })) }, null, 2));
   process.exit(0);
 }
-if (!address) { console.error('usage: claim-unclaimed.mjs <entry-id | amount-units> <reset-address>'); process.exit(2); }
+if (!address) { console.error('usage: claim-unclaimed.mjs <entry-id | amount-units> <reset-address | trac1-address>'); process.exit(2); }
 
 try {
-  const entry = claimEntry({ unclaimed: states.unclaimed, ledger: states.ledger }, ref, address.toLowerCase());
+  const entry = claimEntry({ unclaimed: states.unclaimed, ledger: states.ledger }, ref, address);
   writeFileSync(PATHS.unclaimed, JSON.stringify(states.unclaimed, null, 2));
   writeFileSync(PATHS.ledger, JSON.stringify(states.ledger, null, 2));
   console.log(JSON.stringify({ ok: true, claimed: { entry_id: entry.id, amount: formatCoin(BigInt(entry.amount_units)),
-    tail_units: entry.tail_units, address } }));
+    tail_units: entry.tail_units, address: entry.claimed_by } }));
 } catch (e) {
   console.log(JSON.stringify({ ok: false, error: String((e && e.message) || e) }));
   process.exit(1);

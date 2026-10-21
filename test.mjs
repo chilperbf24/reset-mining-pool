@@ -57,7 +57,8 @@ assert.equal(checkEventChain(tampered).ok, false);
 
 // --- self-service fingerprint attribution (lib/fpmatch.mjs) ---
 import { fingerprint, fingerprintUnits, sendAmountFor, splitTail, attributeIncrement,
-  processObservation, claimEntry, emptyMatcher, emptyUnclaimed, emptyFpCache } from './lib/fpmatch.mjs';
+  processObservation, claimEntry, emptyMatcher, emptyUnclaimed, emptyFpCache,
+  normalizeAddress, encodeTracAddress, decodeTracAddress } from './lib/fpmatch.mjs';
 
 const C = 'cc'.repeat(32);
 const mkCtx = candidates => ({ matcher: emptyMatcher(POOL), unclaimed: emptyUnclaimed(),
@@ -132,6 +133,51 @@ assert.throws(() => sendAmountFor(A, 1_500_000n)); // planned must be a 0.01 mul
   assert.equal(ctx2.unclaimed.entries[0].kind, 'pre_existing');
   assert.throws(() => claimEntry(ctx2, 1, A));
   assert.throws(() => claimEntry(ctx2, 1, NEW));
+}
+
+// --- dual address formats: 64-hex and trac1 are one key, two encodings ---
+// Real wallet pairs (pool wallet; the operator's personal wallet): decoding
+// the trac1 form lands exactly on the hex form, encoding reproduces the
+// published trac1 string — the payload is the raw 32-byte key, bech32m.
+const POOL_TRAC = 'trac1g9gvlqhsrzfhrqv2yt2ltvgd224dlyggc7qzpnyhlsqzmah24jnqg3ua9z';
+const OWNER = '2479c2e76d69c55ffc40f7d044f25da03388bd1959580163f5463c09f1755b14';
+const OWNER_TRAC = 'trac1y3uu9emdd8z4llzq7lgyfuja5qec30get9vqzcl4gc7qnut4tv2qfzxszf';
+assert.equal(decodeTracAddress(POOL_TRAC), POOL);
+assert.equal(encodeTracAddress(POOL), POOL_TRAC);
+assert.equal(decodeTracAddress(OWNER_TRAC), OWNER);
+assert.equal(encodeTracAddress(OWNER), OWNER_TRAC);
+// normalize: either spelling (either case) -> canonical lowercase hex
+assert.equal(normalizeAddress(POOL), POOL);
+assert.equal(normalizeAddress(POOL_TRAC), POOL);
+assert.equal(normalizeAddress(POOL.toUpperCase()), POOL);        // uppercase hex
+assert.equal(normalizeAddress(OWNER_TRAC.toUpperCase()), OWNER); // uppercase TRAC1
+assert.equal(normalizeAddress('  ' + OWNER + '  '), OWNER);      // surrounding whitespace
+// bad checksum, mixed case, garbage: refused, never guessed
+const badCk = OWNER_TRAC.slice(0, -1) + (OWNER_TRAC.endsWith('q') ? 'p' : 'q');
+assert.equal(decodeTracAddress(badCk), null);
+assert.equal(normalizeAddress(badCk), null);
+assert.equal(normalizeAddress('TrAc1y3uu9emdd8z4llzq7lgyfuja5qec30get9vqzcl4gc7qnut4tv2qfzxszf'), null); // mixed case
+assert.equal(normalizeAddress('trac1qqqqqq'), null);
+assert.equal(normalizeAddress('not-an-address'), null);
+assert.equal(normalizeAddress(''), null);
+assert.equal(normalizeAddress(null), null);
+assert.equal(normalizeAddress(OWNER.slice(0, 63)), null); // truncated hex
+// fingerprint identity: same key, either spelling -> the same tail, so the
+// amount computed from a pasted trac1 address is the one the matcher expects
+assert.equal(fingerprint(OWNER_TRAC), fingerprint(OWNER));
+assert.equal(sendAmountFor(OWNER_TRAC, parseCoin('0.05')), sendAmountFor(OWNER, parseCoin('0.05')));
+// claiming with the trac1 spelling credits the hex identity
+{
+  const NEW2 = 'dd'.repeat(32);
+  const ctx = mkCtx([A, B]);
+  processObservation({ totalUnits: 0n, lastResult: null }, ctx);
+  const D = sendAmountFor(NEW2, parseCoin('0.05'));
+  processObservation({ totalUnits: D, lastResult: null }, ctx);
+  assert.equal(ctx.unclaimed.entries.length, 1);
+  const claimed = claimEntry(ctx, 1, encodeTracAddress(NEW2));
+  assert.equal(claimed.status, 'claimed');
+  assert.equal(claimed.claimed_by, NEW2);
+  assert.equal(ctx.ledger.contributors[NEW2].contributed, D.toString());
 }
 
 console.log('all pool tests passed');

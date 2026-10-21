@@ -82,6 +82,12 @@ only in the Experience Shares proposal above):
 - Your fingerprint is `fp = (sha256(your address)[0..4] as uint32 BE)
   mod 999999 + 1` units (1–999999). The Join section on the homepage computes your
   exact amount in your browser; nothing is sent anywhere.
+- **Address formats are interchangeable:** the 64-hex RESET address and the
+  `trac1…` (TNK) address are the same 32-byte key in two encodings (bech32m,
+  payload = the raw key). The homepage calculator, every site lookup and
+  `claim-unclaimed.mjs` accept either spelling and normalize it automatically
+  (`lib/fpmatch.mjs: normalizeAddress`) — pasting the trac1 form can never
+  produce a wrong fingerprint.
 - Transfer exactly `planned + fp` to the pool address — every digit
   matters.
 - A matcher service (`fp-match.mjs`, systemd timer, every 60 seconds)

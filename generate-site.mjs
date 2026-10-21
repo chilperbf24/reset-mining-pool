@@ -480,9 +480,9 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
  queryTitle: "Check your position",
- queryHint: "Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.",
- queryPh: "Your RESET address, e.g. 2479c2e7…", queryBtn: "Look up",
- qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
+ queryHint: "Paste your address — the 64-hex RESET form or the trac1 form; both spell the same key and are recognized automatically. The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.",
+ queryPh: "Your address — RESET hex or trac1…", queryBtn: "Look up",
+ qInvalid: "That does not look like a valid address — enter the 64-hex RESET address or the trac1 address (the same key in two encodings).",
  qNotFound: "This address is not in the pool ledger as of the snapshot below. If you just transferred your exact fingerprint amount, it is matched and credited automatically within about a minute and appears in the next snapshot.",
  qFound: "Found in the pool ledger:", qShare: "Share of pool", qContributed: "Contributed", qPending: "Pending payout",
  qPaid: "Already paid out", qProgress: "Progress to the 0.01 payout threshold", qReady: "Threshold reached — this payout is due in the next payout batch.",
@@ -499,7 +499,9 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpBtn: "Calculate my amount",
  fpSendLabel: "Transfer EXACTLY this amount to the pool address:",
  fpTailNote: "planned amount + your fingerprint tail — credited in full",
- fpErrAddr: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
+ fpErrAddr: "That does not look like a valid address — enter the 64-hex RESET address or the trac1 address (the same key in two encodings).",
+ fpErrPool: "That is the pool's OWN address — the pool cannot join itself. Enter YOUR OWN contributing address.",
+ fpConverted: "Recognized a TNK-format (trac1) address — automatically converted to its RESET address:",
  fpErrAmt: "The planned amount must be a positive multiple of 0.01 RESET (e.g. 0.01, 0.05, 0.12).",
  fpErrCrypto: "The calculator needs a secure context — open this page over HTTPS.",
  expBanner: "Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.",
@@ -564,9 +566,9 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
  queryTitle: "查询我的份额",
- queryHint: "粘贴你的 RESET 地址（64 位十六进制）。查询完全在你的浏览器里对本页的公开账本快照进行，不会把地址发送到任何地方。",
- queryPh: "你的 RESET 地址，如 2479c2e7…", queryBtn: "查询",
- qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
+ queryHint: "粘贴你的地址——64 位十六进制 RESET 格式或 trac1 格式都行，两者是同一把钥匙，页面会自动识别。查询完全在你的浏览器里对本页的公开账本快照进行，不会把地址发送到任何地方。",
+ queryPh: "你的地址——RESET 十六进制或 trac1…", queryBtn: "查询",
+ qInvalid: "这不像一个有效地址——请填 64 位十六进制 RESET 地址或 trac1 地址（两者是同一把钥匙的两种写法）。",
  qNotFound: "截至下方快照时间，该地址不在池账本里。如果你刚按专属金额精确转账，约 1 分钟内会被自动对号入账，并出现在下一份快照里。",
  qFound: "在池账本中找到：", qShare: "占池份额", qContributed: "已出资", qPending: "待分收益",
  qPaid: "已分发", qProgress: "距 0.01 分发门槛的进度", qReady: "已达门槛——这笔收益会进入下一批分发。",
@@ -583,7 +585,9 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpBtn: "算出我的金额",
  fpSendLabel: "请把下面这个金额一分不差地转到池地址：",
  fpTailNote: "计划金额 + 你的指纹尾数——全额计入出资",
- fpErrAddr: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
+ fpErrAddr: "这不像一个有效地址——请填 64 位十六进制 RESET 地址或 trac1 地址（两者是同一把钥匙的两种写法）。",
+ fpErrPool: "这是池子自己的地址——池子不能给自己入池。请填你自己的出资地址。",
+ fpConverted: "已识别 TNK 格式（trac1）地址，已自动换算为 RESET 地址：",
  fpErrAmt: "计划金额必须是 0.01 RESET 的正整数倍（如 0.01、0.05、0.12）。",
  fpErrCrypto: "计算器需要安全上下文——请用 HTTPS 打开本页。",
  expBanner: "新计划（提议中）：<b>体验份额</b>——官方团队受邀入池质押、只捐出收益，新人就能以记在自己地址名下的份额开始挖矿。",
@@ -643,12 +647,50 @@ function showTab(name) { const names = ['overview', 'explorer', 'ledger', 'repor
   document.querySelectorAll('section.tabpage').forEach(s => { s.style.display = s.id === 'tab-' + name ? '' : 'none'; });
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   try { localStorage.setItem('pool-tab', name); } catch (e) {} try { history.replaceState(null, '', '#' + name); } catch (e) {} }
+// --- Address formats: the 64-hex RESET address and the trac1 (TNK) address
+// are the SAME 32-byte key in two encodings (bech32m, HRP "trac", payload =
+// the raw key, checksum verified). normalizeAddress maps either spelling to
+// canonical lowercase hex, so lookups and the fingerprint calculator agree
+// whichever form a visitor pastes. Mirrors lib/fpmatch.mjs exactly.
+function normalizeAddress(input) {
+  if (typeof input !== 'string') return null;
+  var s = input.trim();
+  if (/^[0-9a-fA-F]{64}$/.test(s)) return s.toLowerCase();
+  if (!/^trac1/i.test(s)) return null;
+  if (s !== s.toLowerCase() && s !== s.toUpperCase()) return null; // bech32 forbids mixed case
+  var a = s.toLowerCase();
+  var pos = a.lastIndexOf('1');
+  if (pos < 1 || a.slice(0, pos) !== 'trac') return null;
+  var part = a.slice(pos + 1);
+  if (part.length < 6) return null;
+  var CS = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+  var data = [];
+  for (var i = 0; i < part.length; i++) { var v = CS.indexOf(part[i]); if (v < 0) return null; data.push(v); }
+  var GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  var vals = [];
+  for (var j = 0; j < 4; j++) vals.push('trac'.charCodeAt(j) >> 5);
+  vals.push(0);
+  for (var j2 = 0; j2 < 4; j2++) vals.push('trac'.charCodeAt(j2) & 31);
+  vals = vals.concat(data);
+  var chk = 1;
+  for (var k = 0; k < vals.length; k++) { var top = chk >>> 25; chk = ((chk & 0x1ffffff) << 5) ^ vals[k];
+    for (var b = 0; b < 5; b++) if ((top >>> b) & 1) chk ^= GEN[b]; }
+  if ((chk >>> 0) !== 0x2bc830a3) return null; // bech32m checksum
+  var acc = 0, bits = 0, bytes = [];
+  var payload = data.slice(0, data.length - 6);
+  for (var m = 0; m < payload.length; m++) { acc = (acc << 5) | payload[m]; bits += 5;
+    while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); } }
+  if (bits >= 5 || ((acc << (8 - bits)) & 0xff) !== 0) return null;
+  if (bytes.length !== 32) return null;
+  return bytes.map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+}
 function lookup() {
   const t = T[lang];
-  const addr = document.getElementById('q').value.trim().toLowerCase();
-  lastQuery = addr;
+  const rawQ = document.getElementById('q').value.trim();
+  const addr = normalizeAddress(rawQ);
+  lastQuery = rawQ;
   const box = document.getElementById('qResult');
-  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  if (!addr) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
   const c = SNAPSHOT.contributors[addr];
   if (!c) { box.innerHTML = '<span style="color:var(--warn)">' + t.qNotFound + '</span><br><span class="muted">' + t.footerGen + ': ' + snapshotTimeText() + '</span>'; return; }
   const total = BigInt(SNAPSHOT.total_units), contrib = BigInt(c.contributed_units);
@@ -673,10 +715,12 @@ async function fpCalc() {
   fpUsed = true;
   const t = T[lang];
   const box = document.getElementById('fpResult');
-  const addr = document.getElementById('fpAddr').value.trim().toLowerCase();
+  const rawAddr = document.getElementById('fpAddr').value.trim();
+  const addr = normalizeAddress(rawAddr);
   const amtStr = document.getElementById('fpAmt').value.trim();
   const err = m => { box.innerHTML = '<span style="color:var(--warn)">' + m + '</span>'; };
-  if (!/^[0-9a-f]{64}$/.test(addr)) { err(t.fpErrAddr); return; }
+  if (!addr) { err(t.fpErrAddr); return; }
+  if (addr === SNAPSHOT.pool_address) { box.innerHTML = '<div class="warnbar">' + t.fpErrPool + '</div>'; return; }
   if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$/.test(amtStr)) { err(t.fpErrAmt); return; }
   const parts = amtStr.split('.');
   const planned = BigInt(parts[0]) * 100000000n + BigInt(((parts[1] || '') + '00000000').slice(0, 8));
@@ -685,7 +729,9 @@ async function fpCalc() {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(addr));
   const fp = BigInt(new DataView(buf).getUint32(0, false) % 999999 + 1);
   const send = planned + fp;
-  box.innerHTML = '<div class="muted">' + t.fpSendLabel + '</div>' +
+  const convNote = /^trac1/i.test(rawAddr)
+    ? '<div style="margin-bottom:8px">' + t.fpConverted + ' <span class="mono">' + addr + '</span></div>' : '';
+  box.innerHTML = convNote + '<div class="muted">' + t.fpSendLabel + '</div>' +
     '<div class="mono" style="font-size:24px;font-weight:700;margin:4px 0">' + fpFmt(send) + ' RESET</div>' +
     '<div class="mono" style="margin-bottom:6px">' + SNAPSHOT.pool_address + '</div>' +
     '<button id="fpCopyBtn">' + t.copy + '</button> <span class="muted">' + t.fpTailNote + '</span>';
@@ -808,22 +854,22 @@ const T = {
 en: { title: "Staking Leaderboard", langBtn: "中文", back: "← Back to the pool page",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
  lbMinersN: "Addresses listed", lbStakers: "Staking addresses", lbTotalStaked: "Total staked (RESET)",
- lbSearchHint: "Search the full leaderboard by address:", searchPh: "Your RESET address, e.g. 2479c2e7…", searchBtn: "Look up",
+ lbSearchHint: "Search the full leaderboard by address:", searchPh: "Your address — RESET hex or trac1…", searchBtn: "Look up",
  thRank: "#", thAddress: "Address", thDeposit: "Deposit", thBalance: "Balance", thExiting: "Exiting",
  thStrikes: "Strikes / clean", thClaimed: "Claimed", thLast: "Last result", poolTag: "pool", joinLink: "join via the calculator",
  prev: "← Prev", next: "Next →", pageOf: (a, b) => "Page " + a + " of " + b,
- qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
+ qInvalid: "That does not look like a valid address — enter the 64-hex RESET address or the trac1 address (the same key in two encodings).",
  lbNotFound: "This address is not in the current miners snapshot.",
  lbRank: "Rank", footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
 zh: { title: "质押榜", langBtn: "English", back: "← 返回拼池主页",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
  lbMinersN: "上榜地址数", lbStakers: "质押地址数", lbTotalStaked: "质押总和（RESET）",
- lbSearchHint: "在完整质押榜里按地址搜索：", searchPh: "你的 RESET 地址，如 2479c2e7…", searchBtn: "查询",
+ lbSearchHint: "在完整质押榜里按地址搜索：", searchPh: "你的地址——RESET 十六进制或 trac1…", searchBtn: "查询",
  thRank: "名次", thAddress: "地址", thDeposit: "质押", thBalance: "余额", thExiting: "退出中",
  thStrikes: "罚分 / 干净轮", thClaimed: "本轮已 claim", thLast: "上轮结果", poolTag: "池子", joinLink: "用计算器入池",
  prev: "← 上一页", next: "下一页 →", pageOf: (a, b) => "第 " + a + " / " + b + " 页",
- qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
+ qInvalid: "这不像一个有效地址——请填 64 位十六进制 RESET 地址或 trac1 地址（两者是同一把钥匙的两种写法）。",
  lbNotFound: "该地址不在当前矿工快照名单里。",
  lbRank: "名次", footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
@@ -856,12 +902,49 @@ function renderLb() {
   document.getElementById('pgNext').disabled = lbPage >= pages - 1;
 }
 function goPage(p) { lbPage = p; hlRank = -1; renderLb(); }
+// --- Address formats: the 64-hex RESET address and the trac1 (TNK) address
+// are the SAME 32-byte key in two encodings (bech32m, HRP "trac", payload =
+// the raw key, checksum verified). normalizeAddress maps either spelling to
+// canonical lowercase hex. Mirrors lib/fpmatch.mjs exactly.
+function normalizeAddress(input) {
+  if (typeof input !== 'string') return null;
+  var s = input.trim();
+  if (/^[0-9a-fA-F]{64}$/.test(s)) return s.toLowerCase();
+  if (!/^trac1/i.test(s)) return null;
+  if (s !== s.toLowerCase() && s !== s.toUpperCase()) return null; // bech32 forbids mixed case
+  var a = s.toLowerCase();
+  var pos = a.lastIndexOf('1');
+  if (pos < 1 || a.slice(0, pos) !== 'trac') return null;
+  var part = a.slice(pos + 1);
+  if (part.length < 6) return null;
+  var CS = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+  var data = [];
+  for (var i = 0; i < part.length; i++) { var v = CS.indexOf(part[i]); if (v < 0) return null; data.push(v); }
+  var GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  var vals = [];
+  for (var j = 0; j < 4; j++) vals.push('trac'.charCodeAt(j) >> 5);
+  vals.push(0);
+  for (var j2 = 0; j2 < 4; j2++) vals.push('trac'.charCodeAt(j2) & 31);
+  vals = vals.concat(data);
+  var chk = 1;
+  for (var k = 0; k < vals.length; k++) { var top = chk >>> 25; chk = ((chk & 0x1ffffff) << 5) ^ vals[k];
+    for (var b = 0; b < 5; b++) if ((top >>> b) & 1) chk ^= GEN[b]; }
+  if ((chk >>> 0) !== 0x2bc830a3) return null; // bech32m checksum
+  var acc = 0, bits = 0, bytes = [];
+  var payload = data.slice(0, data.length - 6);
+  for (var m = 0; m < payload.length; m++) { acc = (acc << 5) | payload[m]; bits += 5;
+    while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); } }
+  if (bits >= 5 || ((acc << (8 - bits)) & 0xff) !== 0) return null;
+  if (bytes.length !== 32) return null;
+  return bytes.map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+}
 function lbLookup() {
   const t = T[lang];
-  const addr = document.getElementById('lbq').value.trim().toLowerCase();
-  lastLbQuery = addr;
+  const rawQ = document.getElementById('lbq').value.trim();
+  const addr = normalizeAddress(rawQ);
+  lastLbQuery = rawQ;
   const box = document.getElementById('lbResult');
-  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  if (!addr) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
   const i = LEADERS.findIndex(r => r[0] === addr);
   if (i < 0) { box.innerHTML = '<span style="color:var(--warn)">' + t.lbNotFound + '</span>'; return; }
   hlRank = i + 1;
@@ -943,7 +1026,7 @@ en: { title: "Address detail", langBtn: "中文", back: "← Back to the leaderb
  noExits: "No pending exits.",
  historyTitle: "About history & transfers",
  historyNote: "What this page can show is the address's current state plus its last settled round result and pending exits. Transfer history cannot be listed: the RESET gateway exposes no transaction-history API and the contract keeps no per-address transfer log. A full history would require running a dedicated indexer that records every move from the start (stage 3).",
- invalid: "Missing or invalid address in the URL (?addr=<64 hex characters>).",
+ invalid: "Missing or invalid address in the URL (?addr=<64-hex RESET address or trac1 address>).",
  poolBanner: "This is the <b>mining pool address</b>. To join the pool, never transfer a round amount here — it cannot be matched to you and is parked as <b>unclaimed</b>. <a href='index.html#join'>First compute your exact amount with the Join calculator →</a>",
  notFound: "This address is not in the current miners snapshot.",
  footerGen: "Snapshot time", dataSource: "Data source",
@@ -960,7 +1043,7 @@ zh: { title: "地址详情", langBtn: "English", back: "← 返回质押榜",
  noExits: "没有退出中的记录。",
  historyTitle: "关于历史与转账记录",
  historyNote: "本页能展示的是该地址的当前状态、上一轮结算结果和退出中的记录。转账记录无法列出：RESET 网关没有交易历史接口，合约也不保存逐地址的转账流水。完整的历史需要自建索引节点从一开始逐条记录（第三阶段）。",
- invalid: "URL 里缺少地址或地址格式不对（?addr=<64 位十六进制>）。",
+ invalid: "URL 里缺少地址或地址格式不对（?addr=<64 位 RESET 地址或 trac1 地址>）。",
  poolBanner: "这是<b>拼池地址</b>。入池切勿直接转整数金额——对不上号，会被记为<b>待认领</b>。<a href='index.html#join'>先去主页用入池计算器算出你的专属金额 →</a>",
  notFound: "该地址不在当前矿工快照名单里。",
  footerGen: "快照时间", dataSource: "数据来源于",
@@ -975,11 +1058,48 @@ function snapshotTimeText() { const d = new Date(SNAPSHOT_MS); const p = n => St
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
 function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
+// --- Address formats: the 64-hex RESET address and the trac1 (TNK) address
+// are the SAME 32-byte key in two encodings (bech32m, HRP "trac", payload =
+// the raw key, checksum verified). normalizeAddress maps either spelling to
+// canonical lowercase hex, so ?addr= works in both forms — including the
+// pool banner check below. Mirrors lib/fpmatch.mjs exactly.
+function normalizeAddress(input) {
+  if (typeof input !== 'string') return null;
+  var s = input.trim();
+  if (/^[0-9a-fA-F]{64}$/.test(s)) return s.toLowerCase();
+  if (!/^trac1/i.test(s)) return null;
+  if (s !== s.toLowerCase() && s !== s.toUpperCase()) return null; // bech32 forbids mixed case
+  var a = s.toLowerCase();
+  var pos = a.lastIndexOf('1');
+  if (pos < 1 || a.slice(0, pos) !== 'trac') return null;
+  var part = a.slice(pos + 1);
+  if (part.length < 6) return null;
+  var CS = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+  var data = [];
+  for (var i = 0; i < part.length; i++) { var v = CS.indexOf(part[i]); if (v < 0) return null; data.push(v); }
+  var GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  var vals = [];
+  for (var j = 0; j < 4; j++) vals.push('trac'.charCodeAt(j) >> 5);
+  vals.push(0);
+  for (var j2 = 0; j2 < 4; j2++) vals.push('trac'.charCodeAt(j2) & 31);
+  vals = vals.concat(data);
+  var chk = 1;
+  for (var k = 0; k < vals.length; k++) { var top = chk >>> 25; chk = ((chk & 0x1ffffff) << 5) ^ vals[k];
+    for (var b = 0; b < 5; b++) if ((top >>> b) & 1) chk ^= GEN[b]; }
+  if ((chk >>> 0) !== 0x2bc830a3) return null; // bech32m checksum
+  var acc = 0, bits = 0, bytes = [];
+  var payload = data.slice(0, data.length - 6);
+  for (var m = 0; m < payload.length; m++) { acc = (acc << 5) | payload[m]; bits += 5;
+    while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); } }
+  if (bits >= 5 || ((acc << (8 - bits)) & 0xff) !== 0) return null;
+  if (bytes.length !== 32) return null;
+  return bytes.map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+}
 function render() {
   const t = T[lang];
-  const addr = (new URLSearchParams(location.search).get('addr') || '').toLowerCase();
+  const addr = normalizeAddress(new URLSearchParams(location.search).get('addr') || '');
   const box = document.getElementById('detail');
-  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<p style="color:var(--warn)">' + t.invalid + '</p>'; return; }
+  if (!addr) { box.innerHTML = '<p style="color:var(--warn)">' + t.invalid + '</p>'; return; }
   const banner = addr === POOL_ADDR ? '<div class="poolbanner">' + t.poolBanner + '</div>' : '';
   const acc = ACCOUNTS[addr];
   if (!acc) { box.innerHTML = banner + '<p style="color:var(--warn)">' + t.notFound + '</p><p class="mono">' + addr + '</p>'; return; }
