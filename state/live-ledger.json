@@ -3,10 +3,30 @@
   "pool_address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
   "fee_per_mille": 0,
   "payout_threshold_units": "1000000",
-  "contributors": {},
+  "contributors": {
+    "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d": {
+      "contributed": "5000000",
+      "pending": "0",
+      "paid_total": "0"
+    }
+  },
   "carry_units": "0",
   "fee_total_units": "0",
-  "events": [],
+  "events": [
+    {
+      "i": 0,
+      "type": "contribution",
+      "data": {
+        "address": "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d",
+        "amount_units": "5000000",
+        "source": "manual-attribution",
+        "unclaimed_id": 1,
+        "note": "经运营者确认该笔无尾数到账来自此地址，2026-10-21"
+      },
+      "prev": "GENESIS",
+      "hash": "b022820a6468235e9c6e95b150e1020f73dda493cf533760201ed9661ad9373f"
+    }
+  ],
   "rounds": [],
   "payouts": []
 }
