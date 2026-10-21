@@ -51,30 +51,45 @@ const reportRows = liveReports.length ? liveReports.map(r => `
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RESET Mining Pool — mine together below the 0.1 minimum</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('pool-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <style>
- body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:24px;max-width:860px;margin-inline:auto;line-height:1.55}
- h1{font-size:26px;margin:0 0 4px} h2{font-size:18px;margin:28px 0 8px;border-bottom:1px solid #30363d;padding-bottom:6px}
- .muted{color:#8b949e} .mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all}
+ :root, :root[data-theme="light"]{--bg:#ffffff;--fg:#1f2328;--muted:#59636e;--card:#f6f8fa;--border:#d1d9e0;--border2:#e3e8ee;--code:#eaeef2;--input:#ffffff;--accent:#1a7f37;--warn:#9e6a03}
+ :root[data-theme="dark"]{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--card:#161b22;--border:#30363d;--border2:#21262d;--code:#21262d;--input:#0d1117;--accent:#3fb950;--warn:#d29922}
+ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:24px;max-width:860px;margin-inline:auto;line-height:1.55}
+ h1{font-size:26px;margin:0 0 4px} h2{font-size:18px;margin:22px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+ .muted{color:var(--muted)} .mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all}
  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;background:${funded ? '#1a7f3722;color:#3fb950;border:1px solid #1a7f37' : '#9e6a0322;color:#d29922;border:1px solid #9e6a03'}}
- .card{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:16px;margin:12px 0}
+ .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
- .stat{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px}
- .stat b{display:block;font-size:20px} .stat span{color:#8b949e;font-size:13px}
- table{width:100%;border-collapse:collapse;font-size:14px} td,th{padding:7px 8px;border-bottom:1px solid #21262d;text-align:left}
- button{background:#21262d;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:5px 12px;cursor:pointer}
- input{background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:7px 10px;width:min(560px,90%);font-family:ui-monospace,Menlo,monospace;font-size:13px}
- code{background:#21262d;padding:1px 5px;border-radius:4px;font-size:13px}
+ .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+ .stat b{display:block;font-size:20px} .stat span{color:var(--muted);font-size:13px}
+ table{width:100%;border-collapse:collapse;font-size:14px} td,th{padding:7px 8px;border-bottom:1px solid var(--border2);text-align:left}
+ button{background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer}
+ input{background:var(--input);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;width:min(560px,90%);font-family:ui-monospace,Menlo,monospace;font-size:13px}
+ code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:13px}
  ol,ul{padding-left:22px} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
- .bar{height:8px;background:#21262d;border-radius:99px;overflow:hidden;margin-top:6px}
- .bar i{display:block;height:100%;background:#3fb950}
+ .topbtns{display:flex;gap:6px;flex-shrink:0}
+ .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;border-bottom:1px solid var(--border);padding-bottom:10px}
+ .tabbtn.active{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
+ section.tabpage{animation:fade .15s ease-in} @keyframes fade{from{opacity:.4}to{opacity:1}}
+ .bar{height:8px;background:var(--code);border-radius:99px;overflow:hidden;margin-top:6px}
+ .bar i{display:block;height:100%;background:var(--accent)}
 </style></head><body>
 <div class="topbar"><div>
 <h1>RESET Mining Pool</h1>
 <p class="muted" data-i18n="intro">Mine together below the 0.1 minimum. Small holders fund one pool address;
 the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata —
 with accounting anyone can recompute.</p>
-</div><button id="langBtn" onclick="toggleLang()">中文</button></div>
+</div><div class="topbtns"><button id="themeBtn" onclick="toggleTheme()">☀️</button><button id="langBtn" onclick="toggleLang()">中文</button></div></div>
 <p><span class="badge" data-i18n="${funded ? 'badgeActive' : 'badgeWaiting'}">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
+<nav class="tabs">
+ <button class="tabbtn" data-tab="overview" onclick="showTab('overview')" data-i18n="tabOverview">Overview</button>
+ <button class="tabbtn" data-tab="join" onclick="showTab('join')" data-i18n="tabJoin">Join</button>
+ <button class="tabbtn" data-tab="ledger" onclick="showTab('ledger')" data-i18n="tabLedger">Ledger</button>
+ <button class="tabbtn" data-tab="reports" onclick="showTab('reports')" data-i18n="tabReports">Reports</button>
+ <button class="tabbtn" data-tab="verify" onclick="showTab('verify')" data-i18n="tabVerify">Verify</button>
+</nav>
+<section class="tabpage" id="tab-overview">
 
 <div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (send RESET here to join)</div>
 <div class="mono" id="addr">${esc(ledger.pool_address)}</div>
@@ -97,6 +112,8 @@ with accounting anyone can recompute.</p>
  <div id="qResult" style="margin-top:12px"></div>
 </div>
 
+</section>
+<section class="tabpage" id="tab-join">
 <h2 data-i18n="joinTitle">How to join</h2>
 <ol>
  <li data-i18n="join1">From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.</li>
@@ -112,14 +129,20 @@ with accounting anyone can recompute.</p>
  <li data-i18n="rule4"><b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.</li>
 </ul>
 
+</section>
+<section class="tabpage" id="tab-ledger">
 <h2 data-i18n="ledgerTitle">Public ledger</h2>
 <table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thContributed">Contributed</th><th data-i18n="thPending">Pending payout</th><th data-i18n="thPaid">Paid total</th></tr>${contributorRows}
 </table>
 
+</section>
+<section class="tabpage" id="tab-reports">
 <h2 data-i18n="reportsTitle">Round reports</h2>
 <table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>${reportRows}
 </table>
 
+</section>
+<section class="tabpage" id="tab-verify">
 <h2 data-i18n="verifyTitle">Verify it yourself</h2>
 <div class="card">
 <p data-i18n="verify1">Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the
@@ -131,12 +154,15 @@ An open-source verifier that recomputes reports independently is available from 
 altering a single share makes verification fail.</p>
 </div>
 
+</section>
 <p class="muted"><span data-i18n="footerGen">Page generated</span> ${updated}. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 
 <script>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
+ tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify",
+ themeToDark: "🌙 Night", themeToLight: "☀️ Day",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
  poolAddrLabel: "Pool address (send RESET here to join)", copy: "Copy address",
@@ -167,6 +193,8 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
  footerGen: "Page generated", footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
 zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
+ tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证",
+ themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
  poolAddrLabel: "池地址（转 RESET 到这里即可入池）", copy: "复制地址",
@@ -205,19 +233,26 @@ function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
   document.getElementById('langBtn').textContent = t.langBtn;
+  syncThemeBtn();
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
 }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
+function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
+function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
+function showTab(name) { const names = ['overview', 'join', 'ledger', 'reports', 'verify']; if (!names.includes(name)) name = 'overview';
+  document.querySelectorAll('section.tabpage').forEach(s => { s.style.display = s.id === 'tab-' + name ? '' : 'none'; });
+  document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  try { localStorage.setItem('pool-tab', name); } catch (e) {} try { history.replaceState(null, '', '#' + name); } catch (e) {} }
 function lookup() {
   const t = T[lang];
   const addr = document.getElementById('q').value.trim().toLowerCase();
   lastQuery = addr;
   const box = document.getElementById('qResult');
-  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:#d29922">' + t.qInvalid + '</span>'; return; }
+  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
   const c = SNAPSHOT.contributors[addr];
-  if (!c) { box.innerHTML = '<span style="color:#d29922">' + t.qNotFound + '</span><br><span class="muted">snapshot: ' + SNAPSHOT.updated + '</span>'; return; }
+  if (!c) { box.innerHTML = '<span style="color:var(--warn)">' + t.qNotFound + '</span><br><span class="muted">snapshot: ' + SNAPSHOT.updated + '</span>'; return; }
   const total = BigInt(SNAPSHOT.total_units), contrib = BigInt(c.contributed_units);
   const sharePct = total === 0n ? '0.00' : (Number(contrib * 1000000n / total) / 10000).toFixed(2);
   const th = BigInt(SNAPSHOT.threshold_units), pend = BigInt(c.pending_units);
@@ -228,10 +263,11 @@ function lookup() {
     '<tr><td>' + t.qPending + '</td><td>' + fmt(pend) + ' RESET</td></tr>' +
     '<tr><td>' + t.qPaid + '</td><td>' + fmt(c.paid_units) + ' RESET</td></tr></table>' +
     '<div style="margin-top:8px">' + t.qProgress + ' — ' + prog + '%<div class="bar"><i style="width:' + prog + '%"></i></div></div>' +
-    (pend >= th ? '<p style="color:#3fb950">' + t.qReady + '</p>' : '');
+    (pend >= th ? '<p style="color:var(--accent)">' + t.qReady + '</p>' : '');
 }
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
 applyLang();
+showTab((location.hash || '').slice(1) || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview');
 </script>
 </body></html>`;
 
