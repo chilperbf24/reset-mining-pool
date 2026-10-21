@@ -45,7 +45,7 @@
 <p><span class="badge" data-i18n="badgeWaiting">● Waiting for funding — contributions open</span></p>
 <section class="tabpage" id="tab-overview">
 
-<div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (send RESET here to join)</div>
+<div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (transfer your exact computed amount here)</div>
 <div class="mono" id="addr">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6</div>
 <button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button></div>
 
@@ -75,14 +75,14 @@
 
 <h2 data-i18n="expNetTitle">Network overview</h2>
 <div class="grid">
- <div class="stat"><b><a href="https://mempool.space/block/00000000000000000001eac406a4f98e4860fb1a213de400c5428a3e8cf16acb" target="_blank" rel="noopener">972486</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>972481</b><span data-i18n="expCounted">Counted height</span></div>
- <div class="stat"><b>464</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972481–972483 <span data-i18n="expClosed">closed</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
- <div class="stat"><b>3.11646627</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b><a href="https://mempool.space/block/00000000000000000001d6e06118b333c7877adfab25ca7f850697f262e80548" target="_blank" rel="noopener">972487</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>972482</b><span data-i18n="expCounted">Counted height</span></div>
+ <div class="stat"><b>465</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>972487–972489 <span data-i18n="expOpen">open</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
+ <div class="stat"><b>6.21021627</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
  <div class="stat"><b>18.56250000</b><span data-i18n="expGuideline">Round guideline (RESET)</span></div>
- <div class="stat"><b>480</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>2278.13052763</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
+ <div class="stat"><b>366</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>2008.38708208</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
 </div>
 <h2 data-i18n="expLastTitle">Last settled round</h2>
 <div class="card">
@@ -108,10 +108,21 @@
 <section class="tabpage" id="tab-join">
 <h2 data-i18n="joinTitle">How to join</h2>
 <ol>
- <li data-i18n="join1">From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.</li>
- <li data-i18n="join2">Send the operator your address and the transfer reference. Your contribution is entered in the public ledger below <b>only after</b> it is visible on-chain.</li>
- <li data-i18n="join3">Done. Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.</li>
+ <li data-i18n="join1">Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account, nothing is sent anywhere.</li>
+ <li data-i18n="join2">From your own RESET wallet, <b>transfer exactly that amount</b> to the pool address — every digit matters; do not round it and do not improvise a different amount. You pay your own TNK transfer fee.</li>
+ <li data-i18n="join3">Wait about a minute. The pool watches its balance and matches the amount's tail to your address automatically — the tail <i>is</i> your address's fingerprint. The <b>full amount</b> is credited as your contribution.</li>
+ <li data-i18n="join4">Check the <b>Ledger</b> tab (or look your address up on the Overview tab). Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.</li>
 </ol>
+
+<div class="card">
+ <h3 data-i18n="fpTitle" style="margin-top:0">Your exact transfer amount — self-service calculator</h3>
+ <p class="muted" data-i18n="fpIntro">Your address has a deterministic fingerprint: a tail of 1–999999 units derived from the address itself (sha256). planned (a 0.01 multiple) + tail = an amount that is uniquely yours — that is how the pool credits you automatically.</p>
+ <p><input id="fpAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"></p>
+ <p><input id="fpAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.01, e.g. 0.05"> <button onclick="fpCalc()" data-i18n="fpBtn">Calculate my amount</button></p>
+ <div id="fpResult" style="margin-top:10px"></div>
+</div>
+
+<div class="callout"><b data-i18n="joinWarnTitle">⚠ Before you transfer</b><br><span data-i18n="joinWarn">Only ever transfer the exact amount the calculator gives you. A transfer with a wrong or rounded tail cannot be matched automatically and is parked as <b>unclaimed</b>. Claiming it needs no GitHub account and no signature: the amount's tail is checked against the address it belongs to — if they match, it is credited (ask the operator to run the claim, or see the README). A brand-new address that appears nowhere on the network yet may also land in unclaimed first — same claim path.</span></div>
 
 <h2 data-i18n="rulesTitle">Rules — the honest version</h2>
 <ul>
@@ -184,22 +195,22 @@ altering a single share makes verification fail.</p>
 </div>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
 <div class="grid">
- <div class="stat"><b>464</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972486</b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>480</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>2673.05099694</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
- <div class="stat"><b>695</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
- <div class="stat"><b>3.11646627</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>465</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>972487</b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>366</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>2673.38003335</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+ <div class="stat"><b>694</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
+ <div class="stat"><b>6.21021627</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="mktSnapNote">Snapshot data — refreshed about every 10 minutes when this page is regenerated.</p>
 <h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
 <div class="dexslot"><p data-i18n="dexPlaceholder" style="margin:0">Live order-book data from the official DEX node will appear here once the node connection is live.</p></div>
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-21 13:57:51 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-21 14:01:24 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"0","threshold_units":"1000000","rounds_settled":0,"updated":"2026-10-21 13:57:51 UTC","snapshot_ms":1792591071197,"contributors":{}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"0","threshold_units":"1000000","rounds_settled":0,"updated":"2026-10-21 14:01:24 UTC","snapshot_ms":1792591284751,"contributors":{}};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
  tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
@@ -230,20 +241,32 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  dexBid: "Bid", dexAsk: "Ask", dexQty: "Amount", dexUpdated: "DEX data snapshot",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
- poolAddrLabel: "Pool address (send RESET here to join)", copy: "Copy address",
+ poolAddrLabel: "Pool address (transfer your exact computed amount here)", copy: "Copy address",
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
  queryTitle: "Check your position",
  queryHint: "Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.",
  queryPh: "Your RESET address, e.g. 2479c2e7…", queryBtn: "Look up",
  qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
- qNotFound: "This address is not in the pool ledger as of the snapshot below. If you just transferred, it appears after the operator verifies the transfer on-chain and regenerates this page.",
+ qNotFound: "This address is not in the pool ledger as of the snapshot below. If you just transferred your exact fingerprint amount, it is matched and credited automatically within about a minute and appears in the next snapshot.",
  qFound: "Found in the pool ledger:", qShare: "Share of pool", qContributed: "Contributed", qPending: "Pending payout",
  qPaid: "Already paid out", qProgress: "Progress to the 0.01 payout threshold", qReady: "Threshold reached — this payout is due in the next payout batch.",
  joinTitle: "How to join",
- join1: "From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.",
- join2: "Send the operator your address and the transfer reference. Your contribution is entered in the public ledger below <b>only after</b> it is visible on-chain.",
- join3: "Done. Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.",
+ join1: "Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account, nothing is sent anywhere.",
+ join2: "From your own RESET wallet, <b>transfer exactly that amount</b> to the pool address — every digit matters; do not round it and do not improvise a different amount. You pay your own TNK transfer fee.",
+ join3: "Wait about a minute. The pool watches its balance and matches the amount's tail to your address automatically — the tail <i>is</i> your address's fingerprint. The <b>full amount</b> is credited as your contribution.",
+ join4: "Check the <b>Ledger</b> tab (or look your address up on the Overview tab). Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.",
+ joinWarnTitle: "⚠ Before you transfer",
+ joinWarn: "Only ever transfer the exact amount the calculator gives you. A transfer with a wrong or rounded tail cannot be matched automatically and is parked as <b>unclaimed</b>. Claiming it needs no GitHub account and no signature: the amount's tail is checked against the address it belongs to — if they match, it is credited (ask the operator to run the claim, or see the README). A brand-new address that appears nowhere on the network yet may also land in unclaimed first — same claim path.",
+ fpTitle: "Your exact transfer amount — self-service calculator",
+ fpIntro: "Your address has a deterministic fingerprint: a tail of 1–999999 units derived from the address itself (sha256). planned (a 0.01 multiple) + tail = an amount that is uniquely yours — that is how the pool credits you automatically.",
+ fpAmtPh: "Planned amount — a multiple of 0.01, e.g. 0.05",
+ fpBtn: "Calculate my amount",
+ fpSendLabel: "Transfer EXACTLY this amount to the pool address:",
+ fpTailNote: "planned amount + your fingerprint tail — credited in full",
+ fpErrAddr: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
+ fpErrAmt: "The planned amount must be a positive multiple of 0.01 RESET (e.g. 0.01, 0.05, 0.12).",
+ fpErrCrypto: "The calculator needs a secure context — open this page over HTTPS.",
  expBanner: "Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.",
  expBannerLink: "See the plan on the Join tab →",
  expTitle: "Experience Shares — the proposed newcomer program",
@@ -302,20 +325,32 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  dexBid: "买价", dexAsk: "卖价", dexQty: "数量", dexUpdated: "DEX 数据快照",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
- poolAddrLabel: "池地址（转 RESET 到这里即可入池）", copy: "复制地址",
+ poolAddrLabel: "池地址（把计算器算出的专属金额精确转到这里）", copy: "复制地址",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
  queryTitle: "查询我的份额",
  queryHint: "粘贴你的 RESET 地址（64 位十六进制）。查询完全在你的浏览器里对本页的公开账本快照进行，不会把地址发送到任何地方。",
  queryPh: "你的 RESET 地址，如 2479c2e7…", queryBtn: "查询",
  qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
- qNotFound: "截至下方快照时间，该地址不在池账本里。如果你刚转账，要等池主在链上核对到账并重新生成页面后才会出现。",
+ qNotFound: "截至下方快照时间，该地址不在池账本里。如果你刚按专属金额精确转账，约 1 分钟内会被自动对号入账，并出现在下一份快照里。",
  qFound: "在池账本中找到：", qShare: "占池份额", qContributed: "已出资", qPending: "待分收益",
  qPaid: "已分发", qProgress: "距 0.01 分发门槛的进度", qReady: "已达门槛——这笔收益会进入下一批分发。",
  joinTitle: "怎么入池",
- join1: "用你自己的 RESET 钱包，往上面的池地址 <b>transfer</b> 任意金额（如 0.02）。TNK 手续费由你自己出。",
- join2: "把你的地址和转账凭证发给池主。你的出资<b>只有在链上可见后</b>才会被记进下方公开账本。",
- join3: "完事。每轮你的份额 = 你的出资 ÷ 池子总额，按轮快照定格；收益累积到 <b>0.01</b> 后分发。",
+ join1: "用下方计算器：填入<b>你自己的 RESET 地址</b>和计划金额（必须是 <b>0.01</b> 的整数倍）。专属应转金额完全在你浏览器本地算出——不用登记、不用 GitHub 账号、不发送任何数据。",
+ join2: "用你自己的 RESET 钱包，把<b>这个金额一分不差</b>地转到池地址——每一位都不能错，不要四舍五入、不要自作主张换金额。TNK 转账费自理。",
+ join3: "等约 1 分钟。池子会盯着余额进账，按金额尾数自动对号到你的地址——尾数<b>就是</b>你地址的指纹。到账金额<b>全额</b>计入你的出资。",
+ join4: "到<b>账本</b>页查看（或在概览页用地址查询）。每轮你的份额 = 你的出资 ÷ 池子总额，按轮快照定格；收益累积到 <b>0.01</b> 后分发。",
+ joinWarnTitle: "⚠ 转账前必读",
+ joinWarn: "只准转计算器给出的那个金额。尾数错误或被四舍五入的转账无法自动匹配，会被停放为<b>待认领</b>。认领不需要 GitHub 账号、不需要签名：拿金额尾数和它所属的地址一验，对上就入账（联系池主运行认领，或看 README）。全新地址（网络名单里还没有的）也可能先落入待认领——同一条认领路。",
+ fpTitle: "算你的专属应转金额——自助计算器",
+ fpIntro: "你的地址有一个确定性指纹：由地址本身（sha256）算出的 1–999999 units 尾数。计划金额（0.01 的倍数）+ 尾数 = 独一无二属于你的金额——池子就是这样自动把钱记到你名下的。",
+ fpAmtPh: "计划金额——0.01 的倍数，如 0.05",
+ fpBtn: "算出我的金额",
+ fpSendLabel: "请把下面这个金额一分不差地转到池地址：",
+ fpTailNote: "计划金额 + 你的指纹尾数——全额计入出资",
+ fpErrAddr: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
+ fpErrAmt: "计划金额必须是 0.01 RESET 的正整数倍（如 0.01、0.05、0.12）。",
+ fpErrCrypto: "计算器需要安全上下文——请用 HTTPS 打开本页。",
  expBanner: "新计划（提议中）：<b>体验份额</b>——官方团队受邀入池质押、只捐出收益，新人就能以记在自己地址名下的份额开始挖矿。",
  expBannerLink: "去入池页看计划 →",
  expTitle: "体验份额计划——给新人的提议",
@@ -364,6 +399,7 @@ function applyLang() {
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
+  if (fpUsed) fpCalc();
 }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
@@ -393,6 +429,35 @@ function lookup() {
     (pend >= th ? '<p style="color:var(--accent)">' + t.qReady + '</p>' : '');
 }
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+// --- Join tab: self-service fingerprint calculator. Runs entirely in the
+// visitor's browser (WebCrypto sha256); must agree exactly with the pool's
+// matcher (lib/fpmatch.mjs): fp = (sha256(address)[0..4] BE mod 999999) + 1.
+let fpUsed = false;
+function fpFmt(u) { return (u / 100000000n).toString() + '.' + (u % 100000000n).toString().padStart(8, '0'); }
+async function fpCalc() {
+  fpUsed = true;
+  const t = T[lang];
+  const box = document.getElementById('fpResult');
+  const addr = document.getElementById('fpAddr').value.trim().toLowerCase();
+  const amtStr = document.getElementById('fpAmt').value.trim();
+  const err = m => { box.innerHTML = '<span style="color:var(--warn)">' + m + '</span>'; };
+  if (!/^[0-9a-f]{64}$/.test(addr)) { err(t.fpErrAddr); return; }
+  if (!/^(0|[1-9][0-9]*)(.[0-9]{1,8})?$/.test(amtStr)) { err(t.fpErrAmt); return; }
+  const parts = amtStr.split('.');
+  const planned = BigInt(parts[0]) * 100000000n + BigInt(((parts[1] || '') + '00000000').slice(0, 8));
+  if (planned <= 0n || planned % 1000000n !== 0n) { err(t.fpErrAmt); return; }
+  if (!window.crypto || !crypto.subtle) { err(t.fpErrCrypto); return; }
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(addr));
+  const fp = BigInt(new DataView(buf).getUint32(0, false) % 999999 + 1);
+  const send = planned + fp;
+  box.innerHTML = '<div class="muted">' + t.fpSendLabel + '</div>' +
+    '<div class="mono" style="font-size:24px;font-weight:700;margin:4px 0">' + fpFmt(send) + ' RESET</div>' +
+    '<div class="mono" style="margin-bottom:6px">' + SNAPSHOT.pool_address + '</div>' +
+    '<button id="fpCopyBtn">' + t.copy + '</button> <span class="muted">' + t.fpTailNote + '</span>';
+  document.getElementById('fpCopyBtn').addEventListener('click', () => navigator.clipboard.writeText(fpFmt(send)));
+}
+document.getElementById('fpAddr').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
+document.getElementById('fpAmt').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
 // --- Markets tab: TNK live price, polled client-side from CoinGecko (CORS *).
 // Failures are silent: the last good values stay on screen and the next
 // 30 s cycle retries. Nothing else on this page makes network calls.
