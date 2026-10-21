@@ -36,6 +36,7 @@ const snapshotData = {
   threshold_units: ledger.payout_threshold_units,
   rounds_settled: ledger.rounds.length,
   updated,
+  snapshot_ms: Date.now(),
   contributors: Object.fromEntries(contributors.map(([a, c]) => [a, {
     contributed_units: c.contributed, pending_units: c.pending, paid_units: c.paid_total }])),
 };
@@ -155,7 +156,7 @@ altering a single share makes verification fail.</p>
 </div>
 
 </section>
-<p class="muted"><span data-i18n="footerGen">Page generated</span> ${updated}. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">${updated}</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 
 <script>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
@@ -191,7 +192,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  verifyTitle: "Verify it yourself",
  verify1: "Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the chain's claim record for the pool address and round), the fee and every share. Recompute:",
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
- footerGen: "Page generated", footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
+ footerGen: "Snapshot time", footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
 zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
@@ -223,17 +224,22 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  verifyTitle: "自己验一遍",
  verify1: "每份轮次报告都会公开全部输入：出资人快照、claim 金额（可与链上该轮池地址的 claim 记录对照）、手续费和每一份分账。复算公式：",
  verify2: "整数除法的灰尘结转到下一轮，绝不私吞。任何时刻都应有：<code>Σ claim = Σ 待分 + Σ 已分发 + 手续费 + 结转灰尘</code>。开源验证器可向池主索取——改动任何一份分账，验证都会失败。",
- footerGen: "页面生成于", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
+ footerGen: "快照时间", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
 };
 let lang = localStorage.getItem('pool-lang') || ((navigator.language || 'en').startsWith('zh') ? 'zh' : 'en');
 let lastQuery = '';
 function fmt(u) { const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
+function snapshotTimeText() { const d = new Date(SNAPSHOT.snapshot_ms); const p = n => String(n).padStart(2, '0');
+  if (lang === 'zh') { const b = new Date(d.getTime() + 8 * 3600000);
+    return b.getUTCFullYear() + '-' + p(b.getUTCMonth() + 1) + '-' + p(b.getUTCDate()) + ' ' + p(b.getUTCHours()) + ':' + p(b.getUTCMinutes()) + ':' + p(b.getUTCSeconds()) + ' GMT+8'; }
+  return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC'; }
 function applyLang() {
   const t = T[lang];
   document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
   document.getElementById('langBtn').textContent = t.langBtn;
   syncThemeBtn();
+  const stEl = document.getElementById('snapshotTime'); if (stEl) stEl.textContent = snapshotTimeText();
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
@@ -252,7 +258,7 @@ function lookup() {
   const box = document.getElementById('qResult');
   if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
   const c = SNAPSHOT.contributors[addr];
-  if (!c) { box.innerHTML = '<span style="color:var(--warn)">' + t.qNotFound + '</span><br><span class="muted">snapshot: ' + SNAPSHOT.updated + '</span>'; return; }
+  if (!c) { box.innerHTML = '<span style="color:var(--warn)">' + t.qNotFound + '</span><br><span class="muted">' + t.footerGen + ': ' + snapshotTimeText() + '</span>'; return; }
   const total = BigInt(SNAPSHOT.total_units), contrib = BigInt(c.contributed_units);
   const sharePct = total === 0n ? '0.00' : (Number(contrib * 1000000n / total) / 10000).toFixed(2);
   const th = BigInt(SNAPSHOT.threshold_units), pend = BigInt(c.pending_units);
