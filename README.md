@@ -70,13 +70,45 @@ own share throughout — only its yield is given away, and every movement is
 publicly verifiable. Pooling still grants access, not extra yield, and the
 custody caveat above applies unchanged.
 
+## Joining: self-service amount fingerprint
+
+The gateway exposes no transfer history, so the pool cannot see *who* sent
+a transfer after the fact. Regular joins therefore use an **amount
+fingerprint** that each member computes locally — no registration desk, no
+account, and **no GitHub** (GitHub authorization appears in this project
+only in the Experience Shares proposal above):
+
+- Pick a planned amount that is a multiple of **0.01** RESET.
+- Your fingerprint is `fp = (sha256(your address)[0..4] as uint32 BE)
+  mod 999999 + 1` units (1–999999). The site's Join tab computes your
+  exact amount in your browser; nothing is sent anywhere.
+- Transfer exactly `planned + fp` to the pool address — every digit
+  matters.
+- A matcher service (`fp-match.mjs`, systemd timer, every 60 seconds)
+  watches the pool's balance + deposit, first deducts settled claim
+  earnings (via the gateway's `last_result`, so earnings are never
+  mistaken for contributions), then reverse-looks the remaining inflow's
+  tail up among all network addresses and credits the **full amount** to
+  the unique match.
+- If the tail matches zero or several addresses (a collision), or the
+  sender is a brand-new address not yet on any network list, the amount
+  is parked in `state/unclaimed.json` — never guessed. Claiming needs
+  only the address itself:
+  `node claim-unclaimed.mjs <entry-id | amount-units> <address>`
+  re-checks the tail against that address and credits it — no GitHub, no
+  signature. A round amount (tail 0) can never be claimed this way.
+
 ## Layout
 
 | file | role |
 |---|---|
 | `lib/pool.mjs` | accounting core: contributions, snapshots, pro-rata settlement, payouts, hash-chained events |
+| `lib/fpmatch.mjs` | fingerprint math + inflow attribution + unclaimed claims (pure, unit-tested) |
+| `lib/fprun.mjs` | shared matcher runner: state IO + candidate loading, used by both matcher paths |
 | `ledger.mjs` | operator CLI: `init / contribute / settle / payouts / status` over `state/live-ledger.json` |
-| `pool-worker.mjs` | live worker for the pool wallet: status, header posting, ledger-capped lock, level-1000 claim. **No transfer/unlock/withdraw code path.** |
+| `pool-worker.mjs` | live worker for the pool wallet: status, header posting, fingerprint pass, minimum lock, level-1000 claim, settlement recording, matcher-timer watchdog. **No transfer/unlock/withdraw code path.** |
+| `fp-match.mjs` | 1-minute fingerprint matcher (systemd timer `reset-pool-fpmatch`): attributes inflows, parks the rest as unclaimed |
+| `claim-unclaimed.mjs` | claim a parked amount with its address alone (fingerprint tail check) |
 | `verify.mjs` | independent report verifier (no shared settlement code) |
 | `simulate.mjs` | end-to-end demo driven by the real contract `minePayout` |
 | `test.mjs` | unit checks: parsing, pro-rata + dust, fees, thresholds, tamper evidence |
@@ -104,8 +136,11 @@ tenth of the pool's per-round take for their share, accumulated until the
 
 ## Going live (checklist, in order)
 
-1. Contributor transfers RESET to the pool address (their own action).
-2. Operator verifies the transfer on-chain, then records it:
+1. Contributor computes their exact fingerprint amount on the site's Join
+   tab and transfers it to the pool address (their own action).
+2. The 1-minute matcher credits it automatically under their address
+   (fingerprint tail); anything unmatchable parks in `state/unclaimed.json`
+   for `claim-unclaimed.mjs`. Manual fallback if ever needed:
    `node ledger.mjs contribute <addr> <amount> <tx-ref>`
 3. Start the worker under supervision (`pool-worker.mjs --loop …` plus a
    cron/agent that runs `--claim` when it reports `claim_due`, as with the

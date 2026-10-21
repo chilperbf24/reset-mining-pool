@@ -9,3 +9,9 @@ keystore*
 pool.log
 *.log
 node_modules/
+.worker.lock
+# fingerprint matcher runtime state (rebuilt from chain + ledger; the
+# public record is state/live-ledger.json and reports/)
+state/matcher.json
+state/unclaimed.json
+state/fp-cache.json
