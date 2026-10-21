@@ -9,7 +9,9 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { formatCoin, totalContributed } from './lib/pool.mjs';
 
-const ROOT = `${process.env.HOME}/workspace/reset-pool`;
+// Root = this script's own directory, so the generator runs anywhere
+// (a maintainer's machine or a GitHub Actions runner checkout).
+const ROOT = new URL('.', import.meta.url).pathname.replace(/\/$/, '');
 const ledger = JSON.parse(readFileSync(`${ROOT}/state/live-ledger.json`, 'utf8'));
 
 // --- Explorer data: public gateway reads, snapshotted at generation time.
