@@ -219,6 +219,73 @@ ${watchRows}
 <p class="muted" data-i18n="expSourceNote">Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated${gwStale ? ' (gateway was unreachable — showing the last cached snapshot)' : ''}. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.</p>`;
 }
 
+// --- Markets tab ------------------------------------------------------------
+// TNK price is LIVE in the visitor's browser: CoinGecko sends CORS *, the
+// RESET gateway does not, so the page script polls CoinGecko every 30 s.
+// The RESET network card below reuses this generator's snapshot instead.
+// The official-DEX block reads an optional market.json at the repo root
+// (to be written by a future DEX-node feeder); without pairs data it renders
+// a placeholder, so feeding data later needs no structural change.
+let market = null;
+try { if (existsSync(`${ROOT}/market.json`)) market = JSON.parse(readFileSync(`${ROOT}/market.json`, 'utf8')); } catch {}
+const dexPairs = (Array.isArray(market?.pairs) ? market.pairs : []).filter(p => p && p.pair);
+const dexVal = v => (v == null || v === '' ? '—' : esc(String(v)));
+let dexHtml;
+if (dexPairs.length) {
+  dexHtml = dexPairs.map(p => {
+    const bids = Array.isArray(p.bids) ? p.bids : [], asks = Array.isArray(p.asks) ? p.asks : [];
+    const nRows = Math.min(Math.max(bids.length, asks.length), 10);
+    let book = '';
+    for (let i = 0; i < nRows; i++) {
+      const b = bids[i] || [], a = asks[i] || [];
+      book += `<tr><td>${dexVal(b[0])}</td><td>${dexVal(b[1])}</td><td>${dexVal(a[0])}</td><td>${dexVal(a[1])}</td></tr>`;
+    }
+    return `<div class="card"><b>${esc(p.pair)}</b>
+<div class="grid" style="margin-top:10px">
+ <div class="stat"><b>${dexVal(p.last)}</b><span data-i18n="dexLast">Last price (USDC)</span></div>
+ <div class="stat"><b>${dexVal(p.volume24h)}</b><span data-i18n="dexVol24h">24h volume (USDC)</span></div>
+ <div class="stat"><b>${dexVal(p.high24h)} / ${dexVal(p.low24h)}</b><span data-i18n="dexHighLow">24h high / low (USDC)</span></div>
+ <div class="stat"><b>${dexVal(p.trades24h)}</b><span data-i18n="dexTrades">Trades (24h)</span></div>
+</div>
+${nRows ? `<table><tr><th data-i18n="dexBid">Bid</th><th data-i18n="dexQty">Amount</th><th data-i18n="dexAsk">Ask</th><th data-i18n="dexQty">Amount</th></tr>${book}</table>` : ''}</div>`;
+  }).join('') + (market.updated ? `<p class="muted"><span data-i18n="dexUpdated">DEX data snapshot</span>: ${esc(market.updated)}</p>` : '');
+} else {
+  dexHtml = `<div class="dexslot"><p data-i18n="dexPlaceholder" style="margin:0">Live order-book data from the official DEX node will appear here once the node connection is live.</p></div>`;
+}
+let netCard;
+if (!gwState) {
+  netCard = `<p class="muted" data-i18n="expDown">Gateway unreachable when this page was generated — try again later.</p>`;
+} else {
+  const mm = gwState.mine ?? {};
+  netCard = `<div class="grid">
+ <div class="stat"><b>${mm.r ?? '—'}</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>${gwState.tip?.height ?? '—'}</b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>${mm.claim_count ?? '—'}</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>${formatCoin(totalStaked)}</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+ <div class="stat"><b>${minersTotal || allMiners.length}</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
+ <div class="stat"><b>${mm.S == null ? '—' : fc(mm.S)}</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+</div>
+<p class="muted" data-i18n="mktSnapNote">Snapshot data — refreshed about every 10 minutes when this page is regenerated.</p>`;
+}
+const marketsHtml = `
+<p class="muted" data-i18n="mktNote">RESET itself is not listed on any centralized exchange, so it has no CEX price. TNK is the token of its underlying network (Trac) and does trade — its live price is below.</p>
+<h2 data-i18n="mktTnkTitle">TNK — live price</h2>
+<div class="card">
+ <div class="grid">
+  <div class="stat"><b id="tnkPrice">—</b><span data-i18n="mktPrice">TNK price (USD)</span></div>
+  <div class="stat"><b id="tnkChange">—</b><span data-i18n="mktChange">24h change</span></div>
+  <div class="stat"><b id="tnkVol">—</b><span data-i18n="mktVol">24h volume (USD)</span></div>
+  <div class="stat"><b id="tnkMcap">—</b><span data-i18n="mktMcap">Market cap (USD)</span></div>
+ </div>
+ <table style="margin-top:10px"><tr><th data-i18n="thExchange">Exchange</th><th data-i18n="thLastPrice">Last price (USD)</th><th data-i18n="thVolume">Volume (TNK)</th></tr>
+ <tbody id="tnkExBody"><tr><td colspan="3" class="muted">—</td></tr></tbody></table>
+ <p class="muted" id="tnkStamp" style="margin-bottom:0"></p>
+</div>
+<h2 data-i18n="mktNetTitle">RESET network</h2>
+${netCard}
+<h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
+${dexHtml}`;
+
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RESET Mining Pool — mine together below the 0.1 minimum</title>
@@ -232,6 +299,7 @@ const html = `<!doctype html>
  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;background:${funded ? '#1a7f3722;color:#3fb950;border:1px solid #1a7f37' : '#9e6a0322;color:#d29922;border:1px solid #9e6a03'}}
  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
  .callout{border:1.5px solid var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--card));border-radius:10px;padding:14px 16px;font-size:16px;font-weight:600;margin:16px 0;color:var(--fg)}
+ .dexslot{border:1.5px dashed var(--border);background:var(--card);border-radius:10px;padding:18px;margin:12px 0;color:var(--muted)}
  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
  .stat b{display:block;font-size:20px} .stat span{color:var(--muted);font-size:13px}
@@ -259,6 +327,7 @@ const html = `<!doctype html>
  <button class="tabbtn" data-tab="ledger" onclick="showTab('ledger')" data-i18n="tabLedger">Ledger</button>
  <button class="tabbtn" data-tab="reports" onclick="showTab('reports')" data-i18n="tabReports">Reports</button>
  <button class="tabbtn" data-tab="verify" onclick="showTab('verify')" data-i18n="tabVerify">Verify</button>
+ <button class="tabbtn" data-tab="markets" onclick="showTab('markets')" data-i18n="tabMarkets">Markets</button>
  <a class="tabbtn" href="leaderboard.html" data-i18n="tabLeaderboard" style="text-decoration:none">Leaderboard</a>
 </nav>
 <p><span class="badge" data-i18n="${funded ? 'badgeActive' : 'badgeWaiting'}">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
@@ -333,6 +402,9 @@ altering a single share makes verification fail.</p>
 </div>
 
 </section>
+<section class="tabpage" id="tab-markets">
+${marketsHtml}
+</section>
 <p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">${updated}</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
@@ -340,7 +412,7 @@ altering a single share makes verification fail.</p>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
- tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer",
+ tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
  expNetTitle: "Network overview", expTip: "Bitcoin tip", expCounted: "Counted height", expRound: "Current round",
  expWindow: "Claim window (blocks)", expOpen: "open", expClosed: "closed", expStock: "Mine stock (RESET)",
@@ -356,6 +428,16 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  lbTopNote: "Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.",
  lbNotFound: "This address is not in the current miners snapshot.",
  expSourceNote: "Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.",
+ mktNote: "RESET itself is not listed on any centralized exchange, so it has no CEX price. TNK is the token of its underlying network (Trac) and does trade — its live price is below.",
+ mktTnkTitle: "TNK — live price", mktPrice: "TNK price (USD)", mktChange: "24h change", mktVol: "24h volume (USD)", mktMcap: "Market cap (USD)",
+ mktUpdated: "Last updated", mktCgNote: "Source: CoinGecko · refreshes every 30 s",
+ thExchange: "Exchange", thLastPrice: "Last price (USD)", thVolume: "Volume (TNK)",
+ mktNetTitle: "RESET network", mktAddresses: "Addresses in the network",
+ mktSnapNote: "Snapshot data — refreshed about every 10 minutes when this page is regenerated.",
+ dexTitle: "Official DEX · RESET/USDC · TNK/USDC",
+ dexPlaceholder: "Live order-book data from the official DEX node will appear here once the node connection is live.",
+ dexLast: "Last price (USDC)", dexVol24h: "24h volume (USDC)", dexHighLow: "24h high / low (USDC)", dexTrades: "Trades (24h)",
+ dexBid: "Bid", dexAsk: "Ask", dexQty: "Amount", dexUpdated: "DEX data snapshot",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
  poolAddrLabel: "Pool address (send RESET here to join)", copy: "Copy address",
@@ -386,7 +468,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
  footerGen: "Snapshot time", footerNote: "It is a static snapshot — no live polling, no login, no tracking.", dataSource: "Data source" },
 zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
- tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证", tabExplorer: "浏览器",
+ tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证", tabExplorer: "浏览器", tabMarkets: "行情",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
  expNetTitle: "全网概览", expTip: "比特币最新高度", expCounted: "已计数高度", expRound: "当前轮次",
  expWindow: "Claim 窗口（区块）", expOpen: "开放中", expClosed: "已关闭", expStock: "Mine 存量（RESET）",
@@ -402,6 +484,16 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  lbTopNote: "按质押额取前 100 名。完整名单已嵌在本页里——用上方搜索可查任意质押地址的名次。",
  lbNotFound: "该地址不在当前矿工快照名单里。",
  expSourceNote: "数据来源：公开网关 reset.openmayhem.ai，页面生成时抓取的快照。任意地址的实时查询需要跨域代理——那是第二阶段。",
+ mktNote: "RESET 本身未在任何中心化交易所上市，没有 CEX 价格。TNK 是其底层网络（Trac）的代币，有真实交易——下方为其实时行情。",
+ mktTnkTitle: "TNK — 实时行情", mktPrice: "TNK 价格（USD）", mktChange: "24 小时涨跌", mktVol: "24 小时成交量（USD）", mktMcap: "市值（USD）",
+ mktUpdated: "最后更新", mktCgNote: "数据源 CoinGecko · 每 30 秒刷新",
+ thExchange: "交易所", thLastPrice: "最新价（USD）", thVolume: "成交量（TNK）",
+ mktNetTitle: "RESET 网络动态", mktAddresses: "全网地址数",
+ mktSnapNote: "快照数据——页面每次重新生成时更新，约每 10 分钟一次。",
+ dexTitle: "官方 DEX · RESET/USDC · TNK/USDC",
+ dexPlaceholder: "官方 DEX 节点接入完成后，这里将点亮实时盘口数据。",
+ dexLast: "最新价（USDC）", dexVol24h: "24 小时成交量（USDC）", dexHighLow: "24 小时最高 / 最低（USDC）", dexTrades: "24 小时成交笔数",
+ dexBid: "买价", dexAsk: "卖价", dexQty: "数量", dexUpdated: "DEX 数据快照",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
  poolAddrLabel: "池地址（转 RESET 到这里即可入池）", copy: "复制地址",
@@ -446,6 +538,7 @@ function applyLang() {
   document.getElementById('langBtn').textContent = t.langBtn;
   syncThemeBtn();
   const stEl = document.getElementById('snapshotTime'); if (stEl) stEl.textContent = snapshotTimeText();
+  renderTnkStamp();
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
@@ -453,7 +546,7 @@ function applyLang() {
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
 function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
-function showTab(name) { const names = ['overview', 'explorer', 'join', 'ledger', 'reports', 'verify']; if (!names.includes(name)) name = 'overview';
+function showTab(name) { const names = ['overview', 'explorer', 'join', 'ledger', 'reports', 'verify', 'markets']; if (!names.includes(name)) name = 'overview';
   document.querySelectorAll('section.tabpage').forEach(s => { s.style.display = s.id === 'tab-' + name ? '' : 'none'; });
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   try { localStorage.setItem('pool-tab', name); } catch (e) {} try { history.replaceState(null, '', '#' + name); } catch (e) {} }
@@ -478,6 +571,43 @@ function lookup() {
     (pend >= th ? '<p style="color:var(--accent)">' + t.qReady + '</p>' : '');
 }
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+// --- Markets tab: TNK live price, polled client-side from CoinGecko (CORS *).
+// Failures are silent: the last good values stay on screen and the next
+// 30 s cycle retries. Nothing else on this page makes network calls.
+let tnkStamp = '';
+function renderTnkStamp() { const el = document.getElementById('tnkStamp'); if (el) el.textContent = tnkStamp ? (T[lang].mktUpdated + ' ' + tnkStamp + ' · ' + T[lang].mktCgNote) : T[lang].mktCgNote; }
+function tnkNum(x, d) { return x == null || isNaN(x) ? '—' : Number(x).toLocaleString('en-US', { maximumFractionDigits: d == null ? 0 : d }); }
+async function refreshTnk() {
+  try {
+    const rs = await Promise.all([
+      fetch('https://api.coingecko.com/api/v3/simple/price?ids=trac-network&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true'),
+      fetch('https://api.coingecko.com/api/v3/coins/trac-network/tickers') ]);
+    if (!rs[0].ok || !rs[1].ok) return;
+    const pr = await rs[0].json(), tk = await rs[1].json();
+    const d = pr && pr['trac-network']; if (!d) return;
+    document.getElementById('tnkPrice').textContent = '$' + Number(d.usd).toFixed(6);
+    const ch = Number(d.usd_24h_change), chEl = document.getElementById('tnkChange');
+    chEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
+    chEl.style.color = ch >= 0 ? 'var(--accent)' : 'var(--warn)';
+    document.getElementById('tnkVol').textContent = '$' + tnkNum(d.usd_24h_vol);
+    document.getElementById('tnkMcap').textContent = '$' + tnkNum(d.usd_market_cap);
+    const byName = {};
+    for (const t of (tk.tickers || [])) {
+      if (t.target !== 'USDT') continue;
+      const id = (t.market && t.market.identifier) || '';
+      const nm = id === 'gate' ? 'Gate' : (id === 'mxc' || id === 'mexc') ? 'MEXC' : null;
+      if (!nm || byName[nm] || !t.converted_last) continue;
+      byName[nm] = '<tr><td>' + nm + '</td><td>$' + Number(t.converted_last.usd).toFixed(6) + '</td><td>' + tnkNum(t.volume, 2) + '</td></tr>';
+    }
+    const rows = ['MEXC', 'Gate'].map(n => byName[n]).filter(Boolean);
+    if (rows.length) document.getElementById('tnkExBody').innerHTML = rows.join('');
+    const now = new Date(), p = n => String(n).padStart(2, '0');
+    tnkStamp = p(now.getHours()) + ':' + p(now.getMinutes()) + ':' + p(now.getSeconds());
+    renderTnkStamp();
+  } catch (e) { /* keep last values; retry next cycle */ }
+}
+refreshTnk();
+setInterval(refreshTnk, 30000);
 applyLang();
 showTab((location.hash || '').slice(1) || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview');
 </script>
