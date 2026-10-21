@@ -6,7 +6,7 @@
 // - The address lookup therefore reflects the ledger snapshot at generation
 //   time; the page stamps when it was generated. Regenerate after each
 //   settlement / contribution.
-import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, appendFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { formatCoin, totalContributed } from './lib/pool.mjs';
 
 // Root = this script's own directory, so the generator runs anywhere
@@ -96,22 +96,39 @@ else if (gwState && minersAll.length && (Date.now() - accCacheAt < 30 * 60000) &
 const balances = Object.fromEntries(Object.entries(accountsFull).map(([a, j]) => [a, j?.balance ?? null]));
 
 
-// --- Snapshot archive -------------------------------------------------------
-// Every generation with real gateway data also stores its raw snapshot as
-// history/<UTC stamp>.json (network state, the full miners table and every
-// listed address's trimmed account), so the data behind the pages is kept
-// as queryable history instead of being overwritten by the next run. The
-// Actions bot commits these together with the regenerated pages. Skipped
-// when running on the stale-cache fallback (that data is already archived
-// from the run that fetched it).
+// --- Snapshot archive (append-only deltas) ----------------------------------
+// One file per UTC day: history/<YYYY-MM-DD>.jsonl. The day's first run
+// writes a full baseline line; every later run appends ONE line holding the
+// network state plus only the addresses whose record changed since the
+// previous generation (diffed against the gateway cache, which the bot
+// commits together with this file, so the chain stays consistent). Any
+// point-in-time state replays as baseline + deltas. A per-address record is
+// a fixed-order tuple:
+//   [deposit, exiting, strikes, clean, claimed, lastRound, lastAmount,
+//    lastPenalty, balance, exits, claimLevel, lastFair]
+// Skipped entirely on the stale-cache fallback (nothing new was fetched).
 if (!gwStale && gwState) {
   try {
+    const tupleOf = (row, acc) => [String(row[1]), String(row[2]), row[3], row[4], row[5], row[6],
+      String(row[7]), String(row[8] ?? '0'), acc?.balance ?? null, acc?.exits ?? [],
+      acc?.mine?.claim?.q ?? 0, acc?.mine?.last_result?.fair ?? null];
+    const cur = {};
+    for (const r of minersAll) cur[r[0]] = tupleOf(r, accountsFull[r[0]]);
+    const prevAcc = cachePrev.accounts_full ?? {};
+    const prev = {};
+    for (const r of (cachePrev.miners ?? [])) prev[r[0]] = tupleOf(r, prevAcc[r[0]]);
+    const day = new Date().toISOString().slice(0, 10);
+    const file = `${ROOT}/history/${day}.jsonl`;
     mkdirSync(`${ROOT}/history`, { recursive: true });
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
-    writeFileSync(`${ROOT}/history/${stamp}.json`, JSON.stringify({
-      t: new Date().toISOString(), state: gwState, miners_total: minersTotal,
-      miners: minersAll, accounts: accountsFull,
-    }));
+    const t = new Date().toISOString();
+    if (!existsSync(file)) {
+      appendFileSync(file, JSON.stringify({ t, full: 1, state: gwState, miners_total: minersTotal, rec: cur }) + '\n');
+    } else {
+      const ch = {};
+      for (const a of Object.keys(cur)) if (JSON.stringify(cur[a]) !== JSON.stringify(prev[a])) ch[a] = cur[a];
+      const del = Object.keys(prev).filter(a => !(a in cur));
+      appendFileSync(file, JSON.stringify({ t, state: gwState, miners_total: minersTotal, ch, ...(del.length ? { del } : {}) }) + '\n');
+    }
   } catch {}
 }
 
