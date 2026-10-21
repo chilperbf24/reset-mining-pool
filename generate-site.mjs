@@ -12,6 +12,24 @@ import { formatCoin, totalContributed } from './lib/pool.mjs';
 const ROOT = `${process.env.HOME}/workspace/reset-pool`;
 const ledger = JSON.parse(readFileSync(`${ROOT}/state/live-ledger.json`, 'utf8'));
 
+// --- Explorer data: public gateway reads, snapshotted at generation time.
+// The gateway sends no CORS headers, so browsers cannot call it directly;
+// this generator fetches server-side instead and embeds the result. A cache
+// file keeps the page useful if the gateway is unreachable at generation.
+const GW = 'https://reset.openmayhem.ai';
+const CACHE = `${ROOT}/state/gateway-cache.json`;
+async function fetchJSON(url) {
+  try { const r = await fetch(url, { signal: AbortSignal.timeout(20000) }); return r.ok ? await r.json() : null; }
+  catch { return null; }
+}
+const watchlist = existsSync(`${ROOT}/explorer-watch.json`) ? JSON.parse(readFileSync(`${ROOT}/explorer-watch.json`, 'utf8')) : [ledger.pool_address];
+let gwState = await fetchJSON(`${GW}/v1/state`);
+const gwAccounts = {};
+for (const a of watchlist) { const acc = await fetchJSON(`${GW}/v1/account/${a}`); if (acc) gwAccounts[a] = acc; }
+let gwStale = false;
+if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts }, null, 2)); } catch {} }
+else if (existsSync(CACHE)) { const c = JSON.parse(readFileSync(CACHE, 'utf8')); gwState = c.state; Object.assign(gwAccounts, c.accounts); gwStale = true; }
+
 let lastPass = null;
 if (existsSync(`${ROOT}/pool.log`)) {
   for (const line of readFileSync(`${ROOT}/pool.log`, 'utf8').trim().split('\n')) {
@@ -48,6 +66,53 @@ const contributorRows = contributors.length ? contributors.map(([a, c]) => `
 const reportRows = liveReports.length ? liveReports.map(r => `
         <tr><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
   : `<tr><td colspan="4" class="muted" data-i18n="noRounds">No rounds settled yet.</td></tr>`;
+
+const fc = u => { try { return formatCoin(BigInt(u)); } catch { return '—'; } };
+let explorerHtml;
+if (!gwState) {
+  explorerHtml = `<p class="muted" data-i18n="expDown">Gateway unreachable when this page was generated — try again later.</p>`;
+} else {
+  const m = gwState.mine, lr = m.last_result ?? {};
+  const watchRows = watchlist.map(a => {
+    const acc = gwAccounts[a];
+    if (!acc) return `<tr><td class="mono">${esc(a)}</td><td colspan="7" class="muted">—</td></tr>`;
+    const am = acc.mine ?? {};
+    const claimTxt = am.claim ? `level ${am.claim.q}` : '—';
+    const lastTxt = am.last_result ? `#${am.last_result.r}: ${fc(am.last_result.amount)}` : '—';
+    return `<tr><td class="mono">${esc(a)}${a === ledger.pool_address ? ' <span class="badge" data-i18n="expPoolTag">pool</span>' : ''}</td>` +
+      `<td>${fc(acc.balance)}</td><td>${fc(acc.deposit)}</td><td>${claimTxt}</td><td>${fc(am.fair_share_estimate ?? '0')}</td>` +
+      `<td>${am.strikes ?? 0} / ${am.clean ?? 0}</td><td>${lastTxt}</td></tr>`;
+  }).join('');
+  explorerHtml = `
+<h2 data-i18n="expNetTitle">Network overview</h2>
+<div class="grid">
+ <div class="stat"><b><a href="https://mempool.space/block/${esc(gwState.tip.hash)}" target="_blank" rel="noopener">${gwState.tip.height}</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>${gwState.counted}</b><span data-i18n="expCounted">Counted height</span></div>
+ <div class="stat"><b>${m.r}</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>${m.start}–${m.claim_end} <span data-i18n="${m.window_open ? 'expOpen' : 'expClosed'}">${m.window_open ? 'open' : 'closed'}</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
+ <div class="stat"><b>${fc(m.S)}</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>${fc(m.last_guideline)}</b><span data-i18n="expGuideline">Round guideline (RESET)</span></div>
+ <div class="stat"><b>${m.claim_count}</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>${fc(m.claim_deposit)}</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
+</div>
+<h2 data-i18n="expLastTitle">Last settled round</h2>
+<div class="card">
+ <span class="muted">#${lr.r ?? '—'}</span>
+ ${lr.hash ? `<a class="mono" href="https://mempool.space/block/${esc(lr.hash)}" target="_blank" rel="noopener">${esc(lr.hash.slice(0, 20))}…</a>` : ''}
+ <table>
+  <tr><td data-i18n="expClaimsN">Claims</td><td>${lr.claims ?? '—'}</td></tr>
+  <tr><td data-i18n="expDepositTotal">Total deposit (RESET)</td><td>${lr.deposit ? fc(lr.deposit) : '—'}</td></tr>
+  <tr><td data-i18n="expPaid">Paid out (RESET)</td><td>${lr.paid ? fc(lr.paid) : '—'}</td></tr>
+  <tr><td data-i18n="expPenalties">Penalties (RESET)</td><td>${lr.penalties ? fc(lr.penalties) : '—'}</td></tr>
+  <tr><td data-i18n="expStockAfter">Stock after (RESET)</td><td>${lr.stock ? fc(lr.stock) : '—'}</td></tr>
+ </table>
+</div>
+<h2 data-i18n="expWatchTitle">Watched addresses</h2>
+<table><tr><th data-i18n="thContributor">Address</th><th data-i18n="thBalance">Balance</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thClaimNow">Claim this round</th><th data-i18n="thFair">Fair estimate</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thLast">Last result</th></tr>
+${watchRows}
+</table>
+<p class="muted" data-i18n="expSourceNote">Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated${gwStale ? ' (gateway was unreachable — showing the last cached snapshot)' : ''}. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.</p>`;
+}
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -86,6 +151,7 @@ with accounting anyone can recompute.</p>
 <p><span class="badge" data-i18n="${funded ? 'badgeActive' : 'badgeWaiting'}">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
 <nav class="tabs">
  <button class="tabbtn" data-tab="overview" onclick="showTab('overview')" data-i18n="tabOverview">Overview</button>
+ <button class="tabbtn" data-tab="explorer" onclick="showTab('explorer')" data-i18n="tabExplorer">Explorer</button>
  <button class="tabbtn" data-tab="join" onclick="showTab('join')" data-i18n="tabJoin">Join</button>
  <button class="tabbtn" data-tab="ledger" onclick="showTab('ledger')" data-i18n="tabLedger">Ledger</button>
  <button class="tabbtn" data-tab="reports" onclick="showTab('reports')" data-i18n="tabReports">Reports</button>
@@ -114,6 +180,9 @@ with accounting anyone can recompute.</p>
  <div id="qResult" style="margin-top:12px"></div>
 </div>
 
+</section>
+<section class="tabpage" id="tab-explorer">
+${explorerHtml}
 </section>
 <section class="tabpage" id="tab-join">
 <h2 data-i18n="joinTitle">How to join</h2>
@@ -164,8 +233,17 @@ altering a single share makes verification fail.</p>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
- tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify",
+ tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
+ expNetTitle: "Network overview", expTip: "Bitcoin tip", expCounted: "Counted height", expRound: "Current round",
+ expWindow: "Claim window (blocks)", expOpen: "open", expClosed: "closed", expStock: "Mine stock (RESET)",
+ expGuideline: "Round guideline (RESET)", expClaims: "Claims this round", expClaimDeposit: "Claiming deposit (RESET)",
+ expLastTitle: "Last settled round", expClaimsN: "Claims", expDepositTotal: "Total deposit (RESET)",
+ expPaid: "Paid out (RESET)", expPenalties: "Penalties (RESET)", expStockAfter: "Stock after (RESET)",
+ expWatchTitle: "Watched addresses", thBalance: "Balance", thDeposit: "Deposit", thClaimNow: "Claim this round",
+ thFair: "Fair estimate", thStrikes: "Strikes / clean", thLast: "Last result", expPoolTag: "pool",
+ expDown: "Gateway unreachable when this page was generated — try again later.",
+ expSourceNote: "Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
  poolAddrLabel: "Pool address (send RESET here to join)", copy: "Copy address",
@@ -196,8 +274,17 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
  footerGen: "Snapshot time", footerNote: "It is a static snapshot — no live polling, no login, no tracking.", dataSource: "Data source" },
 zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
- tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证",
+ tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证", tabExplorer: "浏览器",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
+ expNetTitle: "全网概览", expTip: "比特币最新高度", expCounted: "已计数高度", expRound: "当前轮次",
+ expWindow: "Claim 窗口（区块）", expOpen: "开放中", expClosed: "已关闭", expStock: "Mine 存量（RESET）",
+ expGuideline: "本轮指导额（RESET）", expClaims: "本轮 claim 数", expClaimDeposit: "本轮锁仓总和（RESET）",
+ expLastTitle: "上一结算轮", expClaimsN: "参与地址数", expDepositTotal: "锁仓总和（RESET）",
+ expPaid: "总发放（RESET）", expPenalties: "罚款（RESET）", expStockAfter: "结算后存量（RESET）",
+ expWatchTitle: "关注地址", thBalance: "余额", thDeposit: "锁仓", thClaimNow: "本轮 claim",
+ thFair: "预计公平份额", thStrikes: "罚分 / 干净轮", thLast: "上轮结果", expPoolTag: "池子",
+ expDown: "生成本页时网关连不上——请稍后再看。",
+ expSourceNote: "数据来源：公开网关 reset.openmayhem.ai，页面生成时抓取的快照。任意地址的实时查询需要跨域代理——那是第二阶段。",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
  poolAddrLabel: "池地址（转 RESET 到这里即可入池）", copy: "复制地址",
@@ -249,7 +336,7 @@ function applyLang() {
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
 function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
-function showTab(name) { const names = ['overview', 'join', 'ledger', 'reports', 'verify']; if (!names.includes(name)) name = 'overview';
+function showTab(name) { const names = ['overview', 'explorer', 'join', 'ledger', 'reports', 'verify']; if (!names.includes(name)) name = 'overview';
   document.querySelectorAll('section.tabpage').forEach(s => { s.style.display = s.id === 'tab-' + name ? '' : 'none'; });
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   try { localStorage.setItem('pool-tab', name); } catch (e) {} try { history.replaceState(null, '', '#' + name); } catch (e) {} }
