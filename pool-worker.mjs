@@ -5,9 +5,10 @@
 // Modes:
 //   (none)          single pass: status -> fingerprint-match any new inflow
 //                   (lib/fpmatch.mjs, shared with the 1-minute fp-match
-//                   service) -> post headers -> auto-lock once the spendable
-//                   balance covers one minimum lock while the pool deposit is
-//                   below 0.1 -> claim at level 1000 when the round window is
+//                   service) -> post headers -> auto-lock sweeping the FULL
+//                   spendable balance whenever it reaches one minimum lock
+//                   (0.1), regardless of the current deposit -> claim at
+//                   level 1000 when the round window is
 //                   open -> record any newly settled round into the ledger
 //                   (accounting only, never a payout) -> check the
 //                   fingerprint-match systemd timer is alive, restart if not
@@ -16,10 +17,11 @@
 //
 // Hard guards (standing policy for this prototype):
 // - claim level never above 1000 (a higher level earns strikes/penalties)
-// - lock is exactly one min_amount (0.1) per pass, only while deposit < 0.1
-//   and the spendable balance covers it (the contract rejects lock moves
-//   smaller than min_amount, so topping up a partial shortfall in one call
-//   is impossible; one full minimum lock is the smallest executable step)
+// - lock sweeps the FULL spendable balance in a single move whenever it
+//   reaches min_amount (0.1), whatever the current deposit — idle balance
+//   never sits out of the Mine (planLock in lib/pool.mjs). The contract
+//   rejects lock moves smaller than min_amount, so a balance below 0.1
+//   simply waits until later inflows accumulate to a lockable amount.
 // - lock/claim outcomes are verified against a fresh status read; an
 //   'unknown' outcome is logged and left for the next pass, never re-sent
 //   blindly in the same pass
@@ -33,7 +35,7 @@ import { Client } from '../reset/signer/node_modules/@modelcontextprotocol/sdk/d
 import { StdioClientTransport } from '../reset/signer/node_modules/@modelcontextprotocol/sdk/dist/esm/client/stdio.js';
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
 import { execFile } from 'node:child_process';
-import { MIN_DEPOSIT, formatCoin, settleRound, totalContributed } from './lib/pool.mjs';
+import { MIN_DEPOSIT, formatCoin, settleRound, totalContributed, planLock } from './lib/pool.mjs';
 import { runFingerprintPass } from './lib/fprun.mjs';
 
 const HOME = process.env.HOME;
@@ -85,20 +87,21 @@ const toUnits = x => BigInt(Math.round(parseFloat(x) * 1e8));
 async function maybeLock(s) {
   const deposit = toUnits(s.deposit);
   const balance = toUnits(s.balance);
-  if (deposit >= MIN_DEPOSIT) return null;                   // already mining
-  // The contract requires every single lock move to be >= min_amount, so the
-  // smallest executable step is one full minimum lock, never more than the
-  // spendable balance. If the balance cannot cover it, stay armed and wait.
-  if (balance < MIN_DEPOSIT) {
-    log({ event: 'lock_skipped', reason: 'balance_below_min_lock', balance: s.balance, deposit: s.deposit });
+  const lockUnits = planLock(balance, deposit);
+  if (lockUnits === 0n) {
+    // Balance cannot cover one minimum lock move yet; stay armed and wait.
+    // (Logged only while the pool itself is below the mining threshold.)
+    if (deposit < MIN_DEPOSIT) {
+      log({ event: 'lock_skipped', reason: 'balance_below_min_lock', balance: s.balance, deposit: s.deposit });
+    }
     return null;
   }
-  const lr = await call('lock', { amount: formatCoin(MIN_DEPOSIT) }, 1);
+  const lr = await call('lock', { amount: formatCoin(lockUnits) }, 1);
   await sleep(15000);
   const s2 = await call('status', {});
-  const rec = { type: 'lock', amount: formatCoin(MIN_DEPOSIT),
+  const rec = { type: 'lock', amount: formatCoin(lockUnits),
     outcome: lr.outcome || (lr.ok ? 'ok' : 'unknown'),
-    verified_deposit: s2.deposit, verified: toUnits(s2.deposit) >= MIN_DEPOSIT };
+    verified_deposit: s2.deposit, verified: toUnits(s2.deposit) >= deposit + lockUnits };
   log({ event: 'lock', ...rec });
   return rec;
 }

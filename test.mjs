@@ -2,10 +2,18 @@
 // Unit checks for the pool accounting core. `node test.mjs`
 import assert from 'node:assert';
 import { emptyState, addContribution, settleRound, snapshot, poolCanClaim, planPayouts,
-  parseCoin, formatCoin, checkConservation, checkEventChain, MIN_DEPOSIT } from './lib/pool.mjs';
+  parseCoin, formatCoin, checkConservation, checkEventChain, MIN_DEPOSIT, planLock } from './lib/pool.mjs';
 
 const POOL = '4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6';
 const A = 'aa'.repeat(32), B = 'bb'.repeat(32);
+
+// lock policy: idle balance >= one minimum lock is swept in FULL, whatever
+// the current deposit; below the minimum nothing can be locked this pass
+assert.equal(planLock(parseCoin('0.15'), 0n), parseCoin('0.15'));            // first lock takes all 0.15
+assert.equal(planLock(parseCoin('0.11'), parseCoin('0.15')), parseCoin('0.11')); // top-up lock takes all 0.11
+assert.equal(planLock(parseCoin('0.099'), 0n), 0n);                          // below one lock move: wait
+assert.equal(planLock(parseCoin('0.10'), 0n), parseCoin('0.10'));            // exactly one minimum lock
+assert.equal(planLock(0n, parseCoin('0.2')), 0n);                            // nothing idle: no lock
 
 // coin parsing is strict and lossless
 assert.equal(parseCoin('0.1'), MIN_DEPOSIT);

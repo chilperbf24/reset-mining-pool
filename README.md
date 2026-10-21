@@ -106,7 +106,7 @@ only in the Experience Shares proposal above):
 | `lib/fpmatch.mjs` | fingerprint math + inflow attribution + unclaimed claims (pure, unit-tested) |
 | `lib/fprun.mjs` | shared matcher runner: state IO + candidate loading, used by both matcher paths |
 | `ledger.mjs` | operator CLI: `init / contribute / settle / payouts / status` over `state/live-ledger.json` |
-| `pool-worker.mjs` | live worker for the pool wallet: status, header posting, fingerprint pass, minimum lock, level-1000 claim, settlement recording, matcher-timer watchdog. **No transfer/unlock/withdraw code path.** |
+| `pool-worker.mjs` | live worker for the pool wallet: status, header posting, fingerprint pass, full-balance lock (idle balance ≥ 0.1 is locked in full in one move; each lock move is at least the 0.1 minimum), level-1000 claim, settlement recording, matcher-timer watchdog. **No transfer/unlock/withdraw code path.** |
 | `fp-match.mjs` | 1-minute fingerprint matcher (systemd timer `reset-pool-fpmatch`): attributes inflows, parks the rest as unclaimed |
 | `claim-unclaimed.mjs` | claim a parked amount with its address alone (fingerprint tail check) |
 | `verify.mjs` | independent report verifier (no shared settlement code) |
