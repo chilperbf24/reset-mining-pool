@@ -170,6 +170,22 @@ const reportRows = liveReports.length ? liveReports.map(r => `
   : `<tr><td colspan="4" class="muted" data-i18n="noRounds">No rounds settled yet.</td></tr>`;
 
 const fc = u => { try { return formatCoin(BigInt(u)); } catch { return '—'; } };
+// On-chain pool figures for the overview cards and the status bar below
+// them. Prefer the gateway account fetched above: it is available on every
+// run, including GitHub Actions, where pool.log (the worker's local log,
+// gitignored) does not exist and lastPass is always null. Fall back to
+// lastPass only when no gateway/cache account is available.
+const poolAcc = gwAccounts[ledger.pool_address] ?? null;
+const toUnits = v => { try { return BigInt(v); } catch { return 0n; } };
+const chainDeposit = poolAcc ? fc(poolAcc.deposit) : (lastPass ? esc(lastPass.deposit) : '—');
+const chainBalance = poolAcc ? fc(poolAcc.balance) : (lastPass ? esc(lastPass.balance) : '—');
+const chainRound = poolAcc ? (gwState?.mine?.r ?? '—') : (lastPass ? esc(lastPass.round) : '—');
+const chainDepositUnits = poolAcc ? toUnits(poolAcc.deposit ?? 0)
+  : (lastPass ? BigInt(Math.round(Number(lastPass.deposit) * 1e8)) : 0n);
+const poolMining = chainDepositUnits >= 10_000_000n;
+const poolStatusHtml = poolMining
+  ? `<div class="poolstatus"><span class="pdot" style="background:var(--accent)"></span><span data-i18n="poolStatusMining" data-dep="${chainDeposit}">Mining — ${chainDeposit} RESET locked</span></div>`
+  : `<div class="poolstatus"><span class="pdot" style="background:var(--warn)"></span><span data-i18n="poolStatusWaiting">Waiting for funding — contributions open</span></div>`;
 let explorerHtml;
 if (!gwState) {
   explorerHtml = `<p class="muted" data-i18n="expDown">Gateway unreachable when this page was generated — try again later.</p>`;
@@ -301,6 +317,8 @@ const html = `<!doctype html>
  .callout{border:1.5px solid var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--card));border-radius:10px;padding:14px 16px;font-size:16px;font-weight:600;margin:16px 0;color:var(--fg)}
  .warnbar{border:1.5px solid var(--warn);border-left:6px solid var(--warn);background:color-mix(in srgb, var(--warn) 14%, var(--card));border-radius:10px;padding:12px 14px;font-size:18px;font-weight:700;line-height:1.45;margin:12px 0 0;color:var(--fg)}
  .warnbar a{color:var(--warn);text-decoration:underline}
+ .poolstatus{display:flex;align-items:center;gap:9px;border:1px solid var(--border);background:var(--card);border-radius:10px;padding:10px 14px;font-weight:600;margin:2px 0 6px}
+ .poolstatus .pdot{width:11px;height:11px;border-radius:50%;flex:none;display:inline-block}
  .dexslot{border:1.5px dashed var(--border);background:var(--card);border-radius:10px;padding:18px;margin:12px 0;color:var(--muted)}
  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
@@ -393,11 +411,12 @@ const html = `<!doctype html>
 <div class="grid">
  <div class="stat"><b>${formatCoin(total)}</b><span data-i18n="statTotal">Total contributed (RESET)</span></div>
  <div class="stat"><b>${contributors.length}</b><span data-i18n="statContributors">Contributors</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.deposit) : '—'}</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.balance) : '—'}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.round) : '—'}</b><span data-i18n="statRound">Current Mine round</span></div>
+ <div class="stat"><b>${chainDeposit}</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
+ <div class="stat"><b>${chainBalance}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
+ <div class="stat"><b>${chainRound}</b><span data-i18n="statRound">Current Mine round</span></div>
  <div class="stat"><b>${ledger.rounds.length}</b><span data-i18n="statSettled">Rounds settled</span></div>
 </div>
+${poolStatusHtml}
 
 <div class="callout"><span data-i18n="expBanner">Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="expBannerLink">See the plan in the Join section below →</a></div>
 
@@ -479,6 +498,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  poolAddrLabel: "Pool address (transfer your exact computed amount here)", poolAddrHint: "To join, never send a round amount — first compute your exact amount", poolAddrHintLink: "with the calculator in the Join section ↓", poolJoinLink: "join via the calculator ↓", copy: "Copy address",
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
+ poolStatusWaiting: "Waiting for funding — contributions open", poolStatusMining: "Mining — {deposit} RESET locked",
  queryTitle: "Check your position",
  queryHint: "Paste your address — the 64-hex RESET form or the trac1 form; both spell the same key and are recognized automatically. The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.",
  queryPh: "Your address — RESET hex or trac1…", queryBtn: "Look up",
@@ -565,6 +585,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  poolAddrLabel: "池地址（把计算器算出的专属金额精确转到这里）", poolAddrHint: "入池切勿直接转整数金额——先算出你的专属金额", poolAddrHintLink: "用下方入池板块的计算器 ↓", poolJoinLink: "用计算器入池 ↓", copy: "复制地址",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
+ poolStatusWaiting: "等待注资 — 正在开放出资", poolStatusMining: "挖矿中 — 已锁仓 {deposit} RESET",
  queryTitle: "查询我的份额",
  queryHint: "粘贴你的地址——64 位十六进制 RESET 格式或 trac1 格式都行，两者是同一把钥匙，页面会自动识别。查询完全在你的浏览器里对本页的公开账本快照进行，不会把地址发送到任何地方。",
  queryPh: "你的地址——RESET 十六进制或 trac1…", queryBtn: "查询",
@@ -629,7 +650,7 @@ function snapshotTimeText() { const d = new Date(SNAPSHOT.snapshot_ms); const p 
   return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC'; }
 function applyLang() {
   const t = T[lang];
-  document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
+  document.querySelectorAll('[data-i18n]').forEach(el => { let v = t[el.dataset.i18n]; if (v != null) { if (el.dataset.dep != null) v = v.split('{deposit}').join(el.dataset.dep); el.innerHTML = v; } });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
   document.getElementById('langBtn').textContent = t.langBtn;
   syncThemeBtn();
