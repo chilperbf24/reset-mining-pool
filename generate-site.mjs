@@ -26,9 +26,28 @@ const watchlist = existsSync(`${ROOT}/explorer-watch.json`) ? JSON.parse(readFil
 let gwState = await fetchJSON(`${GW}/v1/state`);
 const gwAccounts = {};
 for (const a of watchlist) { const acc = await fetchJSON(`${GW}/v1/account/${a}`); if (acc) gwAccounts[a] = acc; }
+// Full miners list for the staking leaderboard: /v1/mine/view is paginated by
+// an `after` cursor. Row: [address, deposit, exiting, strikes, clean,
+// claimed_this_round, last_round, last_amount, last_penalty] (amounts in units).
+let minersAll = [], minersTotal = 0;
+if (gwState) {
+  let after = '';
+  for (let page = 0; page < 20; page++) {
+    const mv = await fetchJSON(`${GW}/v1/mine/view${after ? `?after=${after}` : ''}`);
+    if (!mv) break;
+    minersTotal = mv.total ?? minersTotal;
+    minersAll.push(...(mv.miners ?? []));
+    if (!mv.next) break;
+    after = mv.next;
+  }
+}
 let gwStale = false;
-if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts }, null, 2)); } catch {} }
-else if (existsSync(CACHE)) { const c = JSON.parse(readFileSync(CACHE, 'utf8')); gwState = c.state; Object.assign(gwAccounts, c.accounts); gwStale = true; }
+if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal }, null, 2)); } catch {} }
+else if (existsSync(CACHE)) { const c = JSON.parse(readFileSync(CACHE, 'utf8')); gwState = c.state; Object.assign(gwAccounts, c.accounts); minersAll = c.miners ?? []; minersTotal = c.miners_total ?? minersAll.length; gwStale = true; }
+// Staking leaderboard: deposit > 0, sorted by deposit desc, address as tiebreak.
+const leaders = minersAll.filter(r => Number(r[1]) > 0)
+  .sort((a, b) => Number(b[1]) - Number(a[1]) || (a[0] < b[0] ? -1 : 1));
+const totalStaked = leaders.reduce((s, r) => s + BigInt(r[1]), 0n);
 
 let lastPass = null;
 if (existsSync(`${ROOT}/pool.log`)) {
@@ -57,6 +76,10 @@ const snapshotData = {
   snapshot_ms: Date.now(),
   contributors: Object.fromEntries(contributors.map(([a, c]) => [a, {
     contributed_units: c.contributed, pending_units: c.pending, paid_units: c.paid_total }])),
+  // Leaderboard rows in mine/view order: [address, deposit, exiting, strikes,
+  // clean, claimed_this_round, last_round, last_amount] — amounts in units.
+  leaders: leaders.map(r => [r[0], String(r[1]), String(r[2]), r[3], r[4], r[5], r[6], String(r[7])]),
+  miners_total: minersTotal,
 };
 
 const contributorRows = contributors.length ? contributors.map(([a, c]) => `
@@ -111,6 +134,22 @@ if (!gwState) {
 <table><tr><th data-i18n="thContributor">Address</th><th data-i18n="thBalance">Balance</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thClaimNow">Claim this round</th><th data-i18n="thFair">Fair estimate</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thLast">Last result</th></tr>
 ${watchRows}
 </table>
+<h2 data-i18n="lbTitle">Staking leaderboard</h2>
+<div class="grid">
+ <div class="stat"><b>${minersTotal}</b><span data-i18n="lbMinersN">Addresses listed</span></div>
+ <div class="stat"><b>${leaders.length}</b><span data-i18n="lbStakers">Staking addresses</span></div>
+ <div class="stat"><b>${formatCoin(totalStaked)}</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+</div>
+<div class="card">
+ <p class="muted" data-i18n="lbSearchHint">Search the full leaderboard by address:</p>
+ <input id="lbq" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…">
+ <button onclick="lbLookup()" data-i18n="queryBtn">Look up</button>
+ <div id="lbResult" style="margin-top:12px"></div>
+</div>
+<table><tr><th data-i18n="thRank">#</th><th data-i18n="thContributor">Address</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thExiting">Exiting</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thClaimed">Claimed</th><th data-i18n="thLast">Last result</th></tr>
+${leaders.slice(0, 100).map((r, i) => `<tr><td>${i + 1}</td><td class="mono">${esc(r[0])}${r[0] === ledger.pool_address ? ' <span class="badge" data-i18n="expPoolTag">pool</span>' : ''}</td><td>${fc(String(r[1]))}</td><td>${fc(String(r[2]))}</td><td>${r[3]} / ${r[4]}</td><td>${r[5] ? '✓' : '—'}</td><td>${r[6] ? `#${r[6]}: ${fc(String(r[7]))}` : '—'}</td></tr>`).join('')}
+</table>
+<p class="muted" data-i18n="lbTopNote">Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.</p>
 <p class="muted" data-i18n="expSourceNote">Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated${gwStale ? ' (gateway was unreachable — showing the last cached snapshot)' : ''}. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.</p>`;
 }
 
@@ -243,6 +282,11 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  expWatchTitle: "Watched addresses", thBalance: "Balance", thDeposit: "Deposit", thClaimNow: "Claim this round",
  thFair: "Fair estimate", thStrikes: "Strikes / clean", thLast: "Last result", expPoolTag: "pool",
  expDown: "Gateway unreachable when this page was generated — try again later.",
+ lbTitle: "Staking leaderboard", lbMinersN: "Addresses listed", lbStakers: "Staking addresses",
+ lbTotalStaked: "Total staked (RESET)", lbSearchHint: "Search the full leaderboard by address:",
+ thRank: "#", thExiting: "Exiting", thClaimed: "Claimed", lbRank: "Rank",
+ lbTopNote: "Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.",
+ lbNotFound: "This address has no deposit in the current snapshot — it is not on the staking leaderboard.",
  expSourceNote: "Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
@@ -284,6 +328,11 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  expWatchTitle: "关注地址", thBalance: "余额", thDeposit: "锁仓", thClaimNow: "本轮 claim",
  thFair: "预计公平份额", thStrikes: "罚分 / 干净轮", thLast: "上轮结果", expPoolTag: "池子",
  expDown: "生成本页时网关连不上——请稍后再看。",
+ lbTitle: "质押榜", lbMinersN: "上榜地址数", lbStakers: "质押地址数",
+ lbTotalStaked: "质押总和（RESET）", lbSearchHint: "在完整质押榜里按地址搜索：",
+ thRank: "名次", thExiting: "退出中", thClaimed: "本轮已 claim", lbRank: "名次",
+ lbTopNote: "按质押额取前 100 名。完整名单已嵌在本页里——用上方搜索可查任意质押地址的名次。",
+ lbNotFound: "该地址在当前快照里没有质押——不在质押榜上。",
  expSourceNote: "数据来源：公开网关 reset.openmayhem.ai，页面生成时抓取的快照。任意地址的实时查询需要跨域代理——那是第二阶段。",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
@@ -316,7 +365,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  footerGen: "快照时间", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。", dataSource: "数据来源于" }
 };
 let lang = localStorage.getItem('pool-lang') || 'en'; // first visit always opens in English
-let lastQuery = '';
+let lastQuery = '', lastLbQuery = '';
 function fmt(u) { const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
 function snapshotTimeText() { const d = new Date(SNAPSHOT.snapshot_ms); const p = n => String(n).padStart(2, '0');
   if (lang === 'zh') { const b = new Date(d.getTime() + 8 * 3600000);
@@ -332,6 +381,7 @@ function applyLang() {
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
+  if (lastLbQuery) lbLookup();
 }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
@@ -360,7 +410,23 @@ function lookup() {
     '<div style="margin-top:8px">' + t.qProgress + ' — ' + prog + '%<div class="bar"><i style="width:' + prog + '%"></i></div></div>' +
     (pend >= th ? '<p style="color:var(--accent)">' + t.qReady + '</p>' : '');
 }
+function lbLookup() {
+  const t = T[lang];
+  const addr = document.getElementById('lbq').value.trim().toLowerCase();
+  lastLbQuery = addr;
+  const box = document.getElementById('lbResult');
+  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  const i = (SNAPSHOT.leaders || []).findIndex(r => r[0] === addr);
+  if (i < 0) { box.innerHTML = '<span style="color:var(--warn)">' + t.lbNotFound + '</span>'; return; }
+  const r = SNAPSHOT.leaders[i];
+  box.innerHTML = '<b>' + t.lbRank + ' #' + (i + 1) + '</b> <span class="mono">' + addr + '</span>' +
+    '<table><tr><td>' + t.thDeposit + '</td><td>' + fmt(r[1]) + ' RESET</td></tr>' +
+    '<tr><td>' + t.thExiting + '</td><td>' + fmt(r[2]) + ' RESET</td></tr>' +
+    '<tr><td>' + t.thStrikes + '</td><td>' + r[3] + ' / ' + r[4] + '</td></tr>' +
+    '<tr><td>' + t.thLast + '</td><td>' + (r[6] ? '#' + r[6] + ': ' + fmt(r[7]) + ' RESET' : '—') + '</td></tr></table>';
+}
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+const lbEl = document.getElementById('lbq'); if (lbEl) lbEl.addEventListener('keydown', e => { if (e.key === 'Enter') lbLookup(); });
 applyLang();
 showTab((location.hash || '').slice(1) || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview');
 </script>
