@@ -362,7 +362,7 @@ const html = `<!doctype html>
 
 <div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (transfer your exact computed amount here)</div>
 <div class="mono" id="addr">${esc(ledger.pool_address)}</div>
-<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button><p class="warnbar"><span data-i18n="poolAddrHint">To join, never send a round amount — first compute your exact amount</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="poolAddrHintLink">with the calculator in the Join section ↓</a></p></div>
+<button onclick="copyText(document.getElementById('addr').textContent, this)" data-i18n="copy">Copy address</button><p class="warnbar"><span data-i18n="poolAddrHint">To join, never send a round amount — first compute your exact amount</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="poolAddrHintLink">with the calculator in the Join section ↓</a></p></div>
 
 
 
@@ -533,6 +533,12 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpConverted: "Recognized a TNK-format (trac1) address — automatically converted to its RESET address:",
  fpErrAmt: "The planned amount must be a positive multiple of 0.01 RESET (e.g. 0.01, 0.05, 0.12).",
  fpErrCrypto: "The calculator needs a secure context — open this page over HTTPS.",
+ fpConfirmBtn: "Confirm & Transfer",
+ copyBtn: "Copy", copiedOk: "Copied ✓",
+ fpPanelAddr: "Recipient — pool address", fpPanelAmt: "Exact amount to transfer", fpPanelCmd: "Signer transfer call",
+ fpPanelCheck: "Before you transfer, double-check that the amount's decimal tail matches the one shown here exactly — every digit matters.",
+ fpValidNote: "This amount is valid for 30 minutes (until {time}) — transfer within the window. If no matching transfer arrives in time, the calculation record is deleted automatically; please calculate again.",
+ fpTimeLeft: "Time left", fpExpired: "Expired — please calculate again.",
  expBanner: "Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.",
  expBannerLink: "See the plan in the Join section below →",
  expTitle: "Experience Shares — the proposed newcomer program",
@@ -620,6 +626,12 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpConverted: "已识别 TNK 格式（trac1）地址，已自动换算为 RESET 地址：",
  fpErrAmt: "计划金额必须是 0.01 RESET 的正整数倍（如 0.01、0.05、0.12）。",
  fpErrCrypto: "计算器需要安全上下文——请用 HTTPS 打开本页。",
+ fpConfirmBtn: "确认无误并转账",
+ copyBtn: "复制", copiedOk: "复制成功 ✓",
+ fpPanelAddr: "收款地址（池子）", fpPanelAmt: "应转金额", fpPanelCmd: "签名器转账命令",
+ fpPanelCheck: "转账前请核对：金额的小数尾数必须与此处显示的完全一致，一位都不能差。",
+ fpValidNote: "本金额有效期 30 分钟（至 {time}），请在有效期内转账；超时未到账，该计算记录将自动删除，请重新计算。",
+ fpTimeLeft: "剩余时间", fpExpired: "已过期，请重新计算。",
  expBanner: "新计划（提议中）：<b>体验份额</b>——官方团队受邀入池质押、只捐出收益，新人就能以记在自己地址名下的份额开始挖矿。",
  expBannerLink: "去下方入池板块看计划 →",
  expTitle: "体验份额计划——给新人的提议",
@@ -745,6 +757,32 @@ document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'E
 // the calculation or what the visitor sees.
 let fpUsed = false;
 const fpReported = new Set();
+// Shared clipboard helper (transfer panel + overview pool card):
+// clipboard API first, execCommand fallback; the clicked button shows
+// the "Copied ✓" feedback for ~1.5 s, then its own label comes back.
+function copyText(txt, btn) {
+  const done = () => {
+    if (!btn) return;
+    const old = btn.textContent;
+    btn.textContent = T[lang].copiedOk;
+    setTimeout(() => { btn.textContent = btn.dataset && btn.dataset.i18n ? (T[lang][btn.dataset.i18n] || old) : old; }, 1500);
+  };
+  const fallback = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta); done();
+    } catch (e) {}
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(fallback);
+  else fallback();
+}
+// 30-minute validity of a computed amount (mirrors the registry TTL).
+// The deadline is pinned to the (address, planned) pair, so a language
+// switch — which re-runs fpCalc — never extends it.
+let fpTimer = null, fpDeadline = 0, fpDeadlineKey = '';
+function fpStopTimer() { if (fpTimer) { clearInterval(fpTimer); fpTimer = null; } }
 function reportCalc(rec) {
   try {
     const key = JSON.stringify(rec);
@@ -757,6 +795,7 @@ function reportCalc(rec) {
 function fpFmt(u) { return (u / 100000000n).toString() + '.' + (u % 100000000n).toString().padStart(8, '0'); }
 async function fpCalc() {
   fpUsed = true;
+  fpStopTimer();
   const t = T[lang];
   const box = document.getElementById('fpResult');
   const rawAddr = document.getElementById('fpAddr').value.trim();
@@ -777,11 +816,52 @@ async function fpCalc() {
     fp_units: fp.toString(), exact_units: send.toString(), status: 'ok' });
   const convNote = /^trac1/i.test(rawAddr)
     ? '<div style="margin-bottom:8px">' + t.fpConverted + ' <span class="mono">' + addr + '</span></div>' : '';
+  // Pin the 30-minute deadline to this (address, planned) pair.
+  const dkey = addr + '|' + planned.toString();
+  if (dkey !== fpDeadlineKey) { fpDeadlineKey = dkey; fpDeadline = Date.now() + 30 * 60 * 1000; }
+  const p2 = n => String(n).padStart(2, '0');
+  const until = new Date(fpDeadline);
+  const untilText = p2(until.getHours()) + ':' + p2(until.getMinutes());
+  // The signer transfer call, prefilled — the panel only ASSEMBLES the
+  // information; the visitor still runs it in their own signer.
+  const cmd = 'transfer { "to": "' + SNAPSHOT.pool_address + '", "amount": "' + fpFmt(send) + '" }';
   box.innerHTML = convNote + '<div class="muted">' + t.fpSendLabel + '</div>' +
     '<div class="mono" style="font-size:24px;font-weight:700;margin:4px 0">' + fpFmt(send) + ' RESET</div>' +
     '<div class="mono" style="margin-bottom:6px">' + SNAPSHOT.pool_address + '</div>' +
-    '<button id="fpCopyBtn">' + t.copy + '</button> <span class="muted">' + t.fpTailNote + '</span>';
-  document.getElementById('fpCopyBtn').addEventListener('click', () => navigator.clipboard.writeText(fpFmt(send)));
+    '<button id="fpCopyBtn">' + t.copy + '</button> <span class="muted">' + t.fpTailNote + '</span>' +
+    '<div id="fpValidLine" style="margin-top:10px"><span class="muted">' + t.fpValidNote.replace('{time}', untilText) + '</span> <span class="mono" id="fpCountdown"></span></div>' +
+    '<div style="margin-top:10px"><button id="fpConfirmBtn" style="font-size:16px;font-weight:700;padding:8px 18px">' + t.fpConfirmBtn + '</button></div>' +
+    '<div id="fpPanel" style="display:none;margin-top:12px">' +
+      '<div class="muted">' + t.fpPanelAddr + '</div>' +
+      '<div><span class="mono">' + SNAPSHOT.pool_address + '</span> <button class="fpCopyX" data-copy="' + SNAPSHOT.pool_address + '">' + t.copyBtn + '</button></div>' +
+      '<div class="muted" style="margin-top:8px">' + t.fpPanelAmt + '</div>' +
+      '<div><span class="mono" style="font-size:20px;font-weight:700">' + fpFmt(send) + '</span> <button class="fpCopyX" data-copy="' + fpFmt(send) + '">' + t.copyBtn + '</button></div>' +
+      '<div class="muted" style="margin-top:8px">' + t.fpPanelCmd + '</div>' +
+      '<div class="mono" style="word-break:break-all">' + cmd + '</div>' +
+      '<div style="margin-top:8px;color:var(--warn)">' + t.fpPanelCheck + '</div>' +
+    '</div>';
+  document.getElementById('fpCopyBtn').addEventListener('click', ev => copyText(fpFmt(send), ev.currentTarget));
+  document.getElementById('fpConfirmBtn').addEventListener('click', () => {
+    const p = document.getElementById('fpPanel');
+    if (p) p.style.display = p.style.display === 'none' ? '' : 'none';
+  });
+  box.querySelectorAll('.fpCopyX').forEach(b => b.addEventListener('click', () => copyText(b.dataset.copy, b)));
+  const cd = document.getElementById('fpCountdown');
+  const tick = () => {
+    const left = fpDeadline - Date.now();
+    if (left <= 0) {
+      fpStopTimer();
+      const c = document.getElementById('fpConfirmBtn'); if (c) c.style.display = 'none';
+      const p = document.getElementById('fpPanel'); if (p) p.style.display = 'none';
+      const h = document.getElementById('fpValidLine');
+      if (h) h.innerHTML = '<span style="color:var(--warn)">' + t.fpExpired + '</span>';
+      return;
+    }
+    const s = Math.ceil(left / 1000);
+    if (cd) cd.textContent = t.fpTimeLeft + ' ' + p2(Math.floor(s / 60)) + ':' + p2(s % 60);
+  };
+  tick();
+  fpTimer = setInterval(tick, 1000);
 }
 document.getElementById('fpAddr').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
 document.getElementById('fpAmt').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });

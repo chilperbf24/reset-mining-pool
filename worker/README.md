@@ -31,7 +31,28 @@ A row in this registry must never by itself move money or ledger entries.
 |---|---|---|
 | `POST /calc` | public | Body `{address, normalized?, planned_units, fp_units, exact_units, status}` with `status` ∈ `ok \| blocked_pool \| invalid`. The Worker re-normalizes the address (64-hex or trac1) and **recomputes the fingerprint server-side**; an `ok` report whose numbers disagree (fp mismatch, `exact ≠ planned + fp`, planned not a 0.01 multiple) is rejected `400`. Per-IP rate limit: 30/min (D1-counted). |
 | `GET /lookup?tail=\|?address=\|?amount=` | header `X-Registry-Key` | All records (every kind) matching any given filter, JSON. `401` without the key. This is the operator's reconciliation view — and what `fp-match` consults before parking an inflow as unclaimed. |
+| `POST /fulfill` | header `X-Registry-Key` | Body `{tail?, address?}` (at least one). Marks matching `calc` records (still inside their TTL) `status='fulfilled'` — the matcher calls this when an inflow lands and is credited, so the record survives the sweep as the "calculated → arrived" trail. Returns `{ ok, updated }`. |
+| `POST /sweep` | header `X-Registry-Key` | Deletes every expired calc record (see TTL below), returns `{ ok, deleted }`. The same deletion also runs opportunistically at the top of every `POST /calc`. |
 | `GET /health` | public | `{ ok: true, records: <total count> }` — count only, no detail. |
+
+## Calc-record TTL: 30 minutes
+
+A `kind='calc'` row is a visitor's stated **intention** to transfer, so
+it expires: **30 minutes** after filing, an unfulfilled calc record is
+deleted by the sweep (`POST /sweep`, called once per matcher pass, and
+opportunistically on every `POST /calc`). Two exemptions:
+
+* records the matcher marked **`fulfilled`** (via `POST /fulfill`) when
+  their inflow landed — kept as the audit trail;
+* the historical kinds — **`import` / `auto_match` / `unclaimed` never
+  expire**: those are facts, not intentions.
+
+Deleting a calc row loses nothing but a stale clue: contribution
+attribution never reads this table (fingerprint rules alone decide), so
+an inflow that arrives *after* its calc record expired is still
+matched and credited exactly as before. The calculator page mirrors
+the window for the visitor: a live countdown, an "expired" state at
+zero, and the transfer panel hidden once the window closes.
 
 Schema: `schema.sql` (table `records`). Seed history: `backfill.sql` /
 `seed.jsonl`, generated from the live books by `gen-backfill.mjs`
@@ -55,11 +76,19 @@ Live since 2026-10-21:
 - **Clients wired:** the site calculator (`generate-site.mjs`
   `REGISTRY_ENDPOINT`) and the local fp-match service both point at the
   live Worker.
+- **Calc TTL live:** `/fulfill` + `/sweep` deployed 2026-10-21 (Worker
+  version `6b58c3d1-d376-48e4-a547-e88dc758cc9d`) and smoke-tested
+  against the live database (an artificially aged unfulfilled calc was
+  swept, a fulfilled one kept, the registry restored to exactly the 4
+  seed records). The matcher now fulfils calc records on every credit
+  (automatic match or successful claim) and sweeps once per pass. The
+  calculator shows the same 30-minute window as a countdown and hides
+  its transfer panel on expiry.
 
 ## Local test (no Cloudflare account needed)
 
 ```bash
-node worker/test-local.mjs   # mock-D1 harness: 24 checks, POST/lookup/backfill/rejections
+node worker/test-local.mjs   # mock-D1 harness: 32 checks, POST/lookup/backfill/rejections + fulfill/sweep TTL
 node worker/gen-backfill.mjs # regenerate backfill.sql + seed.jsonl from state/*.json
 ```
 
@@ -113,7 +142,10 @@ curl -H "X-Registry-Key: <key>" "https://reset-pool-registry.<you>.workers.dev/l
    ```
    With these set, each new unclaimed entry's note gains a
    `registry has calc for <address> at <ts>` lead when the registry has
-   one; unset/unreachable changes nothing (silent fallback).
+   one; every credit (automatic match or successful claim) marks its
+   calc record `fulfilled` via `POST /fulfill`, and each pass calls
+   `POST /sweep` once to clear expired intentions. Unset/unreachable
+   changes nothing (silent fallback).
 
 ## Files
 

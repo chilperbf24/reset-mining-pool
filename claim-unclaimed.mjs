@@ -12,7 +12,7 @@
 // it can never race the 1-minute matcher or the pool worker.
 import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { PATHS, loadStates } from './lib/fprun.mjs';
+import { PATHS, loadStates, registryFulfill } from './lib/fprun.mjs';
 import { claimEntry, splitTail } from './lib/fpmatch.mjs';
 import { formatCoin } from './lib/pool.mjs';
 
@@ -38,8 +38,11 @@ try {
   const entry = claimEntry({ unclaimed: states.unclaimed, ledger: states.ledger }, ref, address);
   writeFileSync(PATHS.unclaimed, JSON.stringify(states.unclaimed, null, 2));
   writeFileSync(PATHS.ledger, JSON.stringify(states.ledger, null, 2));
+  // Registry bookkeeping (best-effort, env-gated): a landed claim marks
+  // the filer's calc record fulfilled, exempting it from the TTL sweep.
+  const fulfilled = await registryFulfill({ tail: entry.tail_units, address: entry.claimed_by });
   console.log(JSON.stringify({ ok: true, claimed: { entry_id: entry.id, amount: formatCoin(BigInt(entry.amount_units)),
-    tail_units: entry.tail_units, address: entry.claimed_by } }));
+    tail_units: entry.tail_units, address: entry.claimed_by }, registry_fulfilled: fulfilled }));
 } catch (e) {
   console.log(JSON.stringify({ ok: false, error: String((e && e.message) || e) }));
   process.exit(1);

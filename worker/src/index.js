@@ -23,7 +23,19 @@
 // Endpoints:
 //   POST /calc    public, self-validating (address<->fingerprint re-check)
 //   GET  /lookup  operator only (header X-Registry-Key == REGISTRY_KEY secret)
+//   POST /fulfill operator only: mark calc records (by tail and/or
+//                 address) as fulfilled when their inflow has landed
+//   POST /sweep   operator only: delete expired calc records (TTL below)
 //   GET  /health  public: { ok, records } — count only, never any detail
+//
+// Calc-record TTL: a kind='calc' row is a visitor's stated INTENT to
+// transfer. If no matching inflow fulfils it within 30 minutes it is
+// deleted (POST /sweep, plus opportunistically on every POST /calc).
+// Rows the matcher marked status='fulfilled' (via POST /fulfill, when
+// the inflow landed and was credited) are exempt, and import /
+// auto_match / unclaimed rows NEVER expire — those are historical
+// facts, not intentions. Deleting a calc row loses nothing but a stale
+// clue: attribution never reads this table (see the safety line above).
 //
 // This file is self-contained on purpose (no repo imports): the address
 // normalize + fingerprint code below MIRRORS lib/fpmatch.mjs exactly —
@@ -122,6 +134,7 @@ const MAX_FIELD = 256;                    // any single string field
 const MAX_PLANNED = 10n ** 14n;           // 1,000,000 RESET — generous ceiling
 const PLANNED_STEP = 1_000_000n;          // planned amounts are 0.01 multiples
 const RATE_LIMIT = 30;                    // POSTs per IP per minute
+const CALC_TTL_MS = 30 * 60 * 1000;       // calc records expire 30 min after filing
 
 // Parse a units field: decimal-integer string (or safe integer), or null.
 // Returns BigInt, or null when absent (optional fields), or NaN-marker
@@ -141,6 +154,21 @@ function keyMatches(given, expected) {
   return diff === 0;
 }
 
+// ------------------------------------------------------------ calc TTL
+// ts values are ISO-8601 UTC strings in one fixed format, so a plain
+// string comparison against an ISO cutoff is a correct time comparison.
+const calcCutoff = () => new Date(Date.now() - CALC_TTL_MS).toISOString();
+
+// Delete expired calc intentions (see the TTL note in the header).
+// ONLY kind='calc' rows go; fulfilled ones stay, and the historical
+// kinds (import / auto_match / unclaimed) are never touched.
+async function sweepExpiredCalcs(env) {
+  const r = await env.REGISTRY_DB.prepare(
+    `DELETE FROM records WHERE kind = 'calc' AND status <> 'fulfilled' AND ts < ?`)
+    .bind(calcCutoff()).run();
+  return r?.meta?.changes ?? 0;
+}
+
 async function insertRecord(env, rec) {
   const r = await env.REGISTRY_DB.prepare(
     `INSERT INTO records (ts, kind, address_hex, planned_units, fp_units, exact_units, status, source, note, ip_hash)
@@ -153,6 +181,10 @@ async function insertRecord(env, rec) {
 
 // ---------------------------------------------------------------- routes
 async function postCalc(request, env) {
+  // Opportunistic TTL cleanup: filing a new calculation also clears
+  // expired intentions. Best-effort — a sweep failure never affects
+  // the filing itself.
+  try { await sweepExpiredCalcs(env); } catch {}
   let body;
   try { body = await request.json(); }
   catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
@@ -281,6 +313,55 @@ async function getLookup(request, env, url) {
   return json({ ok: true, query, count: records.length, records });
 }
 
+// POST /fulfill {tail?, address?} — operator only. The matcher calls
+// this when an inflow has landed and been credited (automatic match or
+// a successful unclaimed claim): the matching calc records (still
+// inside their TTL) are marked status='fulfilled' so the sweep keeps
+// them as the audit trail of "calculated -> arrived". Marking is pure
+// bookkeeping — attribution already happened on fingerprint rules.
+async function postFulfill(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  const tailRaw = body && body.tail != null ? String(body.tail) : null;
+  const addrRaw = body && typeof body.address === 'string' ? body.address : null;
+  if (tailRaw === null && !addrRaw) {
+    return json({ ok: false, error: 'give tail or address' }, 400);
+  }
+  const conds = [`kind = 'calc'`, `status <> 'fulfilled'`, `ts >= ?`];
+  const binds = [calcCutoff()];
+  if (tailRaw !== null) {
+    if (!/^[0-9]{1,6}$/.test(tailRaw) || Number(tailRaw) > 999999) {
+      return json({ ok: false, error: 'tail must be 0..999999' }, 400);
+    }
+    conds.push('fp_units = ?');
+    binds.push(String(Number(tailRaw)));
+  }
+  if (addrRaw) {
+    const a = normalizeAddress(addrRaw);
+    if (!a) return json({ ok: false, error: 'address not parseable as RESET hex or trac1' }, 400);
+    conds.push('address_hex = ?');
+    binds.push(a);
+  }
+  const r = await env.REGISTRY_DB.prepare(
+    `UPDATE records SET status = 'fulfilled' WHERE ${conds.join(' AND ')}`)
+    .bind(...binds).run();
+  return json({ ok: true, updated: r?.meta?.changes ?? 0 });
+}
+
+// POST /sweep — operator only. Deletes every expired calc intention
+// and reports how many went. Same deletion POST /calc runs
+// opportunistically on entry.
+async function postSweep(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  return json({ ok: true, deleted: await sweepExpiredCalcs(env) });
+}
+
 async function getHealth(env) {
   const row = await env.REGISTRY_DB.prepare('SELECT COUNT(*) AS n FROM records').first();
   return json({ ok: true, records: Number(row?.n ?? 0) });
@@ -293,6 +374,8 @@ export default {
       const url = new URL(request.url);
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
       if (url.pathname === '/calc' && request.method === 'POST') return await postCalc(request, env);
+      if (url.pathname === '/fulfill' && request.method === 'POST') return await postFulfill(request, env);
+      if (url.pathname === '/sweep' && request.method === 'POST') return await postSweep(request, env);
       if (url.pathname === '/lookup' && request.method === 'GET') return await getLookup(request, env, url);
       if (url.pathname === '/health' && request.method === 'GET') return await getHealth(env);
       return json({ ok: false, error: 'not found' }, 404);

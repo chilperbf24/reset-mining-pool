@@ -10,26 +10,56 @@ import worker from './src/index.js';
 import { encodeTracAddress, fingerprint } from '../lib/fpmatch.mjs';
 
 // ------------------------------------------------------------- mock D1
-// Supports exactly: INSERT INTO records (cols) VALUES (?,...),
-// SELECT COUNT(*) [WHERE ip_hash = ? AND ts >= ?],
-// SELECT * FROM records WHERE <col> = ? ORDER BY ts, id.
+// Supports exactly the SQL shapes the Worker issues: INSERT INTO
+// records (cols) VALUES (?,...), DELETE / UPDATE ... WHERE <conds>,
+// SELECT COUNT(*) [WHERE <conds>], SELECT * ... WHERE <col> = ?.
+// <conds> are AND-joined atoms: col = ?, col >= ?, col < ?,
+// col = 'lit', col <> 'lit' — '?' params are consumed in order.
+function condPredicate(where, params) {
+  let pi = 0;
+  const tests = where.split(/\s+AND\s+/i).map(raw => {
+    const atom = raw.trim();
+    let m;
+    if ((m = atom.match(/^(\w+) = \?$/))) { const c = m[1], v = params[pi++]; return r => r[c] === v; }
+    if ((m = atom.match(/^(\w+) >= \?$/))) { const c = m[1], v = params[pi++]; return r => r[c] >= v; }
+    if ((m = atom.match(/^(\w+) < \?$/))) { const c = m[1], v = params[pi++]; return r => r[c] < v; }
+    if ((m = atom.match(/^(\w+) <> '([^']*)'$/))) { const c = m[1], v = m[2]; return r => r[c] !== v; }
+    if ((m = atom.match(/^(\w+) = '([^']*)'$/))) { const c = m[1], v = m[2]; return r => r[c] === v; }
+    throw new Error(`mock: unsupported condition atom: ${atom}`);
+  });
+  return r => tests.every(t => t(r));
+}
 class MockStmt {
   constructor(db, sql) { this.db = db; this.sql = sql; this.params = []; }
   bind(...p) { this.params = p; return this; }
   async run() {
-    const m = this.sql.match(/INSERT INTO records \(([^)]+)\)\s+VALUES \(([^)]+)\)/);
-    assert(m, `mock: unsupported run SQL: ${this.sql}`);
-    const cols = m[1].split(',').map(s => s.trim());
-    const row = { id: this.db.nextId++ };
-    cols.forEach((c, i) => { row[c] = this.params[i] ?? null; });
-    this.db.rows.push(row);
-    return { meta: { last_row_id: row.id } };
+    let m;
+    if ((m = this.sql.match(/INSERT INTO records \(([^)]+)\)\s+VALUES \(([^)]+)\)/))) {
+      const cols = m[1].split(',').map(s => s.trim());
+      const row = { id: this.db.nextId++ };
+      cols.forEach((c, i) => { row[c] = this.params[i] ?? null; });
+      this.db.rows.push(row);
+      return { meta: { last_row_id: row.id } };
+    }
+    if ((m = this.sql.match(/^DELETE FROM records WHERE (.+)$/s))) {
+      const pred = condPredicate(m[1], this.params);
+      const before = this.db.rows.length;
+      this.db.rows = this.db.rows.filter(r => !pred(r));
+      return { meta: { changes: before - this.db.rows.length } };
+    }
+    if ((m = this.sql.match(/^UPDATE records SET status = 'fulfilled' WHERE (.+)$/s))) {
+      const pred = condPredicate(m[1], this.params);
+      let changes = 0;
+      for (const r of this.db.rows) if (pred(r)) { r.status = 'fulfilled'; changes++; }
+      return { meta: { changes } };
+    }
+    assert.fail(`mock: unsupported run SQL: ${this.sql}`);
   }
   async first() {
-    const m = this.sql.match(/SELECT COUNT\(\*\) AS n FROM records(?: WHERE ip_hash = \? AND ts >= \?)?/);
+    const m = this.sql.match(/SELECT COUNT\(\*\) AS n FROM records(?: WHERE (.+))?$/s);
     assert(m, `mock: unsupported first SQL: ${this.sql}`);
     let rows = this.db.rows;
-    if (this.params.length === 2) rows = rows.filter(r => r.ip_hash === this.params[0] && r.ts >= this.params[1]);
+    if (m[1]) rows = rows.filter(condPredicate(m[1], this.params));
     return { n: rows.length };
   }
   async all() {
@@ -172,6 +202,58 @@ r = await j(await call('POST', '/calc', { body: {
 assert.equal(r.status, 400); ok('POST /calc with non-0.01-multiple planned -> 400 rejected');
 r = await j(await call('POST', '/calc', { body: { address: A, status: 'ok' } }));
 assert.equal(r.status, 400); ok('POST /calc ok without amounts -> 400 rejected');
+
+// --- calc TTL: 30-minute expiry; fulfilled + historical facts exempt
+const oldTs = new Date(Date.now() - 31 * 60 * 1000).toISOString();
+const C1 = 'cc'.repeat(32), C2 = 'dd'.repeat(32), C3 = 'ee'.repeat(32), C4 = 'ff'.repeat(32);
+db.seed([
+  { ts: oldTs, kind: 'calc', address_hex: C1, planned_units: '1000000', fp_units: '111111', exact_units: '1111111', status: 'ok', source: 'calculator' },
+  { ts: oldTs, kind: 'calc', address_hex: C2, planned_units: '1000000', fp_units: '222222', exact_units: '1222222', status: 'fulfilled', source: 'calculator' },
+  { ts: oldTs, kind: 'import', address_hex: C3, planned_units: null, fp_units: '333333', exact_units: '1000000', status: 'credited', source: 'operator' },
+  { ts: oldTs, kind: 'unclaimed', address_hex: null, planned_units: null, fp_units: '444444', exact_units: '1444444', status: 'open', source: 'matcher' },
+]);
+r = await j(await call('POST', '/sweep'));
+assert.equal(r.status, 401); ok('sweep without operator key -> 401');
+r = await j(await call('POST', '/sweep', { key: KEY }));
+assert.equal(r.status, 200); assert.equal(r.body.deleted, 1, JSON.stringify(r.body));
+assert(!db.rows.some(x => x.address_hex === C1));
+assert(db.rows.some(x => x.address_hex === C2 && x.status === 'fulfilled'));
+assert(db.rows.some(x => x.kind === 'import' && x.address_hex === C3));
+assert(db.rows.some(x => x.kind === 'unclaimed' && x.fp_units === '444444'));
+ok('sweep deletes only the expired unfulfilled calc; fulfilled/import/unclaimed survive');
+
+// fulfill by address: file a fresh calc for B, mark it, age it, sweep keeps it
+const fpB = fingerprint(B);
+r = await j(await call('POST', '/calc', { body: { address: B, planned_units: '1000000',
+  fp_units: String(fpB), exact_units: String(1000000 + fpB), status: 'ok' } }));
+assert.equal(r.status, 201, JSON.stringify(r.body));
+r = await j(await call('POST', '/fulfill', { body: { address: B } }));
+assert.equal(r.status, 401); ok('fulfill without operator key -> 401');
+r = await j(await call('POST', '/fulfill', { key: KEY, body: { address: B } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 1, JSON.stringify(r.body));
+const rowB = db.rows.find(x => x.kind === 'calc' && x.address_hex === B);
+assert.equal(rowB.status, 'fulfilled');
+rowB.ts = oldTs; // age it past the TTL artificially
+r = await j(await call('POST', '/sweep', { key: KEY }));
+assert(db.rows.includes(rowB));
+ok('fulfill by address marks the calc; an aged fulfilled record survives sweep');
+
+// fulfill by tail (marks the happy-path calcs filed for A earlier)
+r = await j(await call('POST', '/fulfill', { key: KEY, body: { tail: String(fpA) } }));
+assert.equal(r.status, 200); assert(r.body.updated >= 1, JSON.stringify(r.body));
+assert(db.rows.some(x => x.kind === 'calc' && x.address_hex === A && x.status === 'fulfilled'));
+ok('fulfill by tail marks matching calc records');
+r = await j(await call('POST', '/fulfill', { key: KEY, body: {} }));
+assert.equal(r.status, 400); ok('fulfill with neither tail nor address -> 400');
+r = await j(await call('POST', '/fulfill', { key: KEY, body: { address: 'junk' } }));
+assert.equal(r.status, 400); ok('fulfill with unparseable address -> 400');
+
+// opportunistic sweep: filing any new calc clears expired intentions
+db.seed([{ ts: oldTs, kind: 'calc', address_hex: C4, planned_units: '1000000', fp_units: '555555', exact_units: '1555555', status: 'ok', source: 'calculator' }]);
+r = await j(await call('POST', '/calc', { body: { address: 'junk-opp', status: 'invalid' } }));
+assert.equal(r.status, 201);
+assert(!db.rows.some(x => x.address_hex === C4));
+ok('POST /calc opportunistically sweeps expired calc records');
 
 // --- rate limit: 30/min per IP, the 31st is refused
 const ip = '203.0.113.99';
