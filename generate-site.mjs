@@ -231,6 +231,7 @@ const html = `<!doctype html>
  .muted{color:var(--muted)} .mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all}
  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;background:${funded ? '#1a7f3722;color:#3fb950;border:1px solid #1a7f37' : '#9e6a0322;color:#d29922;border:1px solid #9e6a03'}}
  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
+ .callout{border:1.5px solid var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--card));border-radius:10px;padding:14px 16px;font-size:16px;font-weight:600;margin:16px 0;color:var(--fg)}
  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
  .stat b{display:block;font-size:20px} .stat span{color:var(--muted);font-size:13px}
@@ -250,11 +251,7 @@ const html = `<!doctype html>
 </style></head><body>
 <div class="topbar"><div>
 <h1>RESET Mining Pool</h1>
-<p class="muted" data-i18n="intro">Mine together below the 0.1 minimum. Small holders fund one pool address;
-the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata —
-with accounting anyone can recompute.</p>
 </div><div class="topbtns"><button id="themeBtn" onclick="toggleTheme()">☀️</button><button id="langBtn" onclick="toggleLang()">中文</button></div></div>
-<p><span class="badge" data-i18n="${funded ? 'badgeActive' : 'badgeWaiting'}">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
 <nav class="tabs">
  <button class="tabbtn" data-tab="overview" onclick="showTab('overview')" data-i18n="tabOverview">Overview</button>
  <button class="tabbtn" data-tab="explorer" onclick="showTab('explorer')" data-i18n="tabExplorer">Explorer</button>
@@ -264,6 +261,7 @@ with accounting anyone can recompute.</p>
  <button class="tabbtn" data-tab="verify" onclick="showTab('verify')" data-i18n="tabVerify">Verify</button>
  <a class="tabbtn" href="leaderboard.html" data-i18n="tabLeaderboard" style="text-decoration:none">Leaderboard</a>
 </nav>
+<p><span class="badge" data-i18n="${funded ? 'badgeActive' : 'badgeWaiting'}">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
 <section class="tabpage" id="tab-overview">
 
 <div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (send RESET here to join)</div>
@@ -278,6 +276,8 @@ with accounting anyone can recompute.</p>
  <div class="stat"><b>${lastPass ? esc(lastPass.round) : '—'}</b><span data-i18n="statRound">Current Mine round</span></div>
  <div class="stat"><b>${ledger.rounds.length}</b><span data-i18n="statSettled">Rounds settled</span></div>
 </div>
+
+<div class="callout" data-i18n="intro">Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.</div>
 
 <h2 data-i18n="queryTitle">Check your position</h2>
 <div class="card">
