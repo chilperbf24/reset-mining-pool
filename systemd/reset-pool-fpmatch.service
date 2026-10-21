@@ -1,0 +1,11 @@
+[Unit]
+Description=RESET pool 1-minute fingerprint matcher (credits inflows, then publishes ledger state)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+TimeoutStartSec=300
+WorkingDirectory=/home/hatch/workspace/reset-pool
+EnvironmentFile=-/etc/systemd/system/reset-pool-fpmatch.env
+ExecStart=/usr/bin/flock -n /home/hatch/workspace/reset-pool/.worker.lock /usr/bin/node /home/hatch/workspace/reset-pool/fp-match.mjs
