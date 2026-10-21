@@ -38,6 +38,38 @@ operator's key controls the funds. Transparency makes theft *detectable and
 attributable*, not impossible. Join only with that understood. This is an
 experiment, not an investment; no returns are promised.
 
+## Experience shares (proposed)
+
+Status: **proposed to the Trac-Systems team — applications are not open
+yet.** Proposal: https://github.com/Trac-Systems/reset/issues/3
+
+The team is invited to stake in this pool like any other member. The yield
+from the team's stake would then be allocated to newcomers as
+mining-experience shares:
+
+1. **Apply with a GitHub account.** Claims are made from the claimant's own
+   authenticated GitHub account, so identity can't be spoofed; each account
+   is checked automatically for account age and real activity. One claim
+   per GitHub account, ever.
+2. **Register a RESET address.** The applicant registers the address the
+   experience shares belong to.
+3. **The yield is credited in the pool, under that address** — recorded on
+   the public ledger from the first round. The allocation never leaves the
+   pool's accounting; no funds pass through anyone's hands.
+4. **It's the newcomer's.** Each round they earn pro-rata on top of it, and
+   they can either withdraw their earnings under the pool's normal payout
+   rules, or keep them in and compound their stake.
+
+Anti-Sybil layers beyond GitHub authorization: claimants first run the
+signer and post headers for a while (visible on the network); claims are
+capped per period; and the full claim list is published for everyone to
+audit.
+
+Nothing is asked for the operator: the team's principal stays the team's
+own share throughout — only its yield is given away, and every movement is
+publicly verifiable. Pooling still grants access, not extra yield, and the
+custody caveat above applies unchanged.
+
 ## Layout
 
 | file | role |
