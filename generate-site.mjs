@@ -44,50 +44,54 @@ if (gwState) {
   }
 }
 let gwStale = false;
-if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal, balances: cachePrev.balances ?? {}, balances_fetched_at: cachePrev.balances_fetched_at ?? cachePrev.fetched_at ?? null }, null, 2)); } catch {} }
+if (gwState) { try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal, accounts_full: cachePrev.accounts_full ?? {}, accounts_fetched_at: cachePrev.accounts_fetched_at ?? null }, null, 2)); } catch {} }
 else if (existsSync(CACHE)) { const c = JSON.parse(readFileSync(CACHE, 'utf8')); gwState = c.state; Object.assign(gwAccounts, c.accounts); minersAll = c.miners ?? []; minersTotal = c.miners_total ?? minersAll.length; gwStale = true; }
-// Staking leaderboard: deposit > 0, sorted by deposit desc, address as tiebreak.
+// Staking subset (deposit > 0) drives the headline stats; the leaderboard
+// itself lists EVERY miner address (deposit desc, exiting desc, address),
+// including zero-deposit rows (exiting only, or claimed-then-unlocked).
 const leaders = minersAll.filter(r => Number(r[1]) > 0)
   .sort((a, b) => Number(b[1]) - Number(a[1]) || (a[0] < b[0] ? -1 : 1));
 const totalStaked = leaders.reduce((s, r) => s + BigInt(r[1]), 0n);
+const allMiners = [...minersAll].sort((a, b) =>
+  Number(b[1]) - Number(a[1]) || Number(b[2]) - Number(a[2]) || (a[0] < b[0] ? -1 : 1));
 
-// Balances are NOT in mine/view rows — one /v1/account call per address.
-// The gateway's default rate limit is 240 requests/minute per IP, so the
-// sweep is paced (chunks of 50 started at most every 14s ≈ 214/min) and a
-// 429 waits and retries. Balances from the previous run's cache are the
-// fallback for any address that cannot be fetched this time.
-const balCache = cachePrev.balances ?? {};
-const balances = {};
-const balCacheAt = Date.parse(cachePrev.balances_fetched_at ?? cachePrev.fetched_at ?? '') || 0;
-const balCacheFresh = gwState && leaders.length && (Date.now() - balCacheAt < 30 * 60000)
-  && leaders.every(r => balCache[r[0]] != null);
-if (balCacheFresh) {
-  for (const r of leaders) balances[r[0]] = balCache[r[0]];
-} else if (gwState && leaders.length) {
+// Full accounts for every listed address (leaderboard balance column and the
+// address detail page): one /v1/account call per address — the same call the
+// balance sweep used, just keeping the whole (trimmed) reply. Paced under
+// the gateway's default 240 req/min per-IP limit; cached for 30 minutes.
+const trimAccount = j => (j ? { balance: j.balance, deposit: j.deposit, exits: j.exits ?? [],
+  moves_this_height: j.moves_this_height ?? 0, mine: j.mine ?? null } : null);
+const accCache = cachePrev.accounts_full ?? {};
+const accCacheAt = Date.parse(cachePrev.accounts_fetched_at ?? '') || 0;
+let accountsFull = {};
+if (!gwState && Object.keys(accCache).length) accountsFull = accCache;
+else if (gwState && minersAll.length && (Date.now() - accCacheAt < 30 * 60000) && minersAll.every(r => accCache[r[0]])) {
+  for (const r of minersAll) accountsFull[r[0]] = accCache[r[0]];
+} else if (gwState && minersAll.length) {
   const sleepMs = ms => new Promise(r => setTimeout(r, ms));
-  async function fetchBalance(addr) {
+  async function fetchAccount(addr) {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const r = await fetch(`${GW}/v1/account/${addr}`, { signal: AbortSignal.timeout(15000) });
         if (r.status === 429) { await sleepMs(30000); continue; }
         if (!r.ok) return null;
-        const j = await r.json();
-        return j.balance ?? null;
+        return trimAccount(await r.json());
       } catch { await sleepMs(2000); }
     }
     return null;
   }
   const CHUNK = 50, SPAN = 14000;
-  for (let i = 0; i < leaders.length; i += CHUNK) {
+  for (let i = 0; i < minersAll.length; i += CHUNK) {
     const t0 = Date.now();
-    const part = leaders.slice(i, i + CHUNK);
-    const vals = await Promise.all(part.map(r => fetchBalance(r[0])));
-    part.forEach((r, k) => { balances[r[0]] = vals[k] ?? balCache[r[0]] ?? null; });
+    const part = minersAll.slice(i, i + CHUNK);
+    const vals = await Promise.all(part.map(r => fetchAccount(r[0])));
+    part.forEach((r, k) => { accountsFull[r[0]] = vals[k] ?? accCache[r[0]] ?? null; });
     const dt = Date.now() - t0;
-    if (i + CHUNK < leaders.length && dt < SPAN) await sleepMs(SPAN - dt);
+    if (i + CHUNK < minersAll.length && dt < SPAN) await sleepMs(SPAN - dt);
   }
-  try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal, balances }, null, 2)); } catch {}
+  try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal, accounts_full: accountsFull, accounts_fetched_at: new Date().toISOString() }, null, 2)); } catch {}
 }
+const balances = Object.fromEntries(Object.entries(accountsFull).map(([a, j]) => [a, j?.balance ?? null]));
 
 let lastPass = null;
 if (existsSync(`${ROOT}/pool.log`)) {
@@ -311,7 +315,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  lbTotalStaked: "Total staked (RESET)", lbSearchHint: "Search the full leaderboard by address:",
  thRank: "#", thExiting: "Exiting", thClaimed: "Claimed", lbRank: "Rank",
  lbTopNote: "Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.",
- lbNotFound: "This address has no deposit in the current snapshot — it is not on the staking leaderboard.",
+ lbNotFound: "This address is not in the current miners snapshot.",
  expSourceNote: "Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
@@ -357,7 +361,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  lbTotalStaked: "质押总和（RESET）", lbSearchHint: "在完整质押榜里按地址搜索：",
  thRank: "名次", thExiting: "退出中", thClaimed: "本轮已 claim", lbRank: "名次",
  lbTopNote: "按质押额取前 100 名。完整名单已嵌在本页里——用上方搜索可查任意质押地址的名次。",
- lbNotFound: "该地址在当前快照里没有质押——不在质押榜上。",
+ lbNotFound: "该地址不在当前矿工快照名单里。",
  expSourceNote: "数据来源：公开网关 reset.openmayhem.ai，页面生成时抓取的快照。任意地址的实时查询需要跨域代理——那是第二阶段。",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
@@ -449,7 +453,7 @@ console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/index.html`, funded, 
 // Same static rules as the main page: everything is embedded, language/theme
 // choices share localStorage keys with the main page, 20 rows per page are
 // rendered client-side from the embedded list (which now includes balances).
-const lbRows = leaders.map(r => [r[0], String(r[1]), balances[r[0]] ?? null, String(r[2]), r[3], r[4], r[5], r[6], String(r[7])]);
+const lbRows = allMiners.map(r => [r[0], String(r[1]), balances[r[0]] ?? null, String(r[2]), r[3], r[4], r[5], r[6], String(r[7])]);
 const lbPage = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RESET Mining Pool — Staking Leaderboard</title>
@@ -516,7 +520,7 @@ en: { title: "Staking Leaderboard", langBtn: "中文", back: "← Back to the po
  thStrikes: "Strikes / clean", thClaimed: "Claimed", thLast: "Last result", poolTag: "pool",
  prev: "← Prev", next: "Next →", pageOf: (a, b) => "Page " + a + " of " + b,
  qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
- lbNotFound: "This address has no deposit in the current snapshot — it is not on the staking leaderboard.",
+ lbNotFound: "This address is not in the current miners snapshot.",
  lbRank: "Rank", footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
 zh: { title: "质押榜", langBtn: "English", back: "← 返回拼池主页",
@@ -527,7 +531,7 @@ zh: { title: "质押榜", langBtn: "English", back: "← 返回拼池主页",
  thStrikes: "罚分 / 干净轮", thClaimed: "本轮已 claim", thLast: "上轮结果", poolTag: "池子",
  prev: "← 上一页", next: "下一页 →", pageOf: (a, b) => "第 " + a + " / " + b + " 页",
  qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
- lbNotFound: "该地址在当前快照里没有质押——不在质押榜上。",
+ lbNotFound: "该地址不在当前矿工快照名单里。",
  lbRank: "名次", footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
 };
@@ -549,7 +553,7 @@ function renderLb() {
   document.getElementById('lbBody').innerHTML = rows.map((r, k) => {
     const rank = lbPage * PAGE_SIZE + k + 1;
     return '<tr id="lbrow-' + rank + '"' + (rank === hlRank ? ' class="hl"' : '') + '><td>' + rank + '</td>' +
-      '<td class="mono">' + r[0] + (r[0] === POOL_ADDR ? ' <span class="badge">' + t.poolTag + '</span>' : '') + '</td>' +
+      '<td class="mono"><a href="address.html?addr=' + r[0] + '">' + r[0] + '</a>' + (r[0] === POOL_ADDR ? ' <span class="badge">' + t.poolTag + '</span>' : '') + '</td>' +
       '<td>' + fmt(r[1]) + '</td><td>' + fmt(r[2]) + '</td><td>' + fmt(r[3]) + '</td>' +
       '<td>' + r[4] + ' / ' + r[5] + '</td><td>' + (r[6] ? '✓' : '—') + '</td>' +
       '<td>' + (r[7] ? '#' + r[7] + ': ' + fmt(r[8]) : '—') + '</td></tr>';
@@ -591,3 +595,143 @@ applyLang();
 </body></html>`;
 writeFileSync(`${ROOT}/docs/leaderboard.html`, lbPage);
 console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/leaderboard.html`, leaders: lbRows.length, balances_fetched: Object.values(balances).filter(v => v != null).length }));
+
+// ---------------------------------------------------------------------------
+// Standalone address detail page (docs/address.html?addr=<64hex>).
+// Data: the trimmed full accounts fetched for every listed miner address.
+// Shows everything the gateway exposes for one address — balance, deposit,
+// pending exits with release heights, this round's claim, fair estimate,
+// strikes/clean, and the last settled round's result. The page states openly
+// that transfer history is NOT among it: the gateway has no history API.
+const addrRanks = Object.fromEntries(allMiners.map((r, i) => [r[0], i + 1]));
+const addrPage = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RESET Mining Pool — Address Detail</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('pool-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
+<style>
+ :root, :root[data-theme="light"]{--bg:#ffffff;--fg:#1f2328;--muted:#59636e;--card:#f6f8fa;--border:#d1d9e0;--border2:#e3e8ee;--code:#eaeef2;--input:#ffffff;--accent:#1a7f37;--warn:#9e6a03}
+ :root[data-theme="dark"]{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--card:#161b22;--border:#30363d;--border2:#21262d;--code:#21262d;--input:#0d1117;--accent:#3fb950;--warn:#d29922}
+ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:24px;max-width:860px;margin-inline:auto;line-height:1.55}
+ h1{font-size:22px;margin:0 0 4px} h2{font-size:17px;margin:24px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+ .muted{color:var(--muted)} .mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all}
+ .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
+ .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+ .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+ .stat b{display:block;font-size:19px} .stat span{color:var(--muted);font-size:13px}
+ table{width:100%;border-collapse:collapse;font-size:14px} td,th{padding:7px 8px;border-bottom:1px solid var(--border2);text-align:left}
+ button{background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer}
+ a{color:var(--accent)} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+ .topbtns{display:flex;gap:6px;flex-shrink:0}
+</style></head><body>
+<div class="topbar"><div>
+<h1 data-i18n="title">Address detail</h1>
+<p class="muted"><a href="leaderboard.html" data-i18n="back">← Back to the leaderboard</a></p>
+</div><div class="topbtns"><button id="themeBtn" onclick="toggleTheme()">🌙</button><button id="langBtn" onclick="toggleLang()">中文</button></div></div>
+<div id="detail"></div>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">${updated}</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
+<script>
+const ACCOUNTS = ${JSON.stringify(accountsFull)};
+const RANKS = ${JSON.stringify(addrRanks)};
+const TOTAL_STAKED = ${JSON.stringify(totalStaked.toString())};
+const SNAPSHOT_MS = ${Date.now()};
+const T = {
+en: { title: "Address detail", langBtn: "中文", back: "← Back to the leaderboard",
+ themeToDark: "🌙 Night", themeToLight: "☀️ Day", copy: "Copy address",
+ balance: "Balance (RESET)", deposit: "Deposit / staked (RESET)", exiting: "Exiting (RESET)",
+ share: "Share of total staked", rank: "Leaderboard rank", of: "of",
+ mineTitle: "Mining", claimNow: "Claim this round", claimNone: "no claim yet this round", level: "level",
+ fairEst: "Fair-share estimate (RESET)", strikes: "Strikes", clean: "Clean rounds", moves: "Moves this height",
+ lastTitle: "Last settled round result", round: "Round", fair: "Fair share (RESET)", amount: "Received (RESET)",
+ penalty: "Penalty (RESET)", noLast: "No settled round result yet.",
+ exitsTitle: "Pending exits", exitAmount: "Amount (RESET)", exitRelease: "Release height",
+ noExits: "No pending exits.",
+ historyTitle: "About history & transfers",
+ historyNote: "What this page can show is the address's current state plus its last settled round result and pending exits. Transfer history cannot be listed: the RESET gateway exposes no transaction-history API and the contract keeps no per-address transfer log. A full history would require running a dedicated indexer that records every move from the start (stage 3).",
+ invalid: "Missing or invalid address in the URL (?addr=<64 hex characters>).",
+ notFound: "This address is not in the current miners snapshot.",
+ footerGen: "Snapshot time", dataSource: "Data source",
+ footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
+zh: { title: "地址详情", langBtn: "English", back: "← 返回质押榜",
+ themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天", copy: "复制地址",
+ balance: "余额（RESET）", deposit: "质押（RESET）", exiting: "退出中（RESET）",
+ share: "占总质押比例", rank: "质押榜名次", of: "/",
+ mineTitle: "挖矿", claimNow: "本轮 claim", claimNone: "本轮尚未 claim", level: "等级",
+ fairEst: "预计公平份额（RESET）", strikes: "罚分", clean: "干净轮数", moves: "本高度已用步数",
+ lastTitle: "上一轮结算结果", round: "轮次", fair: "公平份额（RESET）", amount: "实收（RESET）",
+ penalty: "罚款（RESET）", noLast: "尚无已结算轮次结果。",
+ exitsTitle: "退出中的记录", exitAmount: "金额（RESET）", exitRelease: "解锁高度",
+ noExits: "没有退出中的记录。",
+ historyTitle: "关于历史与转账记录",
+ historyNote: "本页能展示的是该地址的当前状态、上一轮结算结果和退出中的记录。转账记录无法列出：RESET 网关没有交易历史接口，合约也不保存逐地址的转账流水。完整的历史需要自建索引节点从一开始逐条记录（第三阶段）。",
+ invalid: "URL 里缺少地址或地址格式不对（?addr=<64 位十六进制>）。",
+ notFound: "该地址不在当前矿工快照名单里。",
+ footerGen: "快照时间", dataSource: "数据来源于",
+ footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
+};
+let lang = localStorage.getItem('pool-lang') || 'en';
+function fmt(u) { if (u == null) return '—'; const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
+function snapshotTimeText() { const d = new Date(SNAPSHOT_MS); const p = n => String(n).padStart(2, '0');
+  if (lang === 'zh') { const b = new Date(d.getTime() + 8 * 3600000);
+    return b.getUTCFullYear() + '-' + p(b.getUTCMonth() + 1) + '-' + p(b.getUTCDate()) + ' ' + p(b.getUTCHours()) + ':' + p(b.getUTCMinutes()) + ':' + p(b.getUTCSeconds()) + ' GMT+8'; }
+  return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC'; }
+function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
+function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
+function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
+function render() {
+  const t = T[lang];
+  const addr = (new URLSearchParams(location.search).get('addr') || '').toLowerCase();
+  const box = document.getElementById('detail');
+  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<p style="color:var(--warn)">' + t.invalid + '</p>'; return; }
+  const acc = ACCOUNTS[addr];
+  if (!acc) { box.innerHTML = '<p style="color:var(--warn)">' + t.notFound + '</p><p class="mono">' + addr + '</p>'; return; }
+  const m = acc.mine || {};
+  const exits = acc.exits || [];
+  const exitTotal = exits.reduce((s, e) => s + BigInt(e.amount), 0n);
+  const dep = BigInt(acc.deposit || '0'), tot = BigInt(TOTAL_STAKED);
+  const sharePct = tot === 0n ? '0.00' : (Number(dep * 1000000n / tot) / 10000).toFixed(2);
+  const lr = m.last_result;
+  box.innerHTML =
+    '<div class="card"><div class="mono" id="daddr">' + addr + '</div>' +
+    '<button onclick="navigator.clipboard.writeText(document.getElementById(\\'daddr\\').textContent)">' + t.copy + '</button></div>' +
+    '<div class="grid">' +
+    '<div class="stat"><b>' + fmt(acc.balance) + '</b><span>' + t.balance + '</span></div>' +
+    '<div class="stat"><b>' + fmt(acc.deposit) + '</b><span>' + t.deposit + '</span></div>' +
+    '<div class="stat"><b>' + fmt(exitTotal.toString()) + '</b><span>' + t.exiting + '</span></div>' +
+    '<div class="stat"><b>' + sharePct + '%</b><span>' + t.share + '</span></div>' +
+    '<div class="stat"><b>#' + (RANKS[addr] || '—') + '</b><span>' + t.rank + '</span></div>' +
+    '</div>' +
+    '<h2>' + t.mineTitle + '</h2><div class="card"><table>' +
+    '<tr><td>' + t.claimNow + '</td><td>' + (m.claim ? t.level + ' ' + m.claim.q : t.claimNone) + '</td></tr>' +
+    '<tr><td>' + t.fairEst + '</td><td>' + fmt(m.fair_share_estimate || '0') + '</td></tr>' +
+    '<tr><td>' + t.strikes + ' / ' + t.clean + '</td><td>' + (m.strikes ?? 0) + ' / ' + (m.clean ?? 0) + '</td></tr>' +
+    '<tr><td>' + t.moves + '</td><td>' + (acc.moves_this_height ?? 0) + '</td></tr></table></div>' +
+    '<h2>' + t.lastTitle + '</h2>' + (lr ?
+      '<div class="card"><table>' +
+      '<tr><td>' + t.round + '</td><td>#' + lr.r + '</td></tr>' +
+      '<tr><td>' + t.fair + '</td><td>' + fmt(lr.fair) + '</td></tr>' +
+      '<tr><td>' + t.amount + '</td><td>' + fmt(lr.amount) + '</td></tr>' +
+      '<tr><td>' + t.penalty + '</td><td>' + fmt(lr.penalty) + '</td></tr>' +
+      '<tr><td>' + t.strikes + ' / ' + t.clean + '</td><td>' + lr.strikes + ' / ' + lr.clean + '</td></tr></table></div>'
+      : '<p class="muted">' + t.noLast + '</p>') +
+    '<h2>' + t.exitsTitle + '</h2>' + (exits.length ?
+      '<table><tr><th>' + t.exitAmount + '</th><th>' + t.exitRelease + '</th></tr>' +
+      exits.map(e => '<tr><td>' + fmt(e.amount) + '</td><td>' + e.release + '</td></tr>').join('') + '</table>'
+      : '<p class="muted">' + t.noExits + '</p>') +
+    '<h2>' + t.historyTitle + '</h2><div class="card"><p>' + t.historyNote + '</p></div>';
+}
+function applyLang() {
+  const t = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.title = 'RESET Mining Pool — ' + t.title;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.getElementById('snapshotTime').textContent = snapshotTimeText();
+  syncThemeBtn();
+  render();
+}
+applyLang();
+</script>
+</body></html>`;
+writeFileSync(`${ROOT}/docs/address.html`, addrPage);
+console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/address.html`, accounts: Object.keys(accountsFull).length }));
