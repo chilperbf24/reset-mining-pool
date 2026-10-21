@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Generates the pool's public page as ONE static HTML file.
-// It reads only local files (ledger, worker log, published reports) and makes
-// NO network calls — visitors' browsers never touch the gateway, so there is
-// nothing to poll, no login, and no authorization popups. Regenerate it after
-// each settlement; the "updated" stamp on the page says how fresh it is.
+// Generates the pool's public page as ONE static HTML file (docs/index.html).
+// - Reads only local files (ledger, worker log, published reports); the page
+//   itself makes NO network calls. Language switching and the address lookup
+//   both run locally in the visitor's browser against data embedded here.
+// - The address lookup therefore reflects the ledger snapshot at generation
+//   time; the page stamps when it was generated. Regenerate after each
+//   settlement / contribution.
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { formatCoin, totalContributed } from './lib/pool.mjs';
 
@@ -27,13 +29,24 @@ const funded = total >= 10_000_000n;
 const contributors = Object.entries(ledger.contributors);
 const updated = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
 
+// Snapshot embedded for the client-side address lookup (public data only).
+const snapshotData = {
+  pool_address: ledger.pool_address,
+  total_units: total.toString(),
+  threshold_units: ledger.payout_threshold_units,
+  rounds_settled: ledger.rounds.length,
+  updated,
+  contributors: Object.fromEntries(contributors.map(([a, c]) => [a, {
+    contributed_units: c.contributed, pending_units: c.pending, paid_units: c.paid_total }])),
+};
+
 const contributorRows = contributors.length ? contributors.map(([a, c]) => `
         <tr><td class="mono">${esc(a)}</td><td>${formatCoin(c.contributed)}</td><td>${formatCoin(c.pending)}</td><td>${formatCoin(c.paid_total)}</td></tr>`).join('')
-  : `<tr><td colspan="4" class="muted">No contributors yet — be the first.</td></tr>`;
+  : `<tr><td colspan="4" class="muted" data-i18n="noContributors">No contributors yet — be the first.</td></tr>`;
 
 const reportRows = liveReports.length ? liveReports.map(r => `
         <tr><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
-  : `<tr><td colspan="4" class="muted">No rounds settled yet.</td></tr>`;
+  : `<tr><td colspan="4" class="muted" data-i18n="noRounds">No rounds settled yet.</td></tr>`;
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -48,64 +61,178 @@ const html = `<!doctype html>
  .stat{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:12px}
  .stat b{display:block;font-size:20px} .stat span{color:#8b949e;font-size:13px}
  table{width:100%;border-collapse:collapse;font-size:14px} td,th{padding:7px 8px;border-bottom:1px solid #21262d;text-align:left}
- button{background:#21262d;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:4px 10px;cursor:pointer}
+ button{background:#21262d;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:5px 12px;cursor:pointer}
+ input{background:#0d1117;color:#e6edf3;border:1px solid #30363d;border-radius:6px;padding:7px 10px;width:min(560px,90%);font-family:ui-monospace,Menlo,monospace;font-size:13px}
  code{background:#21262d;padding:1px 5px;border-radius:4px;font-size:13px}
- ol,ul{padding-left:22px} .warn{border-color:#9e6a03}
+ ol,ul{padding-left:22px} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+ .bar{height:8px;background:#21262d;border-radius:99px;overflow:hidden;margin-top:6px}
+ .bar i{display:block;height:100%;background:#3fb950}
 </style></head><body>
+<div class="topbar"><div>
 <h1>RESET Mining Pool</h1>
-<p class="muted">Mine together below the 0.1 minimum. Small holders fund one pool address;
+<p class="muted" data-i18n="intro">Mine together below the 0.1 minimum. Small holders fund one pool address;
 the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata —
 with accounting anyone can recompute.</p>
-<p><span class="badge">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
+</div><button id="langBtn" onclick="toggleLang()">中文</button></div>
+<p><span class="badge" data-i18n="${funded ? 'badgeActive' : 'badgeWaiting'}">${funded ? '● Active — pool is funded' : '● Waiting for funding — contributions open'}</span></p>
 
-<div class="card"><div class="muted">Pool address (send RESET here to join)</div>
+<div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (send RESET here to join)</div>
 <div class="mono" id="addr">${esc(ledger.pool_address)}</div>
-<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)">Copy address</button></div>
+<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button></div>
 
 <div class="grid">
- <div class="stat"><b>${formatCoin(total)}</b><span>Total contributed (RESET)</span></div>
- <div class="stat"><b>${contributors.length}</b><span>Contributors</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.deposit) : '—'}</b><span>Locked deposit on-chain</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.balance) : '—'}</b><span>Pool balance on-chain</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.round) : '—'}</b><span>Current Mine round</span></div>
- <div class="stat"><b>${ledger.rounds.length}</b><span>Rounds settled</span></div>
+ <div class="stat"><b>${formatCoin(total)}</b><span data-i18n="statTotal">Total contributed (RESET)</span></div>
+ <div class="stat"><b>${contributors.length}</b><span data-i18n="statContributors">Contributors</span></div>
+ <div class="stat"><b>${lastPass ? esc(lastPass.deposit) : '—'}</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
+ <div class="stat"><b>${lastPass ? esc(lastPass.balance) : '—'}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
+ <div class="stat"><b>${lastPass ? esc(lastPass.round) : '—'}</b><span data-i18n="statRound">Current Mine round</span></div>
+ <div class="stat"><b>${ledger.rounds.length}</b><span data-i18n="statSettled">Rounds settled</span></div>
 </div>
 
-<h2>How to join</h2>
+<h2 data-i18n="queryTitle">Check your position</h2>
+<div class="card">
+ <p class="muted" data-i18n="queryHint">Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.</p>
+ <input id="q" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…">
+ <button onclick="lookup()" data-i18n="queryBtn">Look up</button>
+ <div id="qResult" style="margin-top:12px"></div>
+</div>
+
+<h2 data-i18n="joinTitle">How to join</h2>
 <ol>
- <li>From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.</li>
- <li>Send the operator your address and the transfer reference. Your contribution is entered in the public ledger below <b>only after</b> it is visible on-chain.</li>
- <li>Done. Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.</li>
+ <li data-i18n="join1">From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.</li>
+ <li data-i18n="join2">Send the operator your address and the transfer reference. Your contribution is entered in the public ledger below <b>only after</b> it is visible on-chain.</li>
+ <li data-i18n="join3">Done. Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.</li>
 </ol>
 
-<h2>Rules — the honest version</h2>
+<h2 data-i18n="rulesTitle">Rules — the honest version</h2>
 <ul>
- <li><b>Fee: 0.</b> Claim level: always exactly 1000 (fair share, never over — no strikes, no penalties).</li>
- <li><b>Pooling grants access, not extra yield.</b> The Mine pays linearly in deposit; the pool earns exactly what its combined deposit would earn solo.</li>
- <li><b>Exits take about a day:</b> leaving requires <code>unlock</code> plus the contract's 144-Bitcoin-block exit wait, then <code>withdraw</code>. No instant exits.</li>
- <li><b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.</li>
+ <li data-i18n="rule1"><b>Fee: 0.</b> Claim level: always exactly 1000 (fair share, never over — no strikes, no penalties).</li>
+ <li data-i18n="rule2"><b>Pooling grants access, not extra yield.</b> The Mine pays linearly in deposit; the pool earns exactly what its combined deposit would earn solo.</li>
+ <li data-i18n="rule3"><b>Exits take about a day:</b> leaving requires <code>unlock</code> plus the contract's 144-Bitcoin-block exit wait, then <code>withdraw</code>. No instant exits.</li>
+ <li data-i18n="rule4"><b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.</li>
 </ul>
 
-<h2>Public ledger</h2>
-<table><tr><th>Contributor</th><th>Contributed</th><th>Pending payout</th><th>Paid total</th></tr>${contributorRows}
+<h2 data-i18n="ledgerTitle">Public ledger</h2>
+<table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thContributed">Contributed</th><th data-i18n="thPending">Pending payout</th><th data-i18n="thPaid">Paid total</th></tr>${contributorRows}
 </table>
 
-<h2>Round reports</h2>
-<table><tr><th>Round</th><th>Claim received (RESET)</th><th>Shares</th><th>Report hash</th></tr>${reportRows}
+<h2 data-i18n="reportsTitle">Round reports</h2>
+<table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>${reportRows}
 </table>
 
-<h2>Verify it yourself</h2>
+<h2 data-i18n="verifyTitle">Verify it yourself</h2>
 <div class="card">
-<p>Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the
+<p data-i18n="verify1">Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the
 chain's claim record for the pool address and round), the fee and every share. Recompute:</p>
 <p><code>share<sub>i</sub> = (claim − fee + carried dust) × deposit<sub>i</sub> ÷ total deposits</code></p>
-<p>Integer-division dust is carried into the next round, never kept. At any time:
+<p data-i18n="verify2">Integer-division dust is carried into the next round, never kept. At any time:
 <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>.
 An open-source verifier that recomputes reports independently is available from the operator —
 altering a single share makes verification fail.</p>
 </div>
 
-<p class="muted">Page generated ${updated}. It is a static snapshot — no live polling, no login, no tracking.</p>
+<p class="muted"><span data-i18n="footerGen">Page generated</span> ${updated}. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+
+<script>
+const SNAPSHOT = ${JSON.stringify(snapshotData)};
+const T = {
+en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
+ intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
+ badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
+ poolAddrLabel: "Pool address (send RESET here to join)", copy: "Copy address",
+ statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
+ statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
+ queryTitle: "Check your position",
+ queryHint: "Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.",
+ queryPh: "Your RESET address, e.g. 2479c2e7…", queryBtn: "Look up",
+ qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
+ qNotFound: "This address is not in the pool ledger as of the snapshot below. If you just transferred, it appears after the operator verifies the transfer on-chain and regenerates this page.",
+ qFound: "Found in the pool ledger:", qShare: "Share of pool", qContributed: "Contributed", qPending: "Pending payout",
+ qPaid: "Already paid out", qProgress: "Progress to the 0.01 payout threshold", qReady: "Threshold reached — this payout is due in the next payout batch.",
+ joinTitle: "How to join",
+ join1: "From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.",
+ join2: "Send the operator your address and the transfer reference. Your contribution is entered in the public ledger below <b>only after</b> it is visible on-chain.",
+ join3: "Done. Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.",
+ rulesTitle: "Rules — the honest version",
+ rule1: "<b>Fee: 0.</b> Claim level: always exactly 1000 (fair share, never over — no strikes, no penalties).",
+ rule2: "<b>Pooling grants access, not extra yield.</b> The Mine pays linearly in deposit; the pool earns exactly what its combined deposit would earn solo.",
+ rule3: "<b>Exits take about a day:</b> leaving requires <code>unlock</code> plus the contract's 144-Bitcoin-block exit wait, then <code>withdraw</code>. No instant exits.",
+ rule4: "<b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.",
+ ledgerTitle: "Public ledger", thContributor: "Contributor", thContributed: "Contributed", thPending: "Pending payout", thPaid: "Paid total",
+ noContributors: "No contributors yet — be the first.",
+ reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thShares: "Shares", thHash: "Report hash",
+ noRounds: "No rounds settled yet.",
+ verifyTitle: "Verify it yourself",
+ verify1: "Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the chain's claim record for the pool address and round), the fee and every share. Recompute:",
+ verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
+ footerGen: "Page generated", footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
+zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
+ intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
+ badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
+ poolAddrLabel: "池地址（转 RESET 到这里即可入池）", copy: "复制地址",
+ statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
+ statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
+ queryTitle: "查询我的份额",
+ queryHint: "粘贴你的 RESET 地址（64 位十六进制）。查询完全在你的浏览器里对本页的公开账本快照进行，不会把地址发送到任何地方。",
+ queryPh: "你的 RESET 地址，如 2479c2e7…", queryBtn: "查询",
+ qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
+ qNotFound: "截至下方快照时间，该地址不在池账本里。如果你刚转账，要等池主在链上核对到账并重新生成页面后才会出现。",
+ qFound: "在池账本中找到：", qShare: "占池份额", qContributed: "已出资", qPending: "待分收益",
+ qPaid: "已分发", qProgress: "距 0.01 分发门槛的进度", qReady: "已达门槛——这笔收益会进入下一批分发。",
+ joinTitle: "怎么入池",
+ join1: "用你自己的 RESET 钱包，往上面的池地址 <b>transfer</b> 任意金额（如 0.02）。TNK 手续费由你自己出。",
+ join2: "把你的地址和转账凭证发给池主。你的出资<b>只有在链上可见后</b>才会被记进下方公开账本。",
+ join3: "完事。每轮你的份额 = 你的出资 ÷ 池子总额，按轮快照定格；收益累积到 <b>0.01</b> 后分发。",
+ rulesTitle: "规则——实话版",
+ rule1: "<b>手续费：0。</b>Claim 永远只打 level 1000（只要公平份额，绝不超额——没有罚分、没有罚款）。",
+ rule2: "<b>拼池只解决准入，不放大收益。</b>Mine 按锁仓线性付酬，池子赚到的就是合并锁仓能赚到的，一分不多。",
+ rule3: "<b>退池约需一天：</b>退出要走 <code>unlock</code> + 合约的 144 个比特币块等待期，再 <code>withdraw</code>。不能秒退。",
+ rule4: "<b>账目可证明，托管靠信任。</b>RESET 没有池子/多签原语，池主的私钥控制资金。每一笔出资、claim 和分发都会公开并做哈希链存证，作弊一定会被发现并可追溯——但无法从根本上杜绝。这是个实验，不是投资，不承诺任何收益。",
+ ledgerTitle: "公开账本", thContributor: "出资人", thContributed: "已出资", thPending: "待分收益", thPaid: "已分发总额",
+ noContributors: "尚无人出资——来做第一个。",
+ reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thShares: "分账份数", thHash: "报告哈希",
+ noRounds: "尚无已结算轮次。",
+ verifyTitle: "自己验一遍",
+ verify1: "每份轮次报告都会公开全部输入：出资人快照、claim 金额（可与链上该轮池地址的 claim 记录对照）、手续费和每一份分账。复算公式：",
+ verify2: "整数除法的灰尘结转到下一轮，绝不私吞。任何时刻都应有：<code>Σ claim = Σ 待分 + Σ 已分发 + 手续费 + 结转灰尘</code>。开源验证器可向池主索取——改动任何一份分账，验证都会失败。",
+ footerGen: "页面生成于", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
+};
+let lang = localStorage.getItem('pool-lang') || ((navigator.language || 'en').startsWith('zh') ? 'zh' : 'en');
+let lastQuery = '';
+function fmt(u) { const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
+function applyLang() {
+  const t = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.title = t.title;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  if (lastQuery) lookup();
+}
+function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
+function lookup() {
+  const t = T[lang];
+  const addr = document.getElementById('q').value.trim().toLowerCase();
+  lastQuery = addr;
+  const box = document.getElementById('qResult');
+  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:#d29922">' + t.qInvalid + '</span>'; return; }
+  const c = SNAPSHOT.contributors[addr];
+  if (!c) { box.innerHTML = '<span style="color:#d29922">' + t.qNotFound + '</span><br><span class="muted">snapshot: ' + SNAPSHOT.updated + '</span>'; return; }
+  const total = BigInt(SNAPSHOT.total_units), contrib = BigInt(c.contributed_units);
+  const sharePct = total === 0n ? '0.00' : (Number(contrib * 1000000n / total) / 10000).toFixed(2);
+  const th = BigInt(SNAPSHOT.threshold_units), pend = BigInt(c.pending_units);
+  const prog = th === 0n ? 100 : Math.min(100, Number(pend * 100n / th));
+  box.innerHTML = '<b>' + t.qFound + '</b> <span class="mono">' + addr + '</span>' +
+    '<table><tr><td>' + t.qContributed + '</td><td>' + fmt(contrib) + ' RESET</td></tr>' +
+    '<tr><td>' + t.qShare + '</td><td>' + sharePct + '%</td></tr>' +
+    '<tr><td>' + t.qPending + '</td><td>' + fmt(pend) + ' RESET</td></tr>' +
+    '<tr><td>' + t.qPaid + '</td><td>' + fmt(c.paid_units) + ' RESET</td></tr></table>' +
+    '<div style="margin-top:8px">' + t.qProgress + ' — ' + prog + '%<div class="bar"><i style="width:' + prog + '%"></i></div></div>' +
+    (pend >= th ? '<p style="color:#3fb950">' + t.qReady + '</p>' : '');
+}
+document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
+applyLang();
+</script>
 </body></html>`;
 
 mkdirSync(`${ROOT}/docs`, { recursive: true });
