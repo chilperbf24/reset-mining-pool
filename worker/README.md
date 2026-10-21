@@ -38,6 +38,24 @@ Schema: `schema.sql` (table `records`). Seed history: `backfill.sql` /
 (first contribution = operator import, second = fingerprint auto-match,
 both unclaimed entries incl. the pool-fingerprint `661039` case).
 
+## Deployed
+
+Live since 2026-10-21:
+
+- **Worker URL:** https://reset-pool-registry.tyrodcamp.workers.dev
+  (calculator endpoint: `https://reset-pool-registry.tyrodcamp.workers.dev/calc`)
+- **D1 database:** `reset-pool-registry` — id `e60a4aa2-28d4-4b7e-a887-b971824d35f6`
+- **Records:** 4 (the historical backfill below; a smoke-test calc was
+  filed, looked up and deleted again during deployment verification, so
+  the registry holds exactly the 4 seed records)
+- **Operator key:** held as the Worker secret `REGISTRY_KEY` and, for
+  this machine's services, in `~/.reset-pool-registry.env` (mode 600,
+  outside the repo). The fp-match service reads it via a systemd drop-in
+  (`EnvironmentFile` pointing at that file) — never via any repo file.
+- **Clients wired:** the site calculator (`generate-site.mjs`
+  `REGISTRY_ENDPOINT`) and the local fp-match service both point at the
+  live Worker.
+
 ## Local test (no Cloudflare account needed)
 
 ```bash

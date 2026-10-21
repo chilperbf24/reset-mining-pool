@@ -16,12 +16,11 @@ const ledger = JSON.parse(readFileSync(`${ROOT}/state/live-ledger.json`, 'utf8')
 
 // Calculation-registry Worker endpoint (worker/ in this repo — the
 // calculator files every computation there so inflows can be reconciled
-// against backend records; see worker/README.md). PLACEHOLDER until the
-// Worker is deployed: after deployment replace this ONE value with the
-// real https://…workers.dev/calc URL, regenerate and republish. Reports
-// from the page are fire-and-forget and silently dropped while this is a
-// placeholder — the calculator itself never depends on the endpoint.
-const REGISTRY_ENDPOINT = 'https://REGISTRY_NOT_DEPLOYED/calc';
+// against backend records; see worker/README.md). Deployed 2026-10-21 —
+// see the "Deployed" section of worker/README.md. Reports from the page
+// are fire-and-forget — the calculator itself never depends on the
+// endpoint being reachable.
+const REGISTRY_ENDPOINT = 'https://reset-pool-registry.tyrodcamp.workers.dev/calc';
 
 // --- Explorer data: public gateway reads, snapshotted at generation time.
 // The gateway sends no CORS headers, so browsers cannot call it directly;
@@ -372,7 +371,7 @@ const html = `<!doctype html>
 <div id="join">
 <h2 data-i18n="joinTitle">How to join</h2>
 <ol>
- <li data-i18n="join1">Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account, nothing is sent anywhere.</li>
+ <li data-i18n="join1">Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account. Your calculation is recorded in the pool's registry for reconciliation.</li>
  <li data-i18n="join2">From your own RESET wallet, <b>transfer exactly that amount</b> to the pool address — every digit matters; do not round it and do not improvise a different amount. You pay your own TNK transfer fee.</li>
  <li data-i18n="join3">Wait about a minute. The pool watches its balance and matches the amount's tail to your address automatically — the tail <i>is</i> your address's fingerprint. The <b>full amount</b> is credited as your contribution.</li>
  <li data-i18n="join4">Check the <b>Ledger</b> tab (or look your address up on the Overview tab). Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.</li>
@@ -517,7 +516,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  qFound: "Found in the pool ledger:", qShare: "Share of pool", qContributed: "Contributed", qPending: "Pending payout",
  qPaid: "Already paid out", qProgress: "Progress to the 0.01 payout threshold", qReady: "Threshold reached — this payout is due in the next payout batch.",
  joinTitle: "How to join",
- join1: "Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account, nothing is sent anywhere.",
+ join1: "Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account. Your calculation is recorded in the pool's registry for reconciliation.",
  join2: "From your own RESET wallet, <b>transfer exactly that amount</b> to the pool address — every digit matters; do not round it and do not improvise a different amount. You pay your own TNK transfer fee.",
  join3: "Wait about a minute. The pool watches its balance and matches the amount's tail to your address automatically — the tail <i>is</i> your address's fingerprint. The <b>full amount</b> is credited as your contribution.",
  join4: "Check the <b>Ledger</b> tab (or look your address up on the Overview tab). Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.",
@@ -604,7 +603,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  qFound: "在池账本中找到：", qShare: "占池份额", qContributed: "已出资", qPending: "待分收益",
  qPaid: "已分发", qProgress: "距 0.01 分发门槛的进度", qReady: "已达门槛——这笔收益会进入下一批分发。",
  joinTitle: "怎么入池",
- join1: "用下方计算器：填入<b>你自己的 RESET 地址</b>和计划金额（必须是 <b>0.01</b> 的整数倍）。专属应转金额完全在你浏览器本地算出——不用登记、不用 GitHub 账号、不发送任何数据。",
+ join1: "用下方计算器：填入<b>你自己的 RESET 地址</b>和计划金额（必须是 <b>0.01</b> 的整数倍）。专属应转金额完全在你浏览器本地算出——不用登记、不用 GitHub 账号。计算结果会登记到池子后台用于对账。",
  join2: "用你自己的 RESET 钱包，把<b>这个金额一分不差</b>地转到池地址——每一位都不能错，不要四舍五入、不要自作主张换金额。TNK 转账费自理。",
  join3: "等约 1 分钟。池子会盯着余额进账，按金额尾数自动对号到你的地址——尾数<b>就是</b>你地址的指纹。到账金额<b>全额</b>计入你的出资。",
  join4: "到<b>账本</b>页查看（或在概览页用地址查询）。每轮你的份额 = 你的出资 ÷ 池子总额，按轮快照定格；收益累积到 <b>0.01</b> 后分发。",
