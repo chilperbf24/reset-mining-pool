@@ -299,6 +299,8 @@ const html = `<!doctype html>
  .badge{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;background:${funded ? '#1a7f3722;color:#3fb950;border:1px solid #1a7f37' : '#9e6a0322;color:#d29922;border:1px solid #9e6a03'}}
  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
  .callout{border:1.5px solid var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--card));border-radius:10px;padding:14px 16px;font-size:16px;font-weight:600;margin:16px 0;color:var(--fg)}
+ .warnbar{border:1.5px solid var(--warn);border-left:6px solid var(--warn);background:color-mix(in srgb, var(--warn) 14%, var(--card));border-radius:10px;padding:12px 14px;font-size:18px;font-weight:700;line-height:1.45;margin:12px 0 0;color:var(--fg)}
+ .warnbar a{color:var(--warn);text-decoration:underline}
  .dexslot{border:1.5px dashed var(--border);background:var(--card);border-radius:10px;padding:18px;margin:12px 0;color:var(--muted)}
  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
@@ -334,7 +336,7 @@ const html = `<!doctype html>
 
 <div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (transfer your exact computed amount here)</div>
 <div class="mono" id="addr">${esc(ledger.pool_address)}</div>
-<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button><p class="muted" style="margin:8px 0 0"><span data-i18n="poolAddrHint">To join, never send a round amount — first compute your exact amount</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="poolAddrHintLink">with the calculator in the Join section ↓</a></p></div>
+<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button><p class="warnbar"><span data-i18n="poolAddrHint">To join, never send a round amount — first compute your exact amount</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="poolAddrHintLink">with the calculator in the Join section ↓</a></p></div>
 
 
 
