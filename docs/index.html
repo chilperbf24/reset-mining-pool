@@ -60,6 +60,8 @@
 
 <div class="callout" data-i18n="intro">Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.</div>
 
+<div class="callout"><span data-i18n="expBanner">Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.</span> <a href="#" onclick="showTab('join');return false;" data-i18n="expBannerLink">See the plan on the Join tab →</a></div>
+
 <h2 data-i18n="queryTitle">Check your position</h2>
 <div class="card">
  <p class="muted" data-i18n="queryHint">Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.</p>
@@ -73,25 +75,25 @@
 
 <h2 data-i18n="expNetTitle">Network overview</h2>
 <div class="grid">
- <div class="stat"><b><a href="https://mempool.space/block/000000000000000000019e4e70abbb5c4cf4c3cd208857f7811ed1a1e56a51a1" target="_blank" rel="noopener">972469</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>972464</b><span data-i18n="expCounted">Counted height</span></div>
- <div class="stat"><b>462</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972469–972471 <span data-i18n="expOpen">open</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
- <div class="stat"><b>6.21020573</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b><a href="https://mempool.space/block/000000000000000000014351c022c2f715390869072909d89113c84ab8043939" target="_blank" rel="noopener">972476</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>972471</b><span data-i18n="expCounted">Counted height</span></div>
+ <div class="stat"><b>463</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>972475–972477 <span data-i18n="expOpen">open</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
+ <div class="stat"><b>9.30395927</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
  <div class="stat"><b>18.56250000</b><span data-i18n="expGuideline">Round guideline (RESET)</span></div>
- <div class="stat"><b>517</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>2308.12993088</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
+ <div class="stat"><b>342</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>1987.63932666</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
 </div>
 <h2 data-i18n="expLastTitle">Last settled round</h2>
 <div class="card">
- <span class="muted">#460</span>
- <a class="mono" href="https://mempool.space/block/000000000000000000006f77a7fafdf3b939bac2db9f4bc52a21a8f8393f10f1" target="_blank" rel="noopener">00000000000000000000…</a>
+ <span class="muted">#461</span>
+ <a class="mono" href="https://mempool.space/block/0000000000000000000013d3151a8ebef9a07b1cf5411cd9662ebb0382a0b35a" target="_blank" rel="noopener">00000000000000000000…</a>
  <table>
-  <tr><td data-i18n="expClaimsN">Claims</td><td>211</td></tr>
-  <tr><td data-i18n="expDepositTotal">Total deposit (RESET)</td><td>2174.74309381</td></tr>
-  <tr><td data-i18n="expPaid">Paid out (RESET)</td><td>18.56249841</td></tr>
+  <tr><td data-i18n="expClaimsN">Claims</td><td>467</td></tr>
+  <tr><td data-i18n="expDepositTotal">Total deposit (RESET)</td><td>2290.00264652</td></tr>
+  <tr><td data-i18n="expPaid">Paid out (RESET)</td><td>18.56249646</td></tr>
   <tr><td data-i18n="expPenalties">Penalties (RESET)</td><td>0.00000000</td></tr>
-  <tr><td data-i18n="expStockAfter">Stock after (RESET)</td><td>0.02270573</td></tr>
+  <tr><td data-i18n="expStockAfter">Stock after (RESET)</td><td>0.02270927</td></tr>
  </table>
 </div>
 <h2 data-i18n="expWatchTitle">Watched addresses</h2>
@@ -118,6 +120,26 @@
  <li data-i18n="rule3"><b>Exits take about a day:</b> leaving requires <code>unlock</code> plus the contract's 144-Bitcoin-block exit wait, then <code>withdraw</code>. No instant exits.</li>
  <li data-i18n="rule4"><b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.</li>
 </ul>
+
+<h2 data-i18n="expTitle">Experience Shares — the proposed newcomer program</h2>
+<p><span class="badge" style="background:#9e6a0322;color:#d29922;border:1px solid #9e6a03" data-i18n="expStatus">Proposed to the team — applications open once the team stakes</span>
+ <a href="https://github.com/Trac-Systems/reset/issues/3" target="_blank" rel="noopener" data-i18n="expIssueLink">Read the proposal (issue #3)</a></p>
+<p data-i18n="expIntro">The RESET team is invited to stake in this pool like any other member. The yield from the team's stake would then be allocated to newcomers as mining-experience shares:</p>
+<ol>
+ <li data-i18n="expStep1"><b>Apply with your GitHub account.</b> Claims are made from your own authenticated GitHub account, so identity can't be spoofed, and each account is checked automatically for account age and real activity. One claim per GitHub account, ever.</li>
+ <li data-i18n="expStep2"><b>Register your RESET address.</b> The applicant registers the address the experience shares belong to.</li>
+ <li data-i18n="expStep3"><b>The yield is credited in the pool, under your address.</b> Your share of the team's yield is recorded on the public ledger from the first round. The allocation never leaves the pool's accounting — no funds pass through anyone's hands.</li>
+ <li data-i18n="expStep4"><b>It's yours: withdraw it, or let it compound.</b> Each round you earn pro-rata on top of it, and you can either withdraw your earnings under the pool's normal payout rules, or keep them in and compound your stake.</li>
+</ol>
+
+<h2 data-i18n="expSybilTitle">Anti-Sybil rules</h2>
+<ul>
+ <li data-i18n="expSybil1">One claim per GitHub account, ever — accounts are checked automatically for age and real activity.</li>
+ <li data-i18n="expSybil2">Contribution first: claimants run the signer and post headers for a while before claiming — visible on the network, and hard to fake in bulk.</li>
+ <li data-i18n="expSybil3">Claims are capped per period, so the program grows at a controlled pace.</li>
+ <li data-i18n="expSybil4">The full claim list is published — duplicate or fake claims are obvious to everyone.</li>
+</ul>
+<p data-i18n="expNote">To be clear: nothing is asked for the operator. The team's principal stays the team's own share throughout — only its yield is given away, and every movement is publicly verifiable. And as with everything in this pool: pooling grants access, not extra yield, and custody is trusted — see the rules above.</p>
 
 </section>
 <section class="tabpage" id="tab-ledger">
@@ -162,22 +184,22 @@ altering a single share makes verification fail.</p>
 </div>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
 <div class="grid">
- <div class="stat"><b>462</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972469</b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>517</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>2629.10329111</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
- <div class="stat"><b>685</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
- <div class="stat"><b>6.21020573</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>463</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>972476</b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>342</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>2643.66348009</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+ <div class="stat"><b>689</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
+ <div class="stat"><b>9.30395927</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="mktSnapNote">Snapshot data — refreshed about every 10 minutes when this page is regenerated.</p>
 <h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
 <div class="dexslot"><p data-i18n="dexPlaceholder" style="margin:0">Live order-book data from the official DEX node will appear here once the node connection is live.</p></div>
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-21 11:54:34 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-21 12:17:54 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"0","threshold_units":"1000000","rounds_settled":0,"updated":"2026-10-21 11:54:34 UTC","snapshot_ms":1792583674104,"contributors":{}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"0","threshold_units":"1000000","rounds_settled":0,"updated":"2026-10-21 12:17:54 UTC","snapshot_ms":1792585074301,"contributors":{}};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
  tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
@@ -222,6 +244,22 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  join1: "From your own RESET wallet, <b>transfer</b> any amount (e.g. 0.02) to the pool address above. You pay your own TNK transfer fee.",
  join2: "Send the operator your address and the transfer reference. Your contribution is entered in the public ledger below <b>only after</b> it is visible on-chain.",
  join3: "Done. Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.",
+ expBanner: "Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.",
+ expBannerLink: "See the plan on the Join tab →",
+ expTitle: "Experience Shares — the proposed newcomer program",
+ expStatus: "Proposed to the team — applications open once the team stakes",
+ expIssueLink: "Read the proposal (issue #3)",
+ expIntro: "The RESET team is invited to stake in this pool like any other member. The yield from the team's stake would then be allocated to newcomers as mining-experience shares:",
+ expStep1: "<b>Apply with your GitHub account.</b> Claims are made from your own authenticated GitHub account, so identity can't be spoofed, and each account is checked automatically for account age and real activity. One claim per GitHub account, ever.",
+ expStep2: "<b>Register your RESET address.</b> The applicant registers the address the experience shares belong to.",
+ expStep3: "<b>The yield is credited in the pool, under your address.</b> Your share of the team's yield is recorded on the public ledger from the first round. The allocation never leaves the pool's accounting — no funds pass through anyone's hands.",
+ expStep4: "<b>It's yours: withdraw it, or let it compound.</b> Each round you earn pro-rata on top of it, and you can either withdraw your earnings under the pool's normal payout rules, or keep them in and compound your stake.",
+ expSybilTitle: "Anti-Sybil rules",
+ expSybil1: "One claim per GitHub account, ever — accounts are checked automatically for age and real activity.",
+ expSybil2: "Contribution first: claimants run the signer and post headers for a while before claiming — visible on the network, and hard to fake in bulk.",
+ expSybil3: "Claims are capped per period, so the program grows at a controlled pace.",
+ expSybil4: "The full claim list is published — duplicate or fake claims are obvious to everyone.",
+ expNote: "To be clear: nothing is asked for the operator. The team's principal stays the team's own share throughout — only its yield is given away, and every movement is publicly verifiable. And as with everything in this pool: pooling grants access, not extra yield, and custody is trusted — see the rules above.",
  rulesTitle: "Rules — the honest version",
  rule1: "<b>Fee: 0.</b> Claim level: always exactly 1000 (fair share, never over — no strikes, no penalties).",
  rule2: "<b>Pooling grants access, not extra yield.</b> The Mine pays linearly in deposit; the pool earns exactly what its combined deposit would earn solo.",
@@ -278,6 +316,22 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  join1: "用你自己的 RESET 钱包，往上面的池地址 <b>transfer</b> 任意金额（如 0.02）。TNK 手续费由你自己出。",
  join2: "把你的地址和转账凭证发给池主。你的出资<b>只有在链上可见后</b>才会被记进下方公开账本。",
  join3: "完事。每轮你的份额 = 你的出资 ÷ 池子总额，按轮快照定格；收益累积到 <b>0.01</b> 后分发。",
+ expBanner: "新计划（提议中）：<b>体验份额</b>——官方团队受邀入池质押、只捐出收益，新人就能以记在自己地址名下的份额开始挖矿。",
+ expBannerLink: "去入池页看计划 →",
+ expTitle: "体验份额计划——给新人的提议",
+ expStatus: "已向官方提议 · 待官方入池后开启申请",
+ expIssueLink: "查看提议帖（issue #3）",
+ expIntro: "官方团队受邀像任何成员一样把币质押进这个池子。官方质押份额产生的收益，将按下面的方式分配给新人，作为挖矿体验份额：",
+ expStep1: "<b>用 GitHub 账号申请。</b>申请必须从你本人已认证的 GitHub 账号发出，身份无法冒充；每个账号都会被自动核查注册时长和真实活动记录。一个 GitHub 账号只能申请一次，终身有效。",
+ expStep2: "<b>登记你的 RESET 地址。</b>申请者登记体验份额归属的那个地址。",
+ expStep3: "<b>收益记入池子、挂在你的地址名下。</b>你应得的那份官方收益，从第一轮起就记在公开账本上。这笔分配全程不离开池子的账目——不经过任何人的手。",
+ expStep4: "<b>份额归你：提取，或者留在池里滚大。</b>每一轮你都在此基础上按比例继续获得收益；你可以按池子的正常发放规则提取收益，也可以把收益留在池子里复投滚动。",
+ expSybilTitle: "防女巫规则",
+ expSybil1: "一个 GitHub 账号只能申请一次，终身有效——账号的注册时长和真实活动记录会被自动核查。",
+ expSybil2: "先贡献、后申请：申请前先运行签名器、为网络同步一段时间的区块头——此事在网络上可查，难以批量伪造。",
+ expSybil3: "每期申请名额有上限，计划以受控的节奏推进。",
+ expSybil4: "完整的申请名单全部公开——重复或虚假申请一眼就能看穿，人人可审计。",
+ expNote: "把话讲明：运营者本人不索取任何东西。官方的本金全程都是官方自己的份额——送出去的只有它的收益，每一笔流动都可公开验证。和池子的其他一切一样：拼池只解决准入、不放大收益，托管靠信任——见上方规则。",
  rulesTitle: "规则——实话版",
  rule1: "<b>手续费：0。</b>Claim 永远只打 level 1000（只要公平份额，绝不超额——没有罚分、没有罚款）。",
  rule2: "<b>拼池只解决准入，不放大收益。</b>Mine 按锁仓线性付酬，池子赚到的就是合并锁仓能赚到的，一分不多。",
