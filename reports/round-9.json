@@ -1,0 +1,55 @@
+{
+  "v": 1,
+  "kind": "reset-pool-round-audit",
+  "pool_address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+  "round": 9,
+  "claim": {
+    "amount_units": "3500332",
+    "fair_units": "3500332",
+    "level": 1000
+  },
+  "fee_per_mille": 0,
+  "fee_units": "0",
+  "carry_in_units": "1",
+  "distributable_units": "3500333",
+  "dust_units": "1",
+  "snapshot": {
+    "round": 9,
+    "pool_address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+    "rows": [
+      {
+        "address": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "deposit_units": "3000000"
+      },
+      {
+        "address": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "deposit_units": "4000000"
+      },
+      {
+        "address": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "deposit_units": "5000000"
+      }
+    ],
+    "total_units": "12000000",
+    "hash": "f1656ecc92b92f2ed3c14b2e404125ea45fcc30775e250625ffda2414eb918db"
+  },
+  "shares": [
+    {
+      "address": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "deposit_units": "3000000",
+      "share_units": "875083"
+    },
+    {
+      "address": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "deposit_units": "4000000",
+      "share_units": "1166777"
+    },
+    {
+      "address": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "deposit_units": "5000000",
+      "share_units": "1458472"
+    }
+  ],
+  "event_hash": "453001d857707b2bc0197f7246cc0a3e3e04fe8368d811ae522d45e37dbef418",
+  "report_hash": "8f91586eb05a978c67ec8a674ddb59cbd23dff3827dc57262aa02368fcc9c668"
+}

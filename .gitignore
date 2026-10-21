@@ -1,0 +1,11 @@
+# secrets — never commit (pool keystore/password live OUTSIDE this repo in ~/.reset-pool-signer/)
+keystore*
+*.keystore
+.wallet-password
+*password*
+*mnemonic*
+.env*
+# runtime noise
+pool.log
+*.log
+node_modules/

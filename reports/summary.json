@@ -1,0 +1,44 @@
+{
+  "scenario": {
+    "contributors": {
+      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "0.03",
+      "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "0.04",
+      "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc": "0.05"
+    },
+    "pool_total": "0.12",
+    "other_miners_deposit": "90.0",
+    "stock": "300.0",
+    "rounds": 24,
+    "payout_threshold": "0.01",
+    "fee": "0"
+  },
+  "pool_claim_per_round": "0.03500332",
+  "rounds_settled": 24,
+  "total_claimed": "0.84007968",
+  "payouts": [
+    {
+      "address": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "amount": "0.21001992",
+      "ref": "sim-payout-aa"
+    },
+    {
+      "address": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "amount": "0.28002648",
+      "ref": "sim-payout-bb"
+    },
+    {
+      "address": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "amount": "0.35003327",
+      "ref": "sim-payout-cc"
+    }
+  ],
+  "pending_after_payouts": {
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": "0.00000000",
+    "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb": "0.00000000",
+    "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc": "0.00000000"
+  },
+  "dust_carried": "0.00000001",
+  "conservation_ok": true,
+  "event_chain_ok": true,
+  "event_head": "64f9e1257874128b07e7a70aec0065a0a8d1e07976ad932ad7acdab0099f2162"
+}
