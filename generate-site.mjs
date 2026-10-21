@@ -95,6 +95,26 @@ else if (gwState && minersAll.length && (Date.now() - accCacheAt < 30 * 60000) &
 }
 const balances = Object.fromEntries(Object.entries(accountsFull).map(([a, j]) => [a, j?.balance ?? null]));
 
+
+// --- Snapshot archive -------------------------------------------------------
+// Every generation with real gateway data also stores its raw snapshot as
+// history/<UTC stamp>.json (network state, the full miners table and every
+// listed address's trimmed account), so the data behind the pages is kept
+// as queryable history instead of being overwritten by the next run. The
+// Actions bot commits these together with the regenerated pages. Skipped
+// when running on the stale-cache fallback (that data is already archived
+// from the run that fetched it).
+if (!gwStale && gwState) {
+  try {
+    mkdirSync(`${ROOT}/history`, { recursive: true });
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+    writeFileSync(`${ROOT}/history/${stamp}.json`, JSON.stringify({
+      t: new Date().toISOString(), state: gwState, miners_total: minersTotal,
+      miners: minersAll, accounts: accountsFull,
+    }));
+  } catch {}
+}
+
 let lastPass = null;
 if (existsSync(`${ROOT}/pool.log`)) {
   for (const line of readFileSync(`${ROOT}/pool.log`, 'utf8').trim().split('\n')) {
