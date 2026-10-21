@@ -49,6 +49,40 @@ const leaders = minersAll.filter(r => Number(r[1]) > 0)
   .sort((a, b) => Number(b[1]) - Number(a[1]) || (a[0] < b[0] ? -1 : 1));
 const totalStaked = leaders.reduce((s, r) => s + BigInt(r[1]), 0n);
 
+// Balances are NOT in mine/view rows — one /v1/account call per address.
+// The gateway's default rate limit is 240 requests/minute per IP, so the
+// sweep is paced (chunks of 50 started at most every 14s ≈ 214/min) and a
+// 429 waits and retries. Balances from the previous run's cache are the
+// fallback for any address that cannot be fetched this time.
+let balCache = {};
+try { balCache = JSON.parse(readFileSync(CACHE, 'utf8')).balances ?? {}; } catch {}
+const balances = {};
+if (gwState && leaders.length) {
+  const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+  async function fetchBalance(addr) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const r = await fetch(`${GW}/v1/account/${addr}`, { signal: AbortSignal.timeout(15000) });
+        if (r.status === 429) { await sleepMs(30000); continue; }
+        if (!r.ok) return null;
+        const j = await r.json();
+        return j.balance ?? null;
+      } catch { await sleepMs(2000); }
+    }
+    return null;
+  }
+  const CHUNK = 50, SPAN = 14000;
+  for (let i = 0; i < leaders.length; i += CHUNK) {
+    const t0 = Date.now();
+    const part = leaders.slice(i, i + CHUNK);
+    const vals = await Promise.all(part.map(r => fetchBalance(r[0])));
+    part.forEach((r, k) => { balances[r[0]] = vals[k] ?? balCache[r[0]] ?? null; });
+    const dt = Date.now() - t0;
+    if (i + CHUNK < leaders.length && dt < SPAN) await sleepMs(SPAN - dt);
+  }
+  try { writeFileSync(CACHE, JSON.stringify({ fetched_at: new Date().toISOString(), state: gwState, accounts: gwAccounts, miners: minersAll, miners_total: minersTotal, balances }, null, 2)); } catch {}
+}
+
 let lastPass = null;
 if (existsSync(`${ROOT}/pool.log`)) {
   for (const line of readFileSync(`${ROOT}/pool.log`, 'utf8').trim().split('\n')) {
@@ -76,10 +110,6 @@ const snapshotData = {
   snapshot_ms: Date.now(),
   contributors: Object.fromEntries(contributors.map(([a, c]) => [a, {
     contributed_units: c.contributed, pending_units: c.pending, paid_units: c.paid_total }])),
-  // Leaderboard rows in mine/view order: [address, deposit, exiting, strikes,
-  // clean, claimed_this_round, last_round, last_amount] — amounts in units.
-  leaders: leaders.map(r => [r[0], String(r[1]), String(r[2]), r[3], r[4], r[5], r[6], String(r[7])]),
-  miners_total: minersTotal,
 };
 
 const contributorRows = contributors.length ? contributors.map(([a, c]) => `
@@ -134,22 +164,9 @@ if (!gwState) {
 <table><tr><th data-i18n="thContributor">Address</th><th data-i18n="thBalance">Balance</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thClaimNow">Claim this round</th><th data-i18n="thFair">Fair estimate</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thLast">Last result</th></tr>
 ${watchRows}
 </table>
-<h2 data-i18n="lbTitle">Staking leaderboard</h2>
-<div class="grid">
- <div class="stat"><b>${minersTotal}</b><span data-i18n="lbMinersN">Addresses listed</span></div>
- <div class="stat"><b>${leaders.length}</b><span data-i18n="lbStakers">Staking addresses</span></div>
- <div class="stat"><b>${formatCoin(totalStaked)}</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
-</div>
-<div class="card">
- <p class="muted" data-i18n="lbSearchHint">Search the full leaderboard by address:</p>
- <input id="lbq" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…">
- <button onclick="lbLookup()" data-i18n="queryBtn">Look up</button>
- <div id="lbResult" style="margin-top:12px"></div>
-</div>
-<table><tr><th data-i18n="thRank">#</th><th data-i18n="thContributor">Address</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thExiting">Exiting</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thClaimed">Claimed</th><th data-i18n="thLast">Last result</th></tr>
-${leaders.slice(0, 100).map((r, i) => `<tr><td>${i + 1}</td><td class="mono">${esc(r[0])}${r[0] === ledger.pool_address ? ' <span class="badge" data-i18n="expPoolTag">pool</span>' : ''}</td><td>${fc(String(r[1]))}</td><td>${fc(String(r[2]))}</td><td>${r[3]} / ${r[4]}</td><td>${r[5] ? '✓' : '—'}</td><td>${r[6] ? `#${r[6]}: ${fc(String(r[7]))}` : '—'}</td></tr>`).join('')}
-</table>
-<p class="muted" data-i18n="lbTopNote">Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.</p>
+<div class="card"><b data-i18n="lbTitle">Staking leaderboard</b>
+<p class="muted" data-i18n="lbCardNote">Every staking address ranked by deposit, with balances — 20 per page on its own page.</p>
+<a href="leaderboard.html"><button data-i18n="lbOpen">Open the leaderboard page</button></a></div>
 <p class="muted" data-i18n="expSourceNote">Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated${gwStale ? ' (gateway was unreachable — showing the last cached snapshot)' : ''}. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.</p>`;
 }
 
@@ -195,6 +212,7 @@ with accounting anyone can recompute.</p>
  <button class="tabbtn" data-tab="ledger" onclick="showTab('ledger')" data-i18n="tabLedger">Ledger</button>
  <button class="tabbtn" data-tab="reports" onclick="showTab('reports')" data-i18n="tabReports">Reports</button>
  <button class="tabbtn" data-tab="verify" onclick="showTab('verify')" data-i18n="tabVerify">Verify</button>
+ <a class="tabbtn" href="leaderboard.html" data-i18n="tabLeaderboard" style="text-decoration:none">Leaderboard</a>
 </nav>
 <section class="tabpage" id="tab-overview">
 
@@ -282,7 +300,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  expWatchTitle: "Watched addresses", thBalance: "Balance", thDeposit: "Deposit", thClaimNow: "Claim this round",
  thFair: "Fair estimate", thStrikes: "Strikes / clean", thLast: "Last result", expPoolTag: "pool",
  expDown: "Gateway unreachable when this page was generated — try again later.",
- lbTitle: "Staking leaderboard", lbMinersN: "Addresses listed", lbStakers: "Staking addresses",
+ lbTitle: "Staking leaderboard", lbCardNote: "Every staking address ranked by deposit, with balances — 20 per page on its own page.", lbOpen: "Open the leaderboard page", tabLeaderboard: "Leaderboard", lbMinersN: "Addresses listed", lbStakers: "Staking addresses",
  lbTotalStaked: "Total staked (RESET)", lbSearchHint: "Search the full leaderboard by address:",
  thRank: "#", thExiting: "Exiting", thClaimed: "Claimed", lbRank: "Rank",
  lbTopNote: "Top 100 by deposit. The full list is embedded in this page — use the search above to find any staking address and its rank.",
@@ -328,7 +346,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  expWatchTitle: "关注地址", thBalance: "余额", thDeposit: "锁仓", thClaimNow: "本轮 claim",
  thFair: "预计公平份额", thStrikes: "罚分 / 干净轮", thLast: "上轮结果", expPoolTag: "池子",
  expDown: "生成本页时网关连不上——请稍后再看。",
- lbTitle: "质押榜", lbMinersN: "上榜地址数", lbStakers: "质押地址数",
+ lbTitle: "质押榜", lbCardNote: "全部质押地址按质押额排名，带余额——独立页面，每页 20 名。", lbOpen: "打开质押榜页面", tabLeaderboard: "质押榜", lbMinersN: "上榜地址数", lbStakers: "质押地址数",
  lbTotalStaked: "质押总和（RESET）", lbSearchHint: "在完整质押榜里按地址搜索：",
  thRank: "名次", thExiting: "退出中", thClaimed: "本轮已 claim", lbRank: "名次",
  lbTopNote: "按质押额取前 100 名。完整名单已嵌在本页里——用上方搜索可查任意质押地址的名次。",
@@ -365,7 +383,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  footerGen: "快照时间", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。", dataSource: "数据来源于" }
 };
 let lang = localStorage.getItem('pool-lang') || 'en'; // first visit always opens in English
-let lastQuery = '', lastLbQuery = '';
+let lastQuery = '';
 function fmt(u) { const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
 function snapshotTimeText() { const d = new Date(SNAPSHOT.snapshot_ms); const p = n => String(n).padStart(2, '0');
   if (lang === 'zh') { const b = new Date(d.getTime() + 8 * 3600000);
@@ -381,7 +399,6 @@ function applyLang() {
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
-  if (lastLbQuery) lbLookup();
 }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
@@ -410,23 +427,7 @@ function lookup() {
     '<div style="margin-top:8px">' + t.qProgress + ' — ' + prog + '%<div class="bar"><i style="width:' + prog + '%"></i></div></div>' +
     (pend >= th ? '<p style="color:var(--accent)">' + t.qReady + '</p>' : '');
 }
-function lbLookup() {
-  const t = T[lang];
-  const addr = document.getElementById('lbq').value.trim().toLowerCase();
-  lastLbQuery = addr;
-  const box = document.getElementById('lbResult');
-  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
-  const i = (SNAPSHOT.leaders || []).findIndex(r => r[0] === addr);
-  if (i < 0) { box.innerHTML = '<span style="color:var(--warn)">' + t.lbNotFound + '</span>'; return; }
-  const r = SNAPSHOT.leaders[i];
-  box.innerHTML = '<b>' + t.lbRank + ' #' + (i + 1) + '</b> <span class="mono">' + addr + '</span>' +
-    '<table><tr><td>' + t.thDeposit + '</td><td>' + fmt(r[1]) + ' RESET</td></tr>' +
-    '<tr><td>' + t.thExiting + '</td><td>' + fmt(r[2]) + ' RESET</td></tr>' +
-    '<tr><td>' + t.thStrikes + '</td><td>' + r[3] + ' / ' + r[4] + '</td></tr>' +
-    '<tr><td>' + t.thLast + '</td><td>' + (r[6] ? '#' + r[6] + ': ' + fmt(r[7]) + ' RESET' : '—') + '</td></tr></table>';
-}
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
-const lbEl = document.getElementById('lbq'); if (lbEl) lbEl.addEventListener('keydown', e => { if (e.key === 'Enter') lbLookup(); });
 applyLang();
 showTab((location.hash || '').slice(1) || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview');
 </script>
@@ -435,3 +436,151 @@ showTab((location.hash || '').slice(1) || (() => { try { return localStorage.get
 mkdirSync(`${ROOT}/docs`, { recursive: true });
 writeFileSync(`${ROOT}/docs/index.html`, html);
 console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/index.html`, funded, contributors: contributors.length, live_reports: liveReports.length, updated }));
+
+// ---------------------------------------------------------------------------
+// Standalone staking-leaderboard page (docs/leaderboard.html).
+// Same static rules as the main page: everything is embedded, language/theme
+// choices share localStorage keys with the main page, 20 rows per page are
+// rendered client-side from the embedded list (which now includes balances).
+const lbRows = leaders.map(r => [r[0], String(r[1]), balances[r[0]] ?? null, String(r[2]), r[3], r[4], r[5], r[6], String(r[7])]);
+const lbPage = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RESET Mining Pool — Staking Leaderboard</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('pool-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
+<style>
+ :root, :root[data-theme="light"]{--bg:#ffffff;--fg:#1f2328;--muted:#59636e;--card:#f6f8fa;--border:#d1d9e0;--border2:#e3e8ee;--code:#eaeef2;--input:#ffffff;--accent:#1a7f37;--warn:#9e6a03;--hl:#fff3cd}
+ :root[data-theme="dark"]{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--card:#161b22;--border:#30363d;--border2:#21262d;--code:#21262d;--input:#0d1117;--accent:#3fb950;--warn:#d29922;--hl:#3a2f04}
+ body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--fg);margin:0;padding:24px;max-width:860px;margin-inline:auto;line-height:1.55}
+ h1{font-size:24px;margin:0 0 4px} h2{font-size:18px;margin:22px 0 8px}
+ .muted{color:var(--muted)} .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
+ .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
+ .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+ .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+ .stat b{display:block;font-size:20px} .stat span{color:var(--muted);font-size:13px}
+ table{width:100%;border-collapse:collapse;font-size:13.5px} td,th{padding:6px 7px;border-bottom:1px solid var(--border2);text-align:left}
+ tr.hl td{background:var(--hl)}
+ button{background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer}
+ button:disabled{opacity:.45;cursor:default}
+ input{background:var(--input);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;width:min(560px,90%);font-family:ui-monospace,Menlo,monospace;font-size:13px}
+ a{color:var(--accent)} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+ .topbtns{display:flex;gap:6px;flex-shrink:0} .pager{display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap}
+ .badge{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;background:#9e6a0322;color:var(--warn);border:1px solid var(--warn)}
+</style></head><body>
+<div class="topbar"><div>
+<h1 data-i18n="title">Staking Leaderboard</h1>
+<p class="muted"><a href="index.html" data-i18n="back">← Back to the pool page</a></p>
+</div><div class="topbtns"><button id="themeBtn" onclick="toggleTheme()">🌙</button><button id="langBtn" onclick="toggleLang()">中文</button></div></div>
+
+<div class="grid">
+ <div class="stat"><b>${minersTotal}</b><span data-i18n="lbMinersN">Addresses listed</span></div>
+ <div class="stat"><b>${leaders.length}</b><span data-i18n="lbStakers">Staking addresses</span></div>
+ <div class="stat"><b>${formatCoin(totalStaked)}</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+</div>
+
+<div class="card">
+ <p class="muted" data-i18n="lbSearchHint">Search the full leaderboard by address:</p>
+ <input id="lbq" data-i18n-ph="searchPh" placeholder="Your RESET address, e.g. 2479c2e7…">
+ <button onclick="lbLookup()" data-i18n="searchBtn">Look up</button>
+ <div id="lbResult" style="margin-top:10px"></div>
+</div>
+
+<table><thead><tr><th data-i18n="thRank">#</th><th data-i18n="thAddress">Address</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thBalance">Balance</th><th data-i18n="thExiting">Exiting</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thClaimed">Claimed</th><th data-i18n="thLast">Last result</th></tr></thead>
+<tbody id="lbBody"></tbody></table>
+<div class="pager">
+ <button id="pgPrev" onclick="goPage(lbPage - 1)" data-i18n="prev">← Prev</button>
+ <span id="pgInfo" class="muted"></span>
+ <button id="pgNext" onclick="goPage(lbPage + 1)" data-i18n="next">Next →</button>
+</div>
+
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">${updated}</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
+
+<script>
+const LEADERS = ${JSON.stringify(lbRows)};
+const POOL_ADDR = ${JSON.stringify(ledger.pool_address)};
+const SNAPSHOT_MS = ${Date.now()};
+const PAGE_SIZE = 20;
+const T = {
+en: { title: "Staking Leaderboard", langBtn: "中文", back: "← Back to the pool page",
+ themeToDark: "🌙 Night", themeToLight: "☀️ Day",
+ lbMinersN: "Addresses listed", lbStakers: "Staking addresses", lbTotalStaked: "Total staked (RESET)",
+ lbSearchHint: "Search the full leaderboard by address:", searchPh: "Your RESET address, e.g. 2479c2e7…", searchBtn: "Look up",
+ thRank: "#", thAddress: "Address", thDeposit: "Deposit", thBalance: "Balance", thExiting: "Exiting",
+ thStrikes: "Strikes / clean", thClaimed: "Claimed", thLast: "Last result", poolTag: "pool",
+ prev: "← Prev", next: "Next →", pageOf: (a, b) => "Page " + a + " of " + b,
+ qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
+ lbNotFound: "This address has no deposit in the current snapshot — it is not on the staking leaderboard.",
+ lbRank: "Rank", footerGen: "Snapshot time", dataSource: "Data source",
+ footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
+zh: { title: "质押榜", langBtn: "English", back: "← 返回拼池主页",
+ themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
+ lbMinersN: "上榜地址数", lbStakers: "质押地址数", lbTotalStaked: "质押总和（RESET）",
+ lbSearchHint: "在完整质押榜里按地址搜索：", searchPh: "你的 RESET 地址，如 2479c2e7…", searchBtn: "查询",
+ thRank: "名次", thAddress: "地址", thDeposit: "质押", thBalance: "余额", thExiting: "退出中",
+ thStrikes: "罚分 / 干净轮", thClaimed: "本轮已 claim", thLast: "上轮结果", poolTag: "池子",
+ prev: "← 上一页", next: "下一页 →", pageOf: (a, b) => "第 " + a + " / " + b + " 页",
+ qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
+ lbNotFound: "该地址在当前快照里没有质押——不在质押榜上。",
+ lbRank: "名次", footerGen: "快照时间", dataSource: "数据来源于",
+ footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
+};
+let lang = localStorage.getItem('pool-lang') || 'en'; // first visit always opens in English
+let lbPage = 0, hlRank = -1, lastLbQuery = '';
+function fmt(u) { if (u == null) return '—'; const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
+function snapshotTimeText() { const d = new Date(SNAPSHOT_MS); const p = n => String(n).padStart(2, '0');
+  if (lang === 'zh') { const b = new Date(d.getTime() + 8 * 3600000);
+    return b.getUTCFullYear() + '-' + p(b.getUTCMonth() + 1) + '-' + p(b.getUTCDate()) + ' ' + p(b.getUTCHours()) + ':' + p(b.getUTCMinutes()) + ':' + p(b.getUTCSeconds()) + ' GMT+8'; }
+  return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC'; }
+function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
+function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
+function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
+function renderLb() {
+  const pages = Math.max(1, Math.ceil(LEADERS.length / PAGE_SIZE));
+  lbPage = Math.min(Math.max(0, lbPage), pages - 1);
+  const t = T[lang];
+  const rows = LEADERS.slice(lbPage * PAGE_SIZE, lbPage * PAGE_SIZE + PAGE_SIZE);
+  document.getElementById('lbBody').innerHTML = rows.map((r, k) => {
+    const rank = lbPage * PAGE_SIZE + k + 1;
+    return '<tr id="lbrow-' + rank + '"' + (rank === hlRank ? ' class="hl"' : '') + '><td>' + rank + '</td>' +
+      '<td class="mono">' + r[0] + (r[0] === POOL_ADDR ? ' <span class="badge">' + t.poolTag + '</span>' : '') + '</td>' +
+      '<td>' + fmt(r[1]) + '</td><td>' + fmt(r[2]) + '</td><td>' + fmt(r[3]) + '</td>' +
+      '<td>' + r[4] + ' / ' + r[5] + '</td><td>' + (r[6] ? '✓' : '—') + '</td>' +
+      '<td>' + (r[7] ? '#' + r[7] + ': ' + fmt(r[8]) : '—') + '</td></tr>';
+  }).join('');
+  document.getElementById('pgInfo').textContent = t.pageOf(lbPage + 1, pages);
+  document.getElementById('pgPrev').disabled = lbPage <= 0;
+  document.getElementById('pgNext').disabled = lbPage >= pages - 1;
+}
+function goPage(p) { lbPage = p; hlRank = -1; renderLb(); }
+function lbLookup() {
+  const t = T[lang];
+  const addr = document.getElementById('lbq').value.trim().toLowerCase();
+  lastLbQuery = addr;
+  const box = document.getElementById('lbResult');
+  if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  const i = LEADERS.findIndex(r => r[0] === addr);
+  if (i < 0) { box.innerHTML = '<span style="color:var(--warn)">' + t.lbNotFound + '</span>'; return; }
+  hlRank = i + 1;
+  lbPage = Math.floor(i / PAGE_SIZE);
+  renderLb();
+  box.innerHTML = '<b>' + t.lbRank + ' #' + (i + 1) + '</b> — ' + t.thDeposit + ' ' + fmt(LEADERS[i][1]) + ' RESET · ' + t.thBalance + ' ' + fmt(LEADERS[i][2]) + ' RESET';
+  const el = document.getElementById('lbrow-' + (i + 1)); if (el) el.scrollIntoView({ block: 'center' });
+}
+function applyLang() {
+  const t = T[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
+  document.getElementById('langBtn').textContent = t.langBtn;
+  document.title = 'RESET Mining Pool — ' + t.title;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.getElementById('snapshotTime').textContent = snapshotTimeText();
+  syncThemeBtn();
+  renderLb();
+  if (lastLbQuery) lbLookup();
+}
+document.getElementById('lbq').addEventListener('keydown', e => { if (e.key === 'Enter') lbLookup(); });
+applyLang();
+</script>
+</body></html>`;
+writeFileSync(`${ROOT}/docs/leaderboard.html`, lbPage);
+console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/leaderboard.html`, leaders: lbRows.length, balances_fetched: Object.values(balances).filter(v => v != null).length }));
