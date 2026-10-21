@@ -181,7 +181,7 @@ if (!gwState) {
     const am = acc.mine ?? {};
     const claimTxt = am.claim ? `level ${am.claim.q}` : '—';
     const lastTxt = am.last_result ? `#${am.last_result.r}: ${fc(am.last_result.amount)}` : '—';
-    return `<tr><td class="mono">${esc(a)}${a === ledger.pool_address ? ' <span class="badge" data-i18n="expPoolTag">pool</span>' : ''}</td>` +
+    return `<tr><td class="mono">${esc(a)}${a === ledger.pool_address ? ' <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab(\'overview\');setTimeout(function(){document.getElementById(\'join\').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a>' : ''}</td>` +
       `<td>${fc(acc.balance)}</td><td>${fc(acc.deposit)}</td><td>${claimTxt}</td><td>${fc(am.fair_share_estimate ?? '0')}</td>` +
       `<td>${am.strikes ?? 0} / ${am.clean ?? 0}</td><td>${lastTxt}</td></tr>`;
   }).join('');
@@ -323,7 +323,6 @@ const html = `<!doctype html>
 <nav class="tabs">
  <button class="tabbtn" data-tab="overview" onclick="showTab('overview')" data-i18n="tabOverview">Overview</button>
  <button class="tabbtn" data-tab="explorer" onclick="showTab('explorer')" data-i18n="tabExplorer">Explorer</button>
- <button class="tabbtn" data-tab="join" onclick="showTab('join')" data-i18n="tabJoin">Join</button>
  <button class="tabbtn" data-tab="ledger" onclick="showTab('ledger')" data-i18n="tabLedger">Ledger</button>
  <button class="tabbtn" data-tab="reports" onclick="showTab('reports')" data-i18n="tabReports">Reports</button>
  <button class="tabbtn" data-tab="verify" onclick="showTab('verify')" data-i18n="tabVerify">Verify</button>
@@ -335,34 +334,13 @@ const html = `<!doctype html>
 
 <div class="card"><div class="muted" data-i18n="poolAddrLabel">Pool address (transfer your exact computed amount here)</div>
 <div class="mono" id="addr">${esc(ledger.pool_address)}</div>
-<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button></div>
+<button onclick="navigator.clipboard.writeText(document.getElementById('addr').textContent)" data-i18n="copy">Copy address</button><p class="muted" style="margin:8px 0 0"><span data-i18n="poolAddrHint">To join, never send a round amount — first compute your exact amount</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="poolAddrHintLink">with the calculator in the Join section ↓</a></p></div>
 
-<div class="grid">
- <div class="stat"><b>${formatCoin(total)}</b><span data-i18n="statTotal">Total contributed (RESET)</span></div>
- <div class="stat"><b>${contributors.length}</b><span data-i18n="statContributors">Contributors</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.deposit) : '—'}</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.balance) : '—'}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
- <div class="stat"><b>${lastPass ? esc(lastPass.round) : '—'}</b><span data-i18n="statRound">Current Mine round</span></div>
- <div class="stat"><b>${ledger.rounds.length}</b><span data-i18n="statSettled">Rounds settled</span></div>
-</div>
+
 
 <div class="callout" data-i18n="intro">Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.</div>
 
-<div class="callout"><span data-i18n="expBanner">Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.</span> <a href="#" onclick="showTab('join');return false;" data-i18n="expBannerLink">See the plan on the Join tab →</a></div>
-
-<h2 data-i18n="queryTitle">Check your position</h2>
-<div class="card">
- <p class="muted" data-i18n="queryHint">Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.</p>
- <input id="q" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…">
- <button onclick="lookup()" data-i18n="queryBtn">Look up</button>
- <div id="qResult" style="margin-top:12px"></div>
-</div>
-
-</section>
-<section class="tabpage" id="tab-explorer">
-${explorerHtml}
-</section>
-<section class="tabpage" id="tab-join">
+<div id="join">
 <h2 data-i18n="joinTitle">How to join</h2>
 <ol>
  <li data-i18n="join1">Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account, nothing is sent anywhere.</li>
@@ -408,7 +386,30 @@ ${explorerHtml}
  <li data-i18n="expSybil4">The full claim list is published — duplicate or fake claims are obvious to everyone.</li>
 </ul>
 <p data-i18n="expNote">To be clear: nothing is asked for the operator. The team's principal stays the team's own share throughout — only its yield is given away, and every movement is publicly verifiable. And as with everything in this pool: pooling grants access, not extra yield, and custody is trusted — see the rules above.</p>
+</div>
 
+<div class="grid">
+ <div class="stat"><b>${formatCoin(total)}</b><span data-i18n="statTotal">Total contributed (RESET)</span></div>
+ <div class="stat"><b>${contributors.length}</b><span data-i18n="statContributors">Contributors</span></div>
+ <div class="stat"><b>${lastPass ? esc(lastPass.deposit) : '—'}</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
+ <div class="stat"><b>${lastPass ? esc(lastPass.balance) : '—'}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
+ <div class="stat"><b>${lastPass ? esc(lastPass.round) : '—'}</b><span data-i18n="statRound">Current Mine round</span></div>
+ <div class="stat"><b>${ledger.rounds.length}</b><span data-i18n="statSettled">Rounds settled</span></div>
+</div>
+
+<div class="callout"><span data-i18n="expBanner">Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.</span> <a href="#join" onclick="document.getElementById('join').scrollIntoView({behavior:'smooth'});return false;" data-i18n="expBannerLink">See the plan in the Join section below →</a></div>
+
+<h2 data-i18n="queryTitle">Check your position</h2>
+<div class="card">
+ <p class="muted" data-i18n="queryHint">Paste your RESET address (64 hex characters). The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.</p>
+ <input id="q" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…">
+ <button onclick="lookup()" data-i18n="queryBtn">Look up</button>
+ <div id="qResult" style="margin-top:12px"></div>
+</div>
+
+</section>
+<section class="tabpage" id="tab-explorer">
+${explorerHtml}
 </section>
 <section class="tabpage" id="tab-ledger">
 <h2 data-i18n="ledgerTitle">Public ledger</h2>
@@ -445,7 +446,7 @@ ${marketsHtml}
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
- tabOverview: "Overview", tabJoin: "Join", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
+ tabOverview: "Overview", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
  expNetTitle: "Network overview", expTip: "Bitcoin tip", expCounted: "Counted height", expRound: "Current round",
  expWindow: "Claim window (blocks)", expOpen: "open", expClosed: "closed", expStock: "Mine stock (RESET)",
@@ -473,7 +474,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  dexBid: "Bid", dexAsk: "Ask", dexQty: "Amount", dexUpdated: "DEX data snapshot",
  intro: "Mine together below the 0.1 minimum. Small holders fund one pool address; the pool locks ≥ 0.1, claims every round at exactly its fair share, and splits the proceeds pro-rata — with accounting anyone can recompute.",
  badgeActive: "● Active — pool is funded", badgeWaiting: "● Waiting for funding — contributions open",
- poolAddrLabel: "Pool address (transfer your exact computed amount here)", copy: "Copy address",
+ poolAddrLabel: "Pool address (transfer your exact computed amount here)", poolAddrHint: "To join, never send a round amount — first compute your exact amount", poolAddrHintLink: "with the calculator in the Join section ↓", poolJoinLink: "join via the calculator ↓", copy: "Copy address",
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
  queryTitle: "Check your position",
@@ -500,7 +501,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpErrAmt: "The planned amount must be a positive multiple of 0.01 RESET (e.g. 0.01, 0.05, 0.12).",
  fpErrCrypto: "The calculator needs a secure context — open this page over HTTPS.",
  expBanner: "Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.",
- expBannerLink: "See the plan on the Join tab →",
+ expBannerLink: "See the plan in the Join section below →",
  expTitle: "Experience Shares — the proposed newcomer program",
  expStatus: "Proposed to the team — applications open once the team stakes",
  expIssueLink: "Read the proposal (issue #3)",
@@ -529,7 +530,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
  footerGen: "Snapshot time", footerNote: "It is a static snapshot — no live polling, no login, no tracking.", dataSource: "Data source" },
 zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
- tabOverview: "概览", tabJoin: "入池", tabLedger: "账本", tabReports: "报告", tabVerify: "验证", tabExplorer: "浏览器", tabMarkets: "行情",
+ tabOverview: "概览", tabLedger: "账本", tabReports: "报告", tabVerify: "验证", tabExplorer: "浏览器", tabMarkets: "行情",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
  expNetTitle: "全网概览", expTip: "比特币最新高度", expCounted: "已计数高度", expRound: "当前轮次",
  expWindow: "Claim 窗口（区块）", expOpen: "开放中", expClosed: "已关闭", expStock: "Mine 存量（RESET）",
@@ -557,7 +558,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  dexBid: "买价", dexAsk: "卖价", dexQty: "数量", dexUpdated: "DEX 数据快照",
  intro: "不够 0.1 门槛也能一起挖：小额持有人共同出资到一个池地址，池子锁仓 ≥ 0.1、每轮按公平份额 claim、收益按出资比例分——账目任何人都可以复算。",
  badgeActive: "● 运行中 — 池子已注资", badgeWaiting: "● 等待注资 — 正在开放出资",
- poolAddrLabel: "池地址（把计算器算出的专属金额精确转到这里）", copy: "复制地址",
+ poolAddrLabel: "池地址（把计算器算出的专属金额精确转到这里）", poolAddrHint: "入池切勿直接转整数金额——先算出你的专属金额", poolAddrHintLink: "用下方入池板块的计算器 ↓", poolJoinLink: "用计算器入池 ↓", copy: "复制地址",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
  queryTitle: "查询我的份额",
@@ -584,7 +585,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpErrAmt: "计划金额必须是 0.01 RESET 的正整数倍（如 0.01、0.05、0.12）。",
  fpErrCrypto: "计算器需要安全上下文——请用 HTTPS 打开本页。",
  expBanner: "新计划（提议中）：<b>体验份额</b>——官方团队受邀入池质押、只捐出收益，新人就能以记在自己地址名下的份额开始挖矿。",
- expBannerLink: "去入池页看计划 →",
+ expBannerLink: "去下方入池板块看计划 →",
  expTitle: "体验份额计划——给新人的提议",
  expStatus: "已向官方提议 · 待官方入池后开启申请",
  expIssueLink: "查看提议帖（issue #3）",
@@ -636,7 +637,7 @@ function applyLang() {
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
 function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
-function showTab(name) { const names = ['overview', 'explorer', 'join', 'ledger', 'reports', 'verify', 'markets']; if (!names.includes(name)) name = 'overview';
+function showTab(name) { const names = ['overview', 'explorer', 'ledger', 'reports', 'verify', 'markets']; if (!names.includes(name)) name = 'overview';
   document.querySelectorAll('section.tabpage').forEach(s => { s.style.display = s.id === 'tab-' + name ? '' : 'none'; });
   document.querySelectorAll('.tabbtn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
   try { localStorage.setItem('pool-tab', name); } catch (e) {} try { history.replaceState(null, '', '#' + name); } catch (e) {} }
@@ -661,7 +662,7 @@ function lookup() {
     (pend >= th ? '<p style="color:var(--accent)">' + t.qReady + '</p>' : '');
 }
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
-// --- Join tab: self-service fingerprint calculator. Runs entirely in the
+// --- Join section (on the Overview tab): self-service fingerprint calculator. Runs entirely in the
 // visitor's browser (WebCrypto sha256); must agree exactly with the pool's
 // matcher (lib/fpmatch.mjs): fp = (sha256(address)[0..4] BE mod 999999) + 1.
 let fpUsed = false;
@@ -728,7 +729,9 @@ async function refreshTnk() {
 refreshTnk();
 setInterval(refreshTnk, 30000);
 applyLang();
-showTab((location.hash || '').slice(1) || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview');
+const _initHash = (location.hash || '').slice(1);
+showTab(_initHash === 'join' ? 'overview' : (_initHash || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview'));
+if (_initHash === 'join') setTimeout(() => { const el = document.getElementById('join'); if (el) el.scrollIntoView(); }, 80);
 </script>
 </body></html>`;
 
@@ -805,7 +808,7 @@ en: { title: "Staking Leaderboard", langBtn: "中文", back: "← Back to the po
  lbMinersN: "Addresses listed", lbStakers: "Staking addresses", lbTotalStaked: "Total staked (RESET)",
  lbSearchHint: "Search the full leaderboard by address:", searchPh: "Your RESET address, e.g. 2479c2e7…", searchBtn: "Look up",
  thRank: "#", thAddress: "Address", thDeposit: "Deposit", thBalance: "Balance", thExiting: "Exiting",
- thStrikes: "Strikes / clean", thClaimed: "Claimed", thLast: "Last result", poolTag: "pool",
+ thStrikes: "Strikes / clean", thClaimed: "Claimed", thLast: "Last result", poolTag: "pool", joinLink: "join via the calculator",
  prev: "← Prev", next: "Next →", pageOf: (a, b) => "Page " + a + " of " + b,
  qInvalid: "That does not look like a RESET address — it should be exactly 64 hexadecimal characters.",
  lbNotFound: "This address is not in the current miners snapshot.",
@@ -816,7 +819,7 @@ zh: { title: "质押榜", langBtn: "English", back: "← 返回拼池主页",
  lbMinersN: "上榜地址数", lbStakers: "质押地址数", lbTotalStaked: "质押总和（RESET）",
  lbSearchHint: "在完整质押榜里按地址搜索：", searchPh: "你的 RESET 地址，如 2479c2e7…", searchBtn: "查询",
  thRank: "名次", thAddress: "地址", thDeposit: "质押", thBalance: "余额", thExiting: "退出中",
- thStrikes: "罚分 / 干净轮", thClaimed: "本轮已 claim", thLast: "上轮结果", poolTag: "池子",
+ thStrikes: "罚分 / 干净轮", thClaimed: "本轮已 claim", thLast: "上轮结果", poolTag: "池子", joinLink: "用计算器入池",
  prev: "← 上一页", next: "下一页 →", pageOf: (a, b) => "第 " + a + " / " + b + " 页",
  qInvalid: "这不像 RESET 地址——应该是正好 64 位十六进制字符。",
  lbNotFound: "该地址不在当前矿工快照名单里。",
@@ -841,7 +844,7 @@ function renderLb() {
   document.getElementById('lbBody').innerHTML = rows.map((r, k) => {
     const rank = lbPage * PAGE_SIZE + k + 1;
     return '<tr id="lbrow-' + rank + '"' + (rank === hlRank ? ' class="hl"' : '') + '><td>' + rank + '</td>' +
-      '<td class="mono"><a href="address.html?addr=' + r[0] + '">' + r[0] + '</a>' + (r[0] === POOL_ADDR ? ' <span class="badge">' + t.poolTag + '</span>' : '') + '</td>' +
+      '<td class="mono"><a href="address.html?addr=' + r[0] + '">' + r[0] + '</a>' + (r[0] === POOL_ADDR ? ' <span class="badge">' + t.poolTag + '</span> <a href="index.html#join">' + t.joinLink + '</a>' : '') + '</td>' +
       '<td>' + fmt(r[1]) + '</td><td>' + fmt(r[2]) + '</td><td>' + fmt(r[3]) + '</td>' +
       '<td>' + r[4] + ' / ' + r[5] + '</td><td>' + (r[6] ? '✓' : '—') + '</td>' +
       '<td>' + (r[7] ? '#' + r[7] + ': ' + fmt(r[8]) : '—') + '</td></tr>';
@@ -906,6 +909,7 @@ const addrPage = `<!doctype html>
  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
  .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
  .stat b{display:block;font-size:19px} .stat span{color:var(--muted);font-size:13px}
+ .poolbanner{border:1.5px solid var(--warn);background:var(--card);border-radius:10px;padding:14px 16px;margin:12px 0}
  table{width:100%;border-collapse:collapse;font-size:14px} td,th{padding:7px 8px;border-bottom:1px solid var(--border2);text-align:left}
  button{background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer}
  a{color:var(--accent)} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
@@ -921,6 +925,7 @@ const addrPage = `<!doctype html>
 <script>
 const ACCOUNTS = ${JSON.stringify(accountsFull)};
 const RANKS = ${JSON.stringify(addrRanks)};
+const POOL_ADDR = ${JSON.stringify(ledger.pool_address)};
 const TOTAL_STAKED = ${JSON.stringify(totalStaked.toString())};
 const SNAPSHOT_MS = ${Date.now()};
 const T = {
@@ -937,6 +942,7 @@ en: { title: "Address detail", langBtn: "中文", back: "← Back to the leaderb
  historyTitle: "About history & transfers",
  historyNote: "What this page can show is the address's current state plus its last settled round result and pending exits. Transfer history cannot be listed: the RESET gateway exposes no transaction-history API and the contract keeps no per-address transfer log. A full history would require running a dedicated indexer that records every move from the start (stage 3).",
  invalid: "Missing or invalid address in the URL (?addr=<64 hex characters>).",
+ poolBanner: "This is the <b>mining pool address</b>. To join the pool, never transfer a round amount here — it cannot be matched to you and is parked as <b>unclaimed</b>. <a href='index.html#join'>First compute your exact amount with the Join calculator →</a>",
  notFound: "This address is not in the current miners snapshot.",
  footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
@@ -953,6 +959,7 @@ zh: { title: "地址详情", langBtn: "English", back: "← 返回质押榜",
  historyTitle: "关于历史与转账记录",
  historyNote: "本页能展示的是该地址的当前状态、上一轮结算结果和退出中的记录。转账记录无法列出：RESET 网关没有交易历史接口，合约也不保存逐地址的转账流水。完整的历史需要自建索引节点从一开始逐条记录（第三阶段）。",
  invalid: "URL 里缺少地址或地址格式不对（?addr=<64 位十六进制>）。",
+ poolBanner: "这是<b>拼池地址</b>。入池切勿直接转整数金额——对不上号，会被记为<b>待认领</b>。<a href='index.html#join'>先去主页用入池计算器算出你的专属金额 →</a>",
  notFound: "该地址不在当前矿工快照名单里。",
  footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
@@ -971,15 +978,16 @@ function render() {
   const addr = (new URLSearchParams(location.search).get('addr') || '').toLowerCase();
   const box = document.getElementById('detail');
   if (!/^[0-9a-f]{64}$/.test(addr)) { box.innerHTML = '<p style="color:var(--warn)">' + t.invalid + '</p>'; return; }
+  const banner = addr === POOL_ADDR ? '<div class="poolbanner">' + t.poolBanner + '</div>' : '';
   const acc = ACCOUNTS[addr];
-  if (!acc) { box.innerHTML = '<p style="color:var(--warn)">' + t.notFound + '</p><p class="mono">' + addr + '</p>'; return; }
+  if (!acc) { box.innerHTML = banner + '<p style="color:var(--warn)">' + t.notFound + '</p><p class="mono">' + addr + '</p>'; return; }
   const m = acc.mine || {};
   const exits = acc.exits || [];
   const exitTotal = exits.reduce((s, e) => s + BigInt(e.amount), 0n);
   const dep = BigInt(acc.deposit || '0'), tot = BigInt(TOTAL_STAKED);
   const sharePct = tot === 0n ? '0.00' : (Number(dep * 1000000n / tot) / 10000).toFixed(2);
   const lr = m.last_result;
-  box.innerHTML =
+  box.innerHTML = banner +
     '<div class="card"><div class="mono" id="daddr">' + addr + '</div>' +
     '<button onclick="navigator.clipboard.writeText(document.getElementById(\\'daddr\\').textContent)">' + t.copy + '</button></div>' +
     '<div class="grid">' +

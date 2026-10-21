@@ -80,7 +80,7 @@ only in the Experience Shares proposal above):
 
 - Pick a planned amount that is a multiple of **0.01** RESET.
 - Your fingerprint is `fp = (sha256(your address)[0..4] as uint32 BE)
-  mod 999999 + 1` units (1–999999). The site's Join tab computes your
+  mod 999999 + 1` units (1–999999). The Join section on the homepage computes your
   exact amount in your browser; nothing is sent anywhere.
 - Transfer exactly `planned + fp` to the pool address — every digit
   matters.
@@ -136,8 +136,8 @@ tenth of the pool's per-round take for their share, accumulated until the
 
 ## Going live (checklist, in order)
 
-1. Contributor computes their exact fingerprint amount on the site's Join
-   tab and transfers it to the pool address (their own action).
+1. Contributor computes their exact fingerprint amount in the Join section
+   on the homepage and transfers it to the pool address (their own action).
 2. The 1-minute matcher credits it automatically under their address
    (fingerprint tail); anything unmatchable parks in `state/unclaimed.json`
    for `claim-unclaimed.mjs`. Manual fallback if ever needed:
