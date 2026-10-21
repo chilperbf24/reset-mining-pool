@@ -108,6 +108,6 @@ altering a single share makes verification fail.</p>
 <p class="muted">Page generated ${updated}. It is a static snapshot — no live polling, no login, no tracking.</p>
 </body></html>`;
 
-mkdirSync(`${ROOT}/site`, { recursive: true });
-writeFileSync(`${ROOT}/site/index.html`, html);
-console.log(JSON.stringify({ ok: true, file: `${ROOT}/site/index.html`, funded, contributors: contributors.length, live_reports: liveReports.length, updated }));
+mkdirSync(`${ROOT}/docs`, { recursive: true });
+writeFileSync(`${ROOT}/docs/index.html`, html);
+console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/index.html`, funded, contributors: contributors.length, live_reports: liveReports.length, updated }));
