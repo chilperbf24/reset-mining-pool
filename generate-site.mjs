@@ -228,7 +228,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  verify2: "整数除法的灰尘结转到下一轮，绝不私吞。任何时刻都应有：<code>Σ claim = Σ 待分 + Σ 已分发 + 手续费 + 结转灰尘</code>。开源验证器可向池主索取——改动任何一份分账，验证都会失败。",
  footerGen: "快照时间", footerNote: "这是静态快照——不实时轮询、不登录、不追踪。", dataSource: "数据来源于" }
 };
-let lang = localStorage.getItem('pool-lang') || ((navigator.language || 'en').startsWith('zh') ? 'zh' : 'en');
+let lang = localStorage.getItem('pool-lang') || 'en'; // first visit always opens in English
 let lastQuery = '';
 function fmt(u) { const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
 function snapshotTimeText() { const d = new Date(SNAPSHOT.snapshot_ms); const p = n => String(n).padStart(2, '0');
