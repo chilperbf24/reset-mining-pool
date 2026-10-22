@@ -107,14 +107,33 @@ async function maybeLock(s) {
 }
 
 async function doClaim(s) {
-  const cr = await call('mine_claim', { level: 1000 }, 1);
-  await sleep(15000);
-  const s2 = await call('status', {});
-  const outcome = cr.outcome || (cr.ok ? 'ok' : 'unknown');
-  const registered = s2.claim !== null && s2.claim !== undefined;
-  const rec = { type: 'claim', level: 1000, outcome, registered, round: s.mine.round, claim_state: s2.claim };
-  log({ event: 'claim', level: 1000, outcome, registered, round: s.mine.round, claim_state: s2.claim });
-  return rec;
+  // Gateway read-back lags acceptance by minutes (observed on the personal
+  // wallet: an 'unknown' submission still read claim=null 27s later but was
+  // registered within 15 min), so the old single 15s check produced false
+  // "not registered" verdicts. Poll patiently before judging, and retry in
+  // the same pass while the window is open: 'rejected' means nothing landed
+  // (safe to resend), and a resend after 'unknown' cannot double-claim —
+  // the signer refuses to build a claim when a fresh snapshot shows one,
+  // and the gateway rejects duplicates without penalty.
+  let cur = s, lastRec = null;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const cr = await call('mine_claim', { level: 1000 }, 1);
+    const outcome = cr.outcome || (cr.ok ? 'ok' : 'unknown');
+    let s2 = null;
+    const until = Date.now() + (outcome === 'rejected' ? 40000 : 150000);
+    while (Date.now() < until) {
+      await sleep(20000);
+      try { s2 = await call('status', {}); } catch { continue; }
+      if (s2.claim || s2.mine.round !== cur.mine.round || !s2.mine.window_open) break;
+    }
+    if (!s2) s2 = await call('status', {});
+    const registered = s2.claim !== null && s2.claim !== undefined;
+    lastRec = { type: 'claim', level: 1000, outcome, registered, round: cur.mine.round, claim_state: s2.claim };
+    log({ event: 'claim', level: 1000, outcome, registered, round: cur.mine.round, claim_state: s2.claim, attempt, message: cr.message });
+    if (registered || s2.mine.round !== cur.mine.round || !s2.mine.window_open) return lastRec;
+    cur = s2;
+  }
+  return lastRec;
 }
 
 // Record a newly settled round's pool earnings into the ledger. Read-only
