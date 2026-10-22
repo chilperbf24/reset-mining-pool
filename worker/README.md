@@ -43,8 +43,22 @@ ever name the address whose fingerprint the amount actually carries.
 | `GET /lookup?tail=\|?address=\|?amount=` | header `X-Registry-Key` | All records (every kind) matching any given filter, JSON. `401` without the key. This is the operator's reconciliation view — and what the matcher consults FIRST for attribution (exact tail+amount hit), before any fingerprint fallback. |
 | `POST /fulfill` | header `X-Registry-Key` | Body `{tail?, address?}` (at least one). Marks matching `calc` records `status='fulfilled'` — the matcher calls this when an inflow lands and is credited, so the record survives the sweep as the "calculated → arrived" trail. In-TTL rows and `held` rows (any age) are marked. Returns `{ ok, updated }`. |
 | `POST /hold` | header `X-Registry-Key` | Body `{tail, exact_units}`. Moves the exact-matching `calc` records from `status='ok'` to `status='held'` — the matcher calls this when it parks an inflow as unclaimed, freezing the calculation as sweep-proof evidence until attribution lands (held rows are exempt from the TTL at any age; a later `/fulfill` closes them out). Idempotent. Returns `{ ok, updated }`. |
-| `POST /sweep` | header `X-Registry-Key` | Deletes every expired calc record still at `status='ok'` (see TTL below), returns `{ ok, deleted }`. The same deletion also runs opportunistically at the top of every `POST /calc`. |
+| `POST /sweep` | header `X-Registry-Key` | Deletes every expired calc record still at `status='ok'` (see TTL below) plus expired unsubmitted exit intents, returns `{ ok, deleted }`. The same deletion also runs opportunistically at the top of every `POST /calc`. |
 | `GET /health` | public | `{ ok: true, records: <total count> }` — count only, no detail. |
+| `POST /exit` | public | Body `{address}` (either spelling). Registers an exit **intent**: the Worker builds the official chat-protocol prepared message `{v:1, kind:'agent', addr, text, ts, nonce}` with a one-time nonce, stores it as `kind='exit_request', status='pending'` and returns `{ exit: { id, address_hex, nonce, prepared, signing_text, expires_at } }`. Idempotent while live — re-asking returns the same intent; `409` while a submission awaits verification or a case is already open. The member signs the message with their own wallet (free, zero-balance); any agent may file the intent on their behalf. |
+| `POST /exit/verify` | public | Body `{prepared, signature, nonce}`. Binds the submission to the issued intent: nonce must exist, be unconsumed (`status='pending'`) and unexpired (30 min), and `prepared` must be identical to the issued object. On success the row becomes `status='submitted'` with the signature stored in `payload` — **the nonce is burned by this first submission, valid signature or not**, so a replay always gets `409`. Cryptographic verification is NOT done here: the pool side verifies the Ed25519 signature locally (`lib/exit.mjs`) before opening any case. |
+| `GET /exit/pending` | header `X-Registry-Key` | Submitted exit requests awaiting pool-side verification: `{ submissions: [{ id, address_hex, nonce, ts, prepared, signature, submitted_at }] }`, oldest first. |
+| `POST /exit/resolve` | header `X-Registry-Key` | Body `{id, result: 'verified' \| 'rejected', note?}`. Records the pool-side verdict on a `submitted` row (note carries the case id or the rejection reason). |
+
+Exit-request TTL: an intent that is never submitted (`status='pending'`)
+expires with the same 30-minute sweep as calc intentions. `submitted` /
+`verified` / `rejected` rows are evidence and are **never** deleted.
+The pool address embedded in the signed text comes from the
+`POOL_ADDRESS` var in `wrangler.toml` (a public constant; the code falls
+back to the same value). Going live with the exit endpoints needs the
+one-time D1 migration `migrations/0001_exit.sql` (adds `nonce` +
+`payload` columns) applied **before** deploying the Worker code that
+uses them.
 
 ## Calc-record TTL: 30 minutes
 

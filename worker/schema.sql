@@ -8,20 +8,29 @@
 -- lib/fpmatch.mjs decide who is credited. Anyone can file a calc record
 -- for ANY address (that is the point of the public calculator), so a
 -- record here must never by itself move money or ledger entries.
+-- Exit requests follow the same discipline one level up: an exit_request
+-- row is an INTENT plus (after /exit/verify) a submitted signature. The
+-- signature is verified pool-side (lib/exit-exec.mjs) before any exit
+-- case exists, and exit proceeds can only ever be paid to the address
+-- the ledger itself records — no registry field names a payee.
 CREATE TABLE IF NOT EXISTS records (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   ts            TEXT NOT NULL,             -- ISO-8601 UTC, set server-side
-  kind          TEXT NOT NULL,             -- calc | calc_blocked | import | auto_match | unclaimed
+  kind          TEXT NOT NULL,             -- calc | calc_blocked | import | auto_match | unclaimed | exit_request
   address_hex   TEXT,                      -- normalized 64-hex, NULL when unknown/unparseable
   planned_units TEXT,                      -- planned amount (0.01 multiple) when known
   fp_units      TEXT,                      -- fingerprint / tail this record is indexed by
   exact_units   TEXT,                      -- planned + fp, or the observed inflow amount
   status        TEXT NOT NULL,             -- ok | blocked_pool | invalid | credited | open | claimed
-  source        TEXT NOT NULL,             -- calculator | operator | matcher
+                                           -- exit_request: pending | submitted | verified | rejected
+  source        TEXT NOT NULL,             -- calculator | operator | matcher | exit
   note          TEXT,
-  ip_hash       TEXT                       -- sha256 hex of caller IP, hashes only, NULL for local sources
+  ip_hash       TEXT,                      -- sha256 hex of caller IP, hashes only, NULL for local sources
+  nonce         TEXT,                      -- exit_request: the one-time intent nonce (16 hex)
+  payload       TEXT                       -- exit_request: JSON {prepared} at issue, {prepared, signature, submitted_at} after submit
 );
 CREATE INDEX IF NOT EXISTS idx_records_fp    ON records (fp_units);
 CREATE INDEX IF NOT EXISTS idx_records_addr  ON records (address_hex);
 CREATE INDEX IF NOT EXISTS idx_records_exact ON records (exact_units);
 CREATE INDEX IF NOT EXISTS idx_records_ip_ts ON records (ip_hash, ts);
+CREATE INDEX IF NOT EXISTS idx_records_nonce ON records (nonce);

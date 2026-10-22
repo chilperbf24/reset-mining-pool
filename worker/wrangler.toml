@@ -7,6 +7,12 @@ name = "reset-pool-registry"
 main = "src/index.js"
 compatibility_date = "2024-11-01"
 
+# Public constants, not secrets: the pool address is embedded in the exit
+# statement members sign (POST /exit). src/index.js falls back to the same
+# value when the var is absent.
+[vars]
+POOL_ADDRESS = "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6"
+
 [[d1_databases]]
 binding = "REGISTRY_DB"
 database_name = "reset-pool-registry"

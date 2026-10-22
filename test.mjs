@@ -180,4 +180,84 @@ assert.equal(sendAmountFor(OWNER_TRAC, parseCoin('0.05')), sendAmountFor(OWNER, 
   assert.equal(ctx.ledger.contributors[NEW2].contributed, D.toString());
 }
 
+// --- member exits: close-out math + dissolution boundary (lib/pool.mjs,
+// lib/exit.mjs) ---
+import { totalDue, closePosition, recordExitEvent, markDissolved } from './lib/pool.mjs';
+import { planExit, checkExitConservation } from './lib/exit.mjs';
+{
+  const s = emptyState(POOL);
+  addContribution(s, A, parseCoin('0.06'));
+  addContribution(s, B, parseCoin('0.05'));
+  settleRound(s, { round: 1, claimAmountUnits: 1100n }); // A earns 600, B earns 500
+  assert.equal(totalDue(s, A), parseCoin('0.06') + 600n);
+  assert.equal(totalDue(s, 'ff'.repeat(32)), 0n); // unknown address owes nothing
+  // freeze A's full position and close it out
+  const evBefore = s.events.length;
+  closePosition(s, A, { caseId: 'exit-test', principalUnits: parseCoin('0.06'), earningsUnits: 600n });
+  const cA = s.contributors[A];
+  assert.equal(cA.contributed, '0');
+  assert.equal(cA.pending, '0');
+  assert.equal(cA.paid_total, '600');              // earnings leg lands in paid_total…
+  assert.equal(cA.exited_principal_total, parseCoin('0.06').toString()); // …principal is tracked apart
+  assert.equal(cA.closed.total_units, (parseCoin('0.06') + 600n).toString());
+  assert.equal(s.events.length, evBefore + 1);
+  assert.equal(s.events.at(-1).type, 'exit_paid');
+  assert.equal(checkConservation(s).ok, true);     // earnings identity still exact after a close-out
+  assert.equal(checkEventChain(s).ok, true);
+  assert.equal(totalDue(s, A), 0n);                // closed: nothing more is owed
+  assert.throws(() => closePosition(s, A, { caseId: 'x', principalUnits: 1n, earningsUnits: 0n })); // no double close
+  // earnings keep settling for the REMAINING members after a close-out
+  const s2 = emptyState(POOL);
+  addContribution(s2, A, parseCoin('0.05'));
+  addContribution(s2, B, parseCoin('0.05'));
+  addContribution(s2, C, parseCoin('0.05'));
+  settleRound(s2, { round: 1, claimAmountUnits: 1500n }); // 500 each
+  closePosition(s2, A, { caseId: 'e1', principalUnits: parseCoin('0.05'), earningsUnits: 500n });
+  settleRound(s2, { round: 2, claimAmountUnits: 1000n }); // B + C only (A's snapshot deposit is 0)
+  assert.equal(BigInt(s2.contributors[B].pending), 1000n); // 500 + 500
+  assert.equal(checkConservation(s2).ok, true);
+  // audit events + dissolution marker ride the same hash chain
+  recordExitEvent(s2, 'exit_verified', { address: B, case_id: 'e2' });
+  markDissolved(s2, { triggerCaseId: 'e2' });
+  assert.equal(s2.dissolved.trigger_case_id, 'e2');
+  assert.throws(() => markDissolved(s2, {}));
+  assert.equal(checkEventChain(s2).ok, true);
+}
+// dissolution boundary: post-exit deposit EXACTLY 0.1 survives; one unit
+// less dissolves. The unlock move is max(due, MIN), capped by the deposit.
+{
+  const D = MIN_DEPOSIT;
+  const exact = planExit({ chainDepositUnits: 20000000n, dueUnits: 10000000n });
+  assert.equal(exact.afterUnits, D); assert.equal(exact.dissolve, false);
+  const under = planExit({ chainDepositUnits: 20000000n, dueUnits: 10000001n });
+  assert.equal(under.afterUnits, D - 1n); assert.equal(under.dissolve, true);
+  assert.equal(under.unlockUnits, 20000000n); // dissolution unlocks EVERYTHING
+  const small = planExit({ chainDepositUnits: 22933277n, dueUnits: 8216449n }); // ad44-shaped case
+  assert.equal(small.dissolve, false);
+  assert.equal(small.afterUnits, 14716828n);
+  assert.equal(small.unlockUnits, 10000000n); // due < one move: the move is MIN_DEPOSIT
+  const big = planExit({ chainDepositUnits: 30000000n, dueUnits: 15000000n });
+  assert.equal(big.dissolve, false);
+  assert.equal(big.unlockUnits, 15000000n); // due above the minimum: move = due
+  const bigDissolve = planExit({ chainDepositUnits: 22933277n, dueUnits: 15000000n });
+  assert.equal(bigDissolve.dissolve, true); // after = 7933277 < 0.1
+  assert.equal(bigDissolve.unlockUnits, 22933277n);
+}
+// executor conservation self-check catches a tampered ledger AND an
+// insolvent one, and reports honest slack when the chain is ahead
+{
+  const s = emptyState(POOL);
+  addContribution(s, A, parseCoin('0.06'));
+  const chain = { balance: 0n, deposit: parseCoin('0.06'), exits: [] };
+  const good = checkExitConservation(s, chain);
+  assert.equal(good.ok, true); assert.equal(good.slack, 0n);
+  const tampered = structuredClone(s);
+  tampered.contributors[A].pending = '5'; // invented earnings
+  assert.equal(checkExitConservation(tampered, chain).ok, false);
+  const short = checkExitConservation(s, { balance: 0n, deposit: parseCoin('0.05'), exits: [] });
+  assert.equal(short.ok, false); // obligations exceed assets
+  const ahead = checkExitConservation(s, { balance: 700n, deposit: parseCoin('0.06'), exits: [] });
+  assert.equal(ahead.ok, true); assert.equal(ahead.slack, 700n); // unrecorded settlement: fine
+}
+
 console.log('all pool tests passed');

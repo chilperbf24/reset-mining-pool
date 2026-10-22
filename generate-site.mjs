@@ -21,6 +21,9 @@ const ledger = JSON.parse(readFileSync(`${ROOT}/state/live-ledger.json`, 'utf8')
 // are fire-and-forget — the calculator itself never depends on the
 // endpoint being reachable.
 const REGISTRY_ENDPOINT = 'https://reset-pool-registry.tyrodcamp.workers.dev/calc';
+// Exit requests go to the same Worker (POST /exit, POST /exit/verify —
+// the signed-message flow documented in lib/exit.mjs).
+const REGISTRY_EXIT_ENDPOINT = REGISTRY_ENDPOINT.replace(/\/calc$/, '/exit');
 
 // --- Explorer data: public gateway reads, snapshotted at generation time.
 // The gateway sends no CORS headers, so browsers cannot call it directly;
@@ -163,15 +166,26 @@ const snapshotData = {
   total_units: total.toString(),
   threshold_units: ledger.payout_threshold_units,
   rounds_settled: ledger.rounds.length,
+  dissolved: ledger.dissolved ?? null,
   updated,
   snapshot_ms: Date.now(),
   contributors: Object.fromEntries(contributors.map(([a, c]) => [a, {
-    contributed_units: c.contributed, pending_units: c.pending, paid_units: c.paid_total }])),
+    contributed_units: c.contributed, pending_units: c.pending, paid_units: c.paid_total,
+    closed: c.closed ? { total_units: c.closed.total_units, principal_units: c.closed.principal_units,
+      earnings_units: c.closed.earnings_units, at: c.closed.at } : null }])),
 };
 
-const contributorRows = contributors.length ? contributors.map(([a, c]) => `
+const activeContributors = contributors.filter(([, c]) => !c.closed);
+const closedContributors = contributors.filter(([, c]) => c.closed);
+const contributorRows = activeContributors.length ? activeContributors.map(([a, c]) => `
         <tr><td class="mono">${esc(a)}</td><td>${formatCoin(c.contributed)}</td><td>${formatCoin(c.pending)}</td><td>${formatCoin(c.paid_total)}</td></tr>`).join('')
   : `<tr><td colspan="4" class="muted" data-i18n="noContributors">No contributors yet — be the first.</td></tr>`;
+const settledRows = closedContributors.map(([a, c]) => `
+        <tr><td class="mono">${esc(a)}</td><td>${formatCoin(c.closed.principal_units)}</td><td>${formatCoin(c.closed.earnings_units)}</td><td>${formatCoin(c.closed.total_units)}</td><td>${esc(String(c.closed.at).slice(0, 10))}</td></tr>`).join('');
+const settledHtml = closedContributors.length ? `
+<h2 data-i18n="settledTitle">Settled exits</h2>
+<table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thPrincipal">Principal returned</th><th data-i18n="thEarnings">Earnings paid</th><th data-i18n="thTotalPaid">Total paid</th><th data-i18n="thSettledAt">Settled</th></tr>${settledRows}
+</table>` : '';
 
 const reportRows = liveReports.length ? liveReports.map(r => `
         <tr><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
@@ -191,7 +205,9 @@ const chainRound = poolAcc ? (gwState?.mine?.r ?? '—') : (lastPass ? esc(lastP
 const chainDepositUnits = poolAcc ? toUnits(poolAcc.deposit ?? 0)
   : (lastPass ? BigInt(Math.round(Number(lastPass.deposit) * 1e8)) : 0n);
 const poolMining = chainDepositUnits >= 10_000_000n;
-const poolStatusHtml = poolMining
+const poolStatusHtml = ledger.dissolved
+  ? `<div class="poolstatus"><span class="pdot" style="background:var(--warn)"></span><span data-i18n="poolStatusDissolved">Dissolved — all positions settled</span></div>`
+  : poolMining
   ? `<div class="poolstatus"><span class="pdot" style="background:var(--accent)"></span><span data-i18n="poolStatusMining" data-dep="${chainDeposit}">Mining — ${chainDeposit} RESET locked</span></div>`
   : `<div class="poolstatus"><span class="pdot" style="background:var(--warn)"></span><span data-i18n="poolStatusWaiting">Waiting for funding — contributions open</span></div>`;
 let explorerHtml;
@@ -395,6 +411,15 @@ const html = `<!doctype html>
  <li data-i18n="rule4"><b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.</li>
 </ul>
 
+<h2 data-i18n="exitTitle">Leave the pool — full exit</h2>
+<div class="card">
+ <p data-i18n="exitIntro">Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.</p>
+ <p data-i18n="exitHow"><b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.</p>
+ <p><input id="exitAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"> <button onclick="exitShow()" data-i18n="exitPosBtn">Show my position</button></p>
+ <div id="exitPos" style="margin-top:10px"></div>
+ <div id="exitFlow" style="margin-top:12px"></div>
+</div>
+
 <h2 data-i18n="expTitle">Experience Shares — the proposed newcomer program</h2>
 <p><span class="badge" style="background:#9e6a0322;color:#d29922;border:1px solid #9e6a03" data-i18n="expStatus">Proposed to the team — applications open once the team stakes</span>
  <a href="https://github.com/Trac-Systems/reset/issues/3" target="_blank" rel="noopener" data-i18n="expIssueLink">Read the proposal (issue #3)</a></p>
@@ -444,7 +469,7 @@ ${explorerHtml}
 <h2 data-i18n="ledgerTitle">Public ledger</h2>
 <table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thContributed">Contributed</th><th data-i18n="thPending">Pending payout</th><th data-i18n="thPaid">Paid total</th></tr>${contributorRows}
 </table>
-
+${settledHtml}
 </section>
 <section class="tabpage" id="tab-reports">
 <h2 data-i18n="reportsTitle">Round reports</h2>
@@ -474,6 +499,7 @@ ${marketsHtml}
 <script>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const REGISTRY_ENDPOINT = ${JSON.stringify(REGISTRY_ENDPOINT)};
+const REGISTRY_EXIT_ENDPOINT = ${JSON.stringify(REGISTRY_EXIT_ENDPOINT)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
  tabOverview: "Overview", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
@@ -508,6 +534,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
  poolStatusWaiting: "Waiting for funding — contributions open", poolStatusMining: "Mining — {deposit} RESET locked",
+ poolStatusDissolved: "Dissolved — all positions settled",
  queryTitle: "Check your position",
  queryHint: "Paste your address — the 64-hex RESET form or the trac1 form; both spell the same key and are recognized automatically. The lookup runs entirely in your browser against the public ledger snapshot on this page — nothing is sent anywhere.",
  queryPh: "Your address — RESET hex or trac1…", queryBtn: "Look up",
@@ -539,6 +566,18 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpPanelCheck: "Before you transfer, double-check that the amount's decimal tail matches the one shown here exactly — every digit matters.",
  fpValidNote: "This amount is valid for 30 minutes (until {time}) — transfer within the window. If no matching transfer arrives in time, the calculation record is deleted automatically; please calculate again.",
  fpTimeLeft: "Time left", fpExpired: "Expired — please calculate again.",
+ exitTitle: "Leave the pool — full exit",
+ exitIntro: "Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.",
+ exitHow: "<b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.",
+ exitPosBtn: "Show my position", exitNoPos: "This address has no open position in the current ledger snapshot.",
+ exitApplyBtn: "File exit request",
+ exitIssued: "Your one-time exit statement is ready. Sign the exact signing text with your signer (for example with the pool repo's exit-sign.mjs), then paste the resulting submission JSON below.",
+ exitSignTextLabel: "Signing text (exactly what your key signs)", exitPreparedLabel: "Prepared message",
+ exitSubmitPh: "Paste the submission JSON here — {prepared, signature, nonce}", exitSubmitBtn: "Submit signature",
+ exitSubmittedOk: "Signature received. The pool verifies it and opens your exit case automatically — watch the Ledger tab. No further action is needed.",
+ exitErrServer: "The registry answered:", exitErrNet: "Could not reach the registry — try again in a moment.",
+ exitBadJson: "That does not parse as a submission JSON object.",
+ qClosed: "This position was settled by a full exit on {date} — total paid {total} RESET.",
  expBanner: "Coming (proposed): <b>Experience Shares</b> — the RESET team is invited to stake in the pool and donate only its yield, so newcomers can start mining with shares credited under their own address.",
  expBannerLink: "See the plan in the Join section below →",
  expTitle: "Experience Shares — the proposed newcomer program",
@@ -561,6 +600,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  rule3: "<b>Exits take about a day:</b> leaving requires <code>unlock</code> plus the contract's 144-Bitcoin-block exit wait, then <code>withdraw</code>. No instant exits.",
  rule4: "<b>Accounting is provable; custody is trusted.</b> RESET has no pool/multisig primitive, so the operator's key controls the funds. Every contribution, claim and payout is published and hash-chained so any cheating would be visible and attributable — but it cannot be made impossible. This is an experiment, not an investment; no returns are promised.",
  ledgerTitle: "Public ledger", thContributor: "Contributor", thContributed: "Contributed", thPending: "Pending payout", thPaid: "Paid total",
+ settledTitle: "Settled exits", thPrincipal: "Principal returned", thEarnings: "Earnings paid", thTotalPaid: "Total paid", thSettledAt: "Settled",
  noContributors: "No contributors yet — be the first.",
  reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thShares: "Shares", thHash: "Report hash",
  noRounds: "No rounds settled yet.",
@@ -601,6 +641,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
  poolStatusWaiting: "等待注资 — 正在开放出资", poolStatusMining: "挖矿中 — 已锁仓 {deposit} RESET",
+ poolStatusDissolved: "已解散 — 全部结清",
  queryTitle: "查询我的份额",
  queryHint: "粘贴你的地址——64 位十六进制 RESET 格式或 trac1 格式都行，两者是同一把钥匙，页面会自动识别。查询完全在你的浏览器里对本页的公开账本快照进行，不会把地址发送到任何地方。",
  queryPh: "你的地址——RESET 十六进制或 trac1…", queryBtn: "查询",
@@ -632,6 +673,18 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpPanelCheck: "转账前请核对：金额的小数尾数必须与此处显示的完全一致，一位都不能差。",
  fpValidNote: "本金额有效期 30 分钟（至 {time}），请在有效期内转账；超时未到账，该计算记录将自动删除，请重新计算。",
  fpTimeLeft: "剩余时间", fpExpired: "已过期，请重新计算。",
+ exitTitle: "退出拼池——全额退出",
+ exitIntro: "退出是你的权利，不是向谁申请批准：验证通过的退出申请会被自动执行。三件事先讲明——<b>只退全额</b>（本金＋待分收益一次结清）；到账需<b>约 24 小时</b>（合约的 144 个比特币块退出等待期）；若某笔退出会让池子质押跌破 0.1，<b>全池解散、所有人一并结清</b>。",
+ exitHow: "<b>证明是你本人，不用转币——用签名。</b>你的币在池子里，钱包可能是空的；签名零成本、零余额可办。服务器会签发一份一次性声明（官方签名消息格式），你用自己的签名器签好后把签名提交回来即可。申请和提交可以由任何人代劳——包括你自己的 AI——但只有你的私钥能签。而且退出款<b>只打回你账本上的地址本人</b>：整个流程没有任何一步能改收款地址。",
+ exitPosBtn: "查看我的份额", exitNoPos: "该地址在当前账本快照里没有未结清的份额。",
+ exitApplyBtn: "登记退出申请",
+ exitIssued: "你的一次性退出声明已生成。用你的签名器对下面的签名文本签名（例如用拼池仓库里的 exit-sign.mjs），再把得到的提交 JSON 粘贴到下方。",
+ exitSignTextLabel: "签名文本（你的私钥实际签的就是这段）", exitPreparedLabel: "声明对象（prepared）",
+ exitSubmitPh: "把提交 JSON 粘贴到这里——{prepared, signature, nonce}", exitSubmitBtn: "提交签名",
+ exitSubmittedOk: "签名已收到。池子会自动验签并建案执行——留意账本页即可，你不需要再做任何事。",
+ exitErrServer: "登记后台回复：", exitErrNet: "连不上登记后台——稍后再试。",
+ exitBadJson: "这不是可解析的提交 JSON。",
+ qClosed: "该份额已于 {date} 全额退出结清——共付 {total} RESET。",
  expBanner: "新计划（提议中）：<b>体验份额</b>——官方团队受邀入池质押、只捐出收益，新人就能以记在自己地址名下的份额开始挖矿。",
  expBannerLink: "去下方入池板块看计划 →",
  expTitle: "体验份额计划——给新人的提议",
@@ -654,6 +707,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  rule3: "<b>退池约需一天：</b>退出要走 <code>unlock</code> + 合约的 144 个比特币块等待期，再 <code>withdraw</code>。不能秒退。",
  rule4: "<b>账目可证明，托管靠信任。</b>RESET 没有池子/多签原语，池主的私钥控制资金。每一笔出资、claim 和分发都会公开并做哈希链存证，作弊一定会被发现并可追溯——但无法从根本上杜绝。这是个实验，不是投资，不承诺任何收益。",
  ledgerTitle: "公开账本", thContributor: "出资人", thContributed: "已出资", thPending: "待分收益", thPaid: "已分发总额",
+ settledTitle: "已结清退出", thPrincipal: "退回本金", thEarnings: "结清收益", thTotalPaid: "结清总额", thSettledAt: "结清日期",
  noContributors: "尚无人出资——来做第一个。",
  reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thShares: "分账份数", thHash: "报告哈希",
  noRounds: "尚无已结算轮次。",
@@ -735,6 +789,7 @@ function lookup() {
   if (!addr) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
   const c = SNAPSHOT.contributors[addr];
   if (!c) { box.innerHTML = '<span style="color:var(--warn)">' + t.qNotFound + '</span><br><span class="muted">' + t.footerGen + ': ' + snapshotTimeText() + '</span>'; return; }
+  if (c.closed) { box.innerHTML = '<b>' + t.qFound + '</b> <span class="mono">' + addr + '</span><br><span style="color:var(--warn)">' + t.qClosed.replace('{date}', String(c.closed.at).slice(0, 10)).replace('{total}', fmt(c.closed.total_units)) + '</span>'; return; }
   const total = BigInt(SNAPSHOT.total_units), contrib = BigInt(c.contributed_units);
   const sharePct = total === 0n ? '0.00' : (Number(contrib * 1000000n / total) / 10000).toFixed(2);
   const th = BigInt(SNAPSHOT.threshold_units), pend = BigInt(c.pending_units);
@@ -865,6 +920,60 @@ async function fpCalc() {
 }
 document.getElementById('fpAddr').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
 document.getElementById('fpAmt').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
+// --- Exit flow (Overview, inside #join): the page only carries the two
+// public registry calls — POST /exit issues a one-time prepared message,
+// the member signs it with their own signer, POST /exit/verify files the
+// signature. Verification and execution happen pool-side; the payout can
+// only ever go to the address's own ledger entry.
+let exitPrepared = null;
+function exitShow() {
+  const t = T[lang];
+  const addr = normalizeAddress(document.getElementById('exitAddr').value.trim());
+  const pos = document.getElementById('exitPos'), flow = document.getElementById('exitFlow');
+  flow.innerHTML = ''; exitPrepared = null;
+  if (!addr) { pos.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  const c = SNAPSHOT.contributors[addr];
+  if (!c) { pos.innerHTML = '<span style="color:var(--warn)">' + t.exitNoPos + '</span>'; return; }
+  if (c.closed) { pos.innerHTML = '<span style="color:var(--warn)">' + t.qClosed.replace('{date}', String(c.closed.at).slice(0, 10)).replace('{total}', fmt(c.closed.total_units)) + '</span>'; return; }
+  pos.innerHTML = '<table><tr><td>' + t.qContributed + '</td><td>' + fmt(c.contributed_units) + ' RESET</td></tr>' +
+    '<tr><td>' + t.qPending + '</td><td>' + fmt(c.pending_units) + ' RESET</td></tr></table>' +
+    '<div style="margin-top:10px"><button id="exitApplyBtn2" style="font-weight:700">' + t.exitApplyBtn + '</button></div>';
+  document.getElementById('exitApplyBtn2').addEventListener('click', () => exitApply(addr));
+}
+async function exitApply(addr) {
+  const t = T[lang];
+  const flow = document.getElementById('exitFlow');
+  flow.innerHTML = '<span class="muted">…</span>';
+  try {
+    const r = await fetch(REGISTRY_EXIT_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ address: addr }) });
+    const j = await r.json();
+    if (!j.ok) { flow.innerHTML = '<span style="color:var(--warn)">' + t.exitErrServer + ' ' + (j.error || r.status) + '</span>'; return; }
+    exitPrepared = j.exit.prepared;
+    flow.innerHTML = '<p>' + t.exitIssued + '</p>' +
+      '<div class="muted">' + t.exitSignTextLabel + '</div>' +
+      '<div class="mono" style="word-break:break-all;white-space:pre-wrap">' + String(j.exit.signing_text).replace(/</g, '&lt;') + '</div>' +
+      '<div class="muted" style="margin-top:10px">' + t.exitPreparedLabel + ' <button class="exitCopyP">' + t.copyBtn + '</button></div>' +
+      '<div class="mono" style="word-break:break-all">' + JSON.stringify(exitPrepared) + '</div>' +
+      '<p><textarea id="exitSig" rows="4" style="width:100%;box-sizing:border-box" placeholder="' + t.exitSubmitPh + '"></textarea></p>' +
+      '<button onclick="exitSubmit()" style="font-weight:700">' + t.exitSubmitBtn + '</button>' +
+      '<div id="exitSubmitResult" style="margin-top:10px"></div>';
+    flow.querySelector('.exitCopyP').addEventListener('click', ev => copyText(JSON.stringify(exitPrepared), ev.currentTarget));
+  } catch (e) { flow.innerHTML = '<span style="color:var(--warn)">' + t.exitErrNet + '</span>'; }
+}
+async function exitSubmit() {
+  const t = T[lang];
+  const box = document.getElementById('exitSubmitResult');
+  let sub;
+  try { sub = JSON.parse(document.getElementById('exitSig').value.trim()); }
+  catch (e) { box.innerHTML = '<span style="color:var(--warn)">' + t.exitBadJson + '</span>'; return; }
+  try {
+    const r = await fetch(REGISTRY_EXIT_ENDPOINT + '/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sub) });
+    const j = await r.json();
+    if (!j.ok) { box.innerHTML = '<span style="color:var(--warn)">' + t.exitErrServer + ' ' + (j.error || r.status) + '</span>'; return; }
+    box.innerHTML = '<span style="color:var(--accent)">' + t.exitSubmittedOk + '</span>';
+  } catch (e) { box.innerHTML = '<span style="color:var(--warn)">' + t.exitErrNet + '</span>'; }
+}
+document.getElementById('exitAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitShow(); });
 // --- Markets tab: TNK live price, polled client-side from CoinGecko (CORS *).
 // Failures are silent: the last good values stay on screen and the next
 // 30 s cycle retries. Nothing else on this page makes network calls.
@@ -1106,6 +1215,13 @@ console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/leaderboard.html`, le
 // strikes/clean, and the last settled round's result. The page states openly
 // that transfer history is NOT among it: the gateway has no history API.
 const addrRanks = Object.fromEntries(allMiners.map((r, i) => [r[0], i + 1]));
+// Pool ledger positions for the address page's pool section (settled
+// exits included): the chain account data above knows nothing of the
+// pool's internal book, so the generator embeds the relevant slice.
+const addrPoolPos = Object.fromEntries(Object.entries(ledger.contributors).map(([a, c]) => [a, {
+  contributed: c.contributed, pending: c.pending, paid_total: c.paid_total,
+  closed: c.closed ? { principal_units: c.closed.principal_units, earnings_units: c.closed.earnings_units,
+    total_units: c.closed.total_units, at: c.closed.at } : null }]));
 const addrPage = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RESET Mining Pool — Address Detail</title>
@@ -1135,6 +1251,7 @@ const addrPage = `<!doctype html>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 <script>
 const ACCOUNTS = ${JSON.stringify(accountsFull)};
+const LEDGER_POS = ${JSON.stringify(addrPoolPos)};
 const RANKS = ${JSON.stringify(addrRanks)};
 const POOL_ADDR = ${JSON.stringify(ledger.pool_address)};
 const TOTAL_STAKED = ${JSON.stringify(totalStaked.toString())};
@@ -1150,6 +1267,9 @@ en: { title: "Address detail", langBtn: "中文", back: "← Back to the leaderb
  penalty: "Penalty (RESET)", noLast: "No settled round result yet.",
  exitsTitle: "Pending exits", exitAmount: "Amount (RESET)", exitRelease: "Release height",
  noExits: "No pending exits.",
+ poolPosTitle: "Pool position",
+ poolClosed: "Settled by full exit: principal {p} + earnings {e} = {t} RESET, paid on {d}.",
+ poolOpenPos: "Open position in this pool — contributed {c}, pending earnings {p}, already paid {paid} (all RESET).",
  historyTitle: "About history & transfers",
  historyNote: "What this page can show is the address's current state plus its last settled round result and pending exits. Transfer history cannot be listed: the RESET gateway exposes no transaction-history API and the contract keeps no per-address transfer log. A full history would require running a dedicated indexer that records every move from the start (stage 3).",
  invalid: "Missing or invalid address in the URL (?addr=<64-hex RESET address or trac1 address>).",
@@ -1167,6 +1287,9 @@ zh: { title: "地址详情", langBtn: "English", back: "← 返回质押榜",
  penalty: "罚款（RESET）", noLast: "尚无已结算轮次结果。",
  exitsTitle: "退出中的记录", exitAmount: "金额（RESET）", exitRelease: "解锁高度",
  noExits: "没有退出中的记录。",
+ poolPosTitle: "拼池份额",
+ poolClosed: "已全额退出结清：本金 {p}＋收益 {e}＝{t} RESET，结清于 {d}。",
+ poolOpenPos: "在池内的未结清份额——已出资 {c}，待分收益 {p}，已分发 {paid}（均为 RESET）。",
  historyTitle: "关于历史与转账记录",
  historyNote: "本页能展示的是该地址的当前状态、上一轮结算结果和退出中的记录。转账记录无法列出：RESET 网关没有交易历史接口，合约也不保存逐地址的转账流水。完整的历史需要自建索引节点从一开始逐条记录（第三阶段）。",
  invalid: "URL 里缺少地址或地址格式不对（?addr=<64 位 RESET 地址或 trac1 地址>）。",
@@ -1227,8 +1350,12 @@ function render() {
   const box = document.getElementById('detail');
   if (!addr) { box.innerHTML = '<p style="color:var(--warn)">' + t.invalid + '</p>'; return; }
   const banner = addr === POOL_ADDR ? '<div class="poolbanner">' + t.poolBanner + '</div>' : '';
+  const pos = LEDGER_POS[addr];
+  const poolSection = pos ? '<h2>' + t.poolPosTitle + '</h2><div class="card"><p style="margin:0">' + (pos.closed
+    ? t.poolClosed.replace('{p}', fmt(pos.closed.principal_units)).replace('{e}', fmt(pos.closed.earnings_units)).replace('{t}', fmt(pos.closed.total_units)).replace('{d}', String(pos.closed.at).slice(0, 10))
+    : t.poolOpenPos.replace('{c}', fmt(pos.contributed)).replace('{p}', fmt(pos.pending)).replace('{paid}', fmt(pos.paid_total))) + '</p></div>' : '';
   const acc = ACCOUNTS[addr];
-  if (!acc) { box.innerHTML = banner + '<p style="color:var(--warn)">' + t.notFound + '</p><p class="mono">' + addr + '</p>'; return; }
+  if (!acc) { box.innerHTML = banner + '<p style="color:var(--warn)">' + t.notFound + '</p><p class="mono">' + addr + '</p>' + poolSection; return; }
   const m = acc.mine || {};
   const exits = acc.exits || [];
   const exitTotal = exits.reduce((s, e) => s + BigInt(e.amount), 0n);
@@ -1245,6 +1372,7 @@ function render() {
     '<div class="stat"><b>' + sharePct + '%</b><span>' + t.share + '</span></div>' +
     '<div class="stat"><b>#' + (RANKS[addr] || '—') + '</b><span>' + t.rank + '</span></div>' +
     '</div>' +
+    poolSection +
     '<h2>' + t.mineTitle + '</h2><div class="card"><table>' +
     '<tr><td>' + t.claimNow + '</td><td>' + (m.claim ? t.level + ' ' + m.claim.q : t.claimNone) + '</td></tr>' +
     '<tr><td>' + t.fairEst + '</td><td>' + fmt(m.fair_share_estimate || '0') + '</td></tr>' +

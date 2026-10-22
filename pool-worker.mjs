@@ -27,22 +27,28 @@
 //   blindly in the same pass
 // - settlement only RECORDS pool earnings into the ledger, and only when
 //   contributors are actually recorded there; it never invents contributors
-// - this worker has NO transfer / unlock / withdraw code path at all.
-//   Payouts and exits are separate, explicitly approved steps.
-// - lock / claim / post_headers cost no TNK (only transfers do, and this
-//   worker never transfers), so the pool MSB/TNK balance does not gate mining.
+// - member EXITS run through lib/exit-exec.mjs: signature intake on every
+//   pass (no signer calls), and the unlock / withdraw / transfer state
+//   machine ONLY when that module's ARMED constant is true — as delivered
+//   it is false, so exits can be verified and cased but no coin moves.
+//   Regular payouts are still a separate, explicitly approved step.
+// - lock / claim / post_headers cost no TNK (only transfers do — the pool
+//   pays the 0.03 TNK fee on exit transfers once armed), so the pool
+//   MSB/TNK balance does not gate mining.
 import { Client } from '../reset/signer/node_modules/@modelcontextprotocol/sdk/dist/esm/client/index.js';
 import { StdioClientTransport } from '../reset/signer/node_modules/@modelcontextprotocol/sdk/dist/esm/client/stdio.js';
 import { readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { MIN_DEPOSIT, formatCoin, settleRound, totalContributed, planLock } from './lib/pool.mjs';
-import { runFingerprintPass } from './lib/fprun.mjs';
+import { runFingerprintPass, registryConfig } from './lib/fprun.mjs';
+import { runExitPass, registryExitClient, loadExits, saveExits, ARMED as EXIT_ARMED } from './lib/exit-exec.mjs';
 
 const HOME = process.env.HOME;
 const SIGNER = `${HOME}/workspace/reset/signer`;
 const POOL_DIR = `${HOME}/.reset-pool-signer`;
 const PWFILE = `${POOL_DIR}/.wallet-password`;
 const LEDGER = `${HOME}/workspace/reset-pool/state/live-ledger.json`;
+const EXITS = `${HOME}/workspace/reset-pool/state/exits.json`;
 const LOG = `${HOME}/workspace/reset-pool/pool.log`;
 
 const mode = process.argv[2];
@@ -187,6 +193,48 @@ async function fingerprintStep(s) {
   }
 }
 
+// Member exits (lib/exit-exec.mjs): verify signed exit requests from the
+// registry and open cases; advance the money state machine only when the
+// executor is ARMED (it is not, as delivered — intake only). Runs BEFORE
+// lock/claim so an armed pool never locks fresh funds ahead of a pending
+// exit unlock. Never throws into the pass.
+function exitChainAdapter(address) {
+  const outcomeOf = r => ({ outcome: r?.outcome || (r?.ok ? 'ok' : 'unknown'), message: r?.message ?? r?.error ?? null,
+    release_at_or_after: r?.release_at_or_after ?? r?.summary?.release_at_or_after ?? null });
+  return {
+    async position() {
+      const [acc, st] = await Promise.all([
+        fetch(`https://reset.openmayhem.ai/v1/account/${address}`, { signal: AbortSignal.timeout(20000) }).then(r => (r.ok ? r.json() : null)).catch(() => null),
+        fetch('https://reset.openmayhem.ai/v1/state', { signal: AbortSignal.timeout(20000) }).then(r => (r.ok ? r.json() : null)).catch(() => null),
+      ]);
+      if (!acc || !st) throw new Error('gateway unreachable for exit position');
+      return { balance: BigInt(acc.balance ?? 0), deposit: BigInt(acc.deposit ?? 0),
+        exits: (acc.exits ?? []).map(e => ({ amount: e.amount, release: e.release })), counted: Number(st.counted ?? 0) };
+    },
+    unlock: async amount => outcomeOf(await call('unlock', { amount }, 1)),
+    withdraw: async () => outcomeOf(await call('withdraw', {}, 1)),
+    transfer: async (to, amount) => outcomeOf(await call('transfer', { to, amount }, 1)),
+  };
+}
+async function exitStep(s) {
+  try {
+    if (!existsSync(LEDGER)) return null;
+    const ledger = JSON.parse(readFileSync(LEDGER, 'utf8'));
+    const exits = loadExits(EXITS);
+    const before = JSON.stringify(ledger);
+    const actions = await runExitPass({
+      ledger, exits, chain: exitChainAdapter(s.address),
+      registry: registryExitClient(registryConfig()), log, armed: EXIT_ARMED,
+    });
+    saveExits(EXITS, exits);
+    if (JSON.stringify(ledger) !== before) writeFileSync(LEDGER, JSON.stringify(ledger, null, 2));
+    return actions;
+  } catch (e) {
+    log({ event: 'exit_pass_error', error: String((e && e.message) || e).slice(0, 160) });
+    return null;
+  }
+}
+
 // Watchdog for the 1-minute fingerprint matcher: if its systemd timer is
 // not active, start it. Best-effort only; never fails the pass.
 function sh(cmd, args) {
@@ -211,6 +259,15 @@ async function singlePass() {
     ledger_total: formatCoin(ledgerTotalUnits()) };
   const fpActions = await fingerprintStep(s);
   if (fpActions && fpActions.length) out.fp = fpActions;
+  const exitActions = await exitStep(s);
+  if (exitActions && exitActions.length) out.exits = exitActions;
+  const dissolved = (() => { try { return !!JSON.parse(readFileSync(LEDGER, 'utf8')).dissolved; } catch { return false; } })();
+  if (dissolved) { // pool closed: no locking, claiming or settling anymore
+    log({ event: 'pass_skipped_dissolved' });
+    out.dissolved = true;
+    console.log(JSON.stringify(out));
+    return;
+  }
   try { out.headers = (await call('post_headers', {}, 2, 8000)).outcome || 'ok'; } catch { out.headers = 'failed'; }
   const lock = await maybeLock(await call('status', {}));
   if (lock) out.lock = lock;

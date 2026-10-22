@@ -39,6 +39,23 @@
 //                 evidence until attribution lands)
 //   POST /sweep   operator only: delete expired calc records (TTL below)
 //   GET  /health  public: { ok, records } — count only, never any detail
+//   POST /exit    public: register an exit INTENT. The server builds the
+//                 official chat-protocol prepared message ({v:1,
+//                 kind:'agent', addr, text, ts, nonce}) with a one-time
+//                 nonce and returns it with its canonical signing text;
+//                 the member signs it with their own wallet — signing is
+//                 free and works at zero balance (see lib/exit.mjs).
+//   POST /exit/verify public: submit {prepared, signature, nonce}. The
+//                 Worker binds the submission EXACTLY to the issued
+//                 intent (nonce unconsumed, unexpired, prepared identical
+//                 to what was issued) and stores it as 'submitted'. The
+//                 cryptographic verification itself happens pool-side
+//                 (lib/exit-exec.mjs). A nonce is burned by the first
+//                 submission, valid signature or not: replays fail.
+//   GET  /exit/pending operator only: submitted exit requests awaiting
+//                 pool-side verification.
+//   POST /exit/resolve operator only: record the pool-side verdict
+//                 ('verified' = a case was opened; 'rejected' + reason).
 //
 // Calc-record TTL: a kind='calc' row is a visitor's stated INTENT to
 // transfer. While it sits at status='ok' and no matching inflow
@@ -176,20 +193,27 @@ const calcCutoff = () => new Date(Date.now() - CALC_TTL_MS).toISOString();
 // ONLY kind='calc' rows still at status='ok' go. 'fulfilled' rows are
 // the audit trail; 'held' rows are evidence frozen by the matcher
 // behind a parked unclaimed entry; the historical kinds (import /
-// auto_match / unclaimed) are never touched.
+// auto_match / unclaimed) are never touched. The same sweep retires
+// exit intents that were never submitted (kind='exit_request',
+// status='pending'); submitted / verified / rejected exit requests are
+// evidence and never expire.
 async function sweepExpiredCalcs(env) {
   const r = await env.REGISTRY_DB.prepare(
     `DELETE FROM records WHERE kind = 'calc' AND status = 'ok' AND ts < ?`)
     .bind(calcCutoff()).run();
-  return r?.meta?.changes ?? 0;
+  const x = await env.REGISTRY_DB.prepare(
+    `DELETE FROM records WHERE kind = 'exit_request' AND status = 'pending' AND ts < ?`)
+    .bind(calcCutoff()).run();
+  return (r?.meta?.changes ?? 0) + (x?.meta?.changes ?? 0);
 }
 
 async function insertRecord(env, rec) {
   const r = await env.REGISTRY_DB.prepare(
-    `INSERT INTO records (ts, kind, address_hex, planned_units, fp_units, exact_units, status, source, note, ip_hash)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    `INSERT INTO records (ts, kind, address_hex, planned_units, fp_units, exact_units, status, source, note, ip_hash, nonce, payload)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .bind(rec.ts, rec.kind, rec.address_hex, rec.planned_units, rec.fp_units,
-          rec.exact_units, rec.status, rec.source, rec.note, rec.ip_hash)
+          rec.exact_units, rec.status, rec.source, rec.note, rec.ip_hash,
+          rec.nonce ?? null, rec.payload ?? null)
     .run();
   return r?.meta?.last_row_id ?? null;
 }
@@ -410,6 +434,153 @@ async function postSweep(request, env) {
   return json({ ok: true, deleted: await sweepExpiredCalcs(env) });
 }
 
+// ------------------------------------------------------------ exit intents
+// Mirror of lib/exit.mjs (this file stays self-contained). The Worker
+// ISSUES the prepared message and binds submissions to it; the signature
+// itself is verified pool-side by lib/exit-exec.mjs.
+const POOL_ADDRESS_DEFAULT = '4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6';
+const poolAddressOf = env => (typeof env.POOL_ADDRESS === 'string' && /^[0-9a-f]{64}$/.test(env.POOL_ADDRESS))
+  ? env.POOL_ADDRESS : POOL_ADDRESS_DEFAULT;
+// Byte-for-byte port of the official stableJSON (contract/rules/json.js).
+function stableJSON(value) {
+  if (value === null || value === undefined) return 'null';
+  if (typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stableJSON).join(',')}]`;
+  return `{${Object.keys(value).sort().map(k => `${JSON.stringify(k)}:${stableJSON(value[k])}`).join(',')}}`;
+}
+const exitTextFor = (pool, address, nonce) =>
+  `EXIT full pool position. Pool ${pool} member ${address} nonce ${nonce}`;
+const exitSigningText = p => 'reset-chat/v1\n' + stableJSON(
+  { v: p.v, kind: p.kind, addr: p.addr, text: p.text, ts: p.ts, nonce: p.nonce });
+const newNonce = () => [...crypto.getRandomValues(new Uint8Array(8))]
+  .map(b => b.toString(16).padStart(2, '0')).join('');
+
+async function exitRowsBy(env, col, val) {
+  const { results } = await env.REGISTRY_DB.prepare(
+    `SELECT * FROM records WHERE ${col} = ? ORDER BY ts, id`).bind(val).all();
+  return (results ?? []).filter(r => r.kind === 'exit_request');
+}
+const exitByNonce = async (env, nonce) => (await exitRowsBy(env, 'nonce', nonce))[0] ?? null;
+
+async function ipHashOf(request) {
+  const ip = request.headers.get('cf-connecting-ip') || '';
+  return ip ? await sha256Hex(ip) : null;
+}
+async function rateLimited(env, ipHash) {
+  if (!ipHash) return false;
+  const since = new Date(Date.now() - 60_000).toISOString();
+  const row = await env.REGISTRY_DB.prepare(
+    'SELECT COUNT(*) AS n FROM records WHERE ip_hash = ? AND ts >= ?').bind(ipHash, since).first();
+  return row && Number(row.n) >= RATE_LIMIT;
+}
+
+const exitView = row => {
+  let prepared = null;
+  try { prepared = JSON.parse(row.payload ?? 'null')?.prepared ?? null; } catch {}
+  return { id: row.id, address_hex: row.address_hex, nonce: row.nonce, status: row.status,
+    issued_at: row.ts, expires_at: new Date(Date.parse(row.ts) + CALC_TTL_MS).toISOString(), prepared,
+    signing_text: prepared ? exitSigningText(prepared) : null };
+};
+
+// POST /exit — file an exit intent and receive the prepared message to
+// sign. Idempotent while an intent is live: re-asking returns the SAME
+// prepared object (same nonce) instead of minting a second one. Any
+// agent able to POST can file on a member's behalf — the intent alone is
+// worthless without the member's own signature (see /exit/verify).
+async function postExit(request, env) {
+  try { await sweepExpiredCalcs(env); } catch {}
+  let body;
+  try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ ok: false, error: 'body must be a JSON object' }, 400);
+  const addressHex = typeof body.address === 'string' ? normalizeAddress(body.address) : null;
+  if (!addressHex) return json({ ok: false, error: 'address is not a valid RESET (64-hex) or trac1 address' }, 400);
+  const ipHash = await ipHashOf(request);
+  if (await rateLimited(env, ipHash)) return json({ ok: false, error: 'rate limit: too many requests from this network, retry shortly' }, 429);
+  const mine = await exitRowsBy(env, 'address_hex', addressHex);
+  const live = mine.find(r => r.status === 'pending');
+  if (live) return json({ ok: true, reused: true, exit: exitView(live) }, 200);
+  if (mine.some(r => r.status === 'submitted')) return json({ ok: false, error: 'exit already submitted — awaiting verification' }, 409);
+  if (mine.some(r => r.status === 'verified')) return json({ ok: false, error: 'exit already verified — a case is open' }, 409);
+  const nonce = newNonce();
+  const prepared = { v: 1, kind: 'agent', addr: addressHex,
+    text: exitTextFor(poolAddressOf(env), addressHex, nonce), ts: Date.now(), nonce };
+  const id = await insertRecord(env, {
+    ts: new Date().toISOString(), kind: 'exit_request', address_hex: addressHex,
+    planned_units: null, fp_units: null, exact_units: null, status: 'pending',
+    source: 'exit', note: null, ip_hash: ipHash, nonce,
+    payload: JSON.stringify({ prepared }),
+  });
+  const row = await exitByNonce(env, nonce);
+  return json({ ok: true, exit: exitView(row ?? { id, address_hex: addressHex, nonce, status: 'pending', ts: new Date().toISOString(), payload: JSON.stringify({ prepared }) }) }, 201);
+}
+
+// POST /exit/verify — submit the member's signature over the issued
+// prepared message. The Worker enforces the binding (live intent, exact
+// prepared, matching nonce) and burns the nonce by moving the record to
+// 'submitted'; the pool side then verifies the Ed25519 signature itself
+// before opening any case. A submission with an INVALID signature still
+// burns the nonce — the member simply files a fresh intent.
+async function postExitVerify(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ ok: false, error: 'body must be a JSON object' }, 400);
+  const { prepared, signature, nonce } = body;
+  if (typeof nonce !== 'string' || !/^[0-9a-f]{16}$/.test(nonce)) return json({ ok: false, error: 'nonce must be 16 lowercase hex chars' }, 400);
+  if (typeof signature !== 'string' || !/^[0-9a-f]{128}$/.test(signature)) return json({ ok: false, error: 'signature must be 128 lowercase hex chars (Ed25519)' }, 400);
+  if (!prepared || typeof prepared !== 'object' || Array.isArray(prepared)) return json({ ok: false, error: 'prepared must be the issued message object' }, 400);
+  if (prepared.nonce !== nonce) return json({ ok: false, error: 'prepared.nonce does not match nonce' }, 400);
+  const row = await exitByNonce(env, nonce);
+  if (!row) return json({ ok: false, error: 'unknown nonce — file an intent with POST /exit first' }, 404);
+  if (row.status !== 'pending') return json({ ok: false, error: `nonce already consumed (status: ${row.status})` }, 409);
+  if (Date.now() - Date.parse(row.ts) > CALC_TTL_MS) return json({ ok: false, error: 'intent expired — file a fresh POST /exit' }, 410);
+  let issued = null;
+  try { issued = JSON.parse(row.payload ?? 'null')?.prepared ?? null; } catch {}
+  if (!issued || stableJSON(prepared) !== stableJSON(issued)) {
+    return json({ ok: false, error: 'prepared does not match the issued intent — sign the exact object POST /exit returned' }, 400);
+  }
+  const payload = JSON.stringify({ prepared: issued, signature, submitted_at: new Date().toISOString() });
+  const r = await env.REGISTRY_DB.prepare(
+    `UPDATE records SET status = 'submitted', payload = ? WHERE id = ? AND status = 'pending'`)
+    .bind(payload, row.id).run();
+  if ((r?.meta?.changes ?? 0) !== 1) return json({ ok: false, error: 'nonce already consumed' }, 409);
+  return json({ ok: true, id: row.id, status: 'submitted' });
+}
+
+// GET /exit/pending — operator only: submissions awaiting pool-side
+// cryptographic verification, oldest first.
+async function getExitPending(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  const rows = await exitRowsBy(env, 'kind', 'exit_request');
+  const submissions = rows.filter(r => r.status === 'submitted').map(r => {
+    let p = {};
+    try { p = JSON.parse(r.payload ?? '{}'); } catch {}
+    return { id: r.id, address_hex: r.address_hex, nonce: r.nonce, ts: r.ts,
+      prepared: p.prepared ?? null, signature: p.signature ?? null, submitted_at: p.submitted_at ?? null };
+  });
+  return json({ ok: true, submissions });
+}
+
+// POST /exit/resolve — operator only: record the pool-side verdict for a
+// submitted exit request ('verified' with the case id as note, or
+// 'rejected' with the reason as note).
+async function postExitResolve(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  let body;
+  try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  const id = Number(body?.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return json({ ok: false, error: 'id must be a positive integer' }, 400);
+  if (!['verified', 'rejected'].includes(body?.result)) return json({ ok: false, error: "result must be 'verified' or 'rejected'" }, 400);
+  const note = typeof body.note === 'string' ? body.note.slice(0, MAX_FIELD) : null;
+  const r = await env.REGISTRY_DB.prepare(
+    `UPDATE records SET status = ?, note = ? WHERE id = ? AND kind = 'exit_request' AND status = 'submitted'`)
+    .bind(body.result, note, id).run();
+  return json({ ok: true, updated: r?.meta?.changes ?? 0 });
+}
+
 async function getHealth(env) {
   const row = await env.REGISTRY_DB.prepare('SELECT COUNT(*) AS n FROM records').first();
   return json({ ok: true, records: Number(row?.n ?? 0) });
@@ -426,6 +597,10 @@ export default {
       if (url.pathname === '/hold' && request.method === 'POST') return await postHold(request, env);
       if (url.pathname === '/sweep' && request.method === 'POST') return await postSweep(request, env);
       if (url.pathname === '/lookup' && request.method === 'GET') return await getLookup(request, env, url);
+      if (url.pathname === '/exit' && request.method === 'POST') return await postExit(request, env);
+      if (url.pathname === '/exit/verify' && request.method === 'POST') return await postExitVerify(request, env);
+      if (url.pathname === '/exit/pending' && request.method === 'GET') return await getExitPending(request, env);
+      if (url.pathname === '/exit/resolve' && request.method === 'POST') return await postExitResolve(request, env);
       if (url.pathname === '/health' && request.method === 'GET') return await getHealth(env);
       return json({ ok: false, error: 'not found' }, 404);
     } catch (e) {

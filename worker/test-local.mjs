@@ -16,8 +16,8 @@ import { encodeTracAddress, fingerprint } from '../lib/fpmatch.mjs';
 // <conds> are AND-joined atoms (split at paren depth 0): col = ?,
 // col >= ?, col < ?, col = 'lit', col <> 'lit', or one parenthesized
 // (atom OR atom) group — '?' params are consumed in textual order.
-function condPredicate(where, params) {
-  let pi = 0;
+function condPredicate(where, params, piStart = 0) {
+  let pi = piStart;
   const atomPred = raw => {
     const atom = raw.trim();
     let m;
@@ -66,11 +66,19 @@ class MockStmt {
       this.db.rows = this.db.rows.filter(r => !pred(r));
       return { meta: { changes: before - this.db.rows.length } };
     }
-    if ((m = this.sql.match(/^UPDATE records SET status = '(\w+)' WHERE (.+)$/s))) {
-      const newStatus = m[1];
-      const pred = condPredicate(m[2], this.params);
+    if ((m = this.sql.match(/^UPDATE records SET (.+?) WHERE (.+)$/s))) {
+      // Assignments are `col = 'lit'` or `col = ?`, comma-separated, no
+      // commas inside values; '?' params are consumed in textual order —
+      // SET assignments first, then the WHERE clause.
+      let pi = 0;
+      const assigns = m[1].split(',').map(part => {
+        const am = part.trim().match(/^(\w+) = (?:'([^']*)'|\?)$/);
+        assert(am, `mock: unsupported assignment: ${part}`);
+        return [am[1], am[2] !== undefined ? am[2] : this.params[pi++]];
+      });
+      const pred = condPredicate(m[2], this.params, pi);
       let changes = 0;
-      for (const r of this.db.rows) if (pred(r)) { r.status = newStatus; changes++; }
+      for (const r of this.db.rows) if (pred(r)) { for (const [c, v] of assigns) r[c] = v; changes++; }
       return { meta: { changes } };
     }
     assert.fail(`mock: unsupported run SQL: ${this.sql}`);
@@ -317,5 +325,65 @@ for (let i = 0; i < 30; i++) {
 }
 r = await j(await call('POST', '/calc', { body: { address: 'junk', status: 'invalid' }, ip }));
 assert.equal(r.status, 429); ok('rate limit: 31st POST from one IP within a minute -> 429');
+
+// --- POST /exit: signed-message exit intent (no transfer, no balance) ---
+r = await j(await call('POST', '/exit', { body: { address: 'not-an-address' } }));
+assert.equal(r.status, 400); ok('POST /exit with garbage address -> 400');
+r = await j(await call('POST', '/exit', { body: { address: A } }));
+assert.equal(r.status, 201, JSON.stringify(r.body));
+const intent = r.body.exit;
+assert.equal(intent.address_hex, A);
+assert.match(intent.nonce, /^[0-9a-f]{16}$/);
+assert.equal(intent.prepared.v, 1); assert.equal(intent.prepared.kind, 'agent');
+assert.equal(intent.prepared.addr, A); assert.equal(intent.prepared.nonce, intent.nonce);
+assert(intent.prepared.text.includes(POOL) && intent.prepared.text.includes(A) && intent.prepared.text.includes(intent.nonce));
+assert(intent.signing_text.startsWith('reset-chat/v1\n'));
+ok('POST /exit issues a prepared agent message (pool + member + nonce in the text)');
+r = await j(await call('POST', '/exit', { body: { address: encodeTracAddress(A) } }));
+assert.equal(r.status, 200); assert.equal(r.body.reused, true); assert.equal(r.body.exit.nonce, intent.nonce);
+ok('POST /exit again (trac1 spelling) returns the SAME live intent — one nonce per member');
+// verify: tampered prepared is refused before the nonce is touched
+const tampered = { ...intent.prepared, text: intent.prepared.text.replace('EXIT', 'EXIT!') };
+r = await j(await call('POST', '/exit/verify', { body: { prepared: tampered, signature: 'cd'.repeat(64), nonce: intent.nonce } }));
+assert.equal(r.status, 400); ok('POST /exit/verify with an altered prepared text -> 400 (must sign the issued object)');
+// verify: happy path stores the submission and burns the nonce
+r = await j(await call('POST', '/exit/verify', { body: { prepared: intent.prepared, signature: 'cd'.repeat(64), nonce: intent.nonce } }));
+assert.equal(r.status, 200, JSON.stringify(r.body)); assert.equal(r.body.status, 'submitted');
+ok('POST /exit/verify with the exact issued prepared -> submitted');
+r = await j(await call('POST', '/exit/verify', { body: { prepared: intent.prepared, signature: 'cd'.repeat(64), nonce: intent.nonce } }));
+assert.equal(r.status, 409); ok('POST /exit/verify replaying the same nonce -> 409 (nonce is single-use)');
+r = await j(await call('POST', '/exit', { body: { address: A } }));
+assert.equal(r.status, 409); ok('POST /exit while a submission awaits verification -> 409');
+// operator queue + resolve
+r = await j(await call('GET', '/exit/pending'));
+assert.equal(r.status, 401); ok('GET /exit/pending without operator key -> 401');
+r = await j(await call('GET', '/exit/pending', { key: KEY }));
+assert.equal(r.status, 200);
+const sub = r.body.submissions.find(s => s.address_hex === A);
+assert(sub && sub.signature === 'cd'.repeat(64) && sub.prepared.nonce === intent.nonce && sub.submitted_at);
+ok('GET /exit/pending lists the submission with prepared + signature for pool-side verify');
+r = await j(await call('POST', '/exit/resolve', { key: KEY, body: { id: sub.id, result: 'verified', note: 'exit-test-001' } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 1);
+assert.equal(db.rows.find(x => x.id === sub.id).status, 'verified');
+ok('POST /exit/resolve records the pool-side verdict (verified, case id as note)');
+r = await j(await call('POST', '/exit', { body: { address: A } }));
+assert.equal(r.status, 409); ok('POST /exit after verification -> 409 (a case is already open)');
+// expiry: an intent never submitted dies with the sweep; verified never does
+const oldExitTs = new Date(Date.now() - 31 * 60 * 1000).toISOString();
+db.seed([
+  { ts: oldExitTs, kind: 'exit_request', address_hex: C1, planned_units: null, fp_units: null, exact_units: null, status: 'pending', source: 'exit', nonce: 'aaaaaaaabbbbbbbb', payload: '{}' },
+  { ts: oldExitTs, kind: 'exit_request', address_hex: C2, planned_units: null, fp_units: null, exact_units: null, status: 'verified', source: 'exit', nonce: 'ccccccccdddddddd', payload: '{}' },
+]);
+r = await j(await call('POST', '/sweep', { key: KEY }));
+assert(!db.rows.some(x => x.nonce === 'aaaaaaaabbbbbbbb'));
+assert(db.rows.some(x => x.nonce === 'ccccccccdddddddd' && x.status === 'verified'));
+ok('sweep deletes only the expired unsubmitted exit intent; a verified one survives');
+// an expired intent cannot be verified even while its row still exists
+const expNonce = 'eeeeeeeeffffffff';
+const expPrepared = { v: 1, kind: 'agent', addr: C3, text: 'x', ts: Date.now() - 31 * 60 * 1000, nonce: expNonce };
+db.seed([{ ts: oldExitTs, kind: 'exit_request', address_hex: C3, planned_units: null, fp_units: null, exact_units: null,
+  status: 'pending', source: 'exit', nonce: expNonce, payload: JSON.stringify({ prepared: expPrepared }) }]);
+r = await j(await call('POST', '/exit/verify', { body: { prepared: expPrepared, signature: 'cd'.repeat(64), nonce: expNonce } }));
+assert.equal(r.status, 410); ok('POST /exit/verify against an expired intent -> 410');
 
 console.log(`\nworker/test-local: all ${n} checks passed`);

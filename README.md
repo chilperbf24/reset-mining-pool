@@ -128,6 +128,67 @@ only in the Experience Shares proposal above):
   re-checks the tail against that address and credits it — no GitHub, no
   signature. A round amount (tail 0) can never be claimed this way.
 
+## Leaving the pool — the exit charter (operator ruling, 2026-10-22)
+
+1. **Exit is a right, not an approval.** A verified exit request is
+   executed automatically. Only an accounting anomaly (the books don't
+   reconcile, the amount exceeds the recorded position, the chain state
+   disagrees) halts a case for the operator.
+2. **Full exits only.** Principal + settled pending earnings, settled
+   in one payment. No partial exits.
+3. **No 0.1 floor is defended.** Before a case's unlock the executor
+   projects the pool deposit *after* paying it: strictly below 0.1
+   (10,000,000 units) escalates that exit to a **full dissolution** —
+   the entire deposit is unlocked and, after the 144-block wait, every
+   member is settled in full, all positions close, and the pool is
+   marked dissolved. Landing exactly on 0.1 does not dissolve; the pool
+   continues.
+
+**Identity: a signed message, never a transfer.** Members' coins sit
+inside the pool, so their own wallets may hold a zero balance — asking
+for a proof transfer would lock out exactly the people the pool exists
+for. Instead:
+
+1. File an intent — `POST /exit` on the registry (the homepage exit
+   section does this; **any agent able to POST may file on a member's
+   behalf — including the member's own AI**). The server returns a
+   prepared chat-protocol message `{v:1, kind:'agent', addr, text, ts,
+   nonce}` with a one-time nonce (30-minute TTL); `text` states the
+   exit, the pool address, the member address and the nonce.
+2. The member signs that exact message with their own signer — Ed25519
+   over `'reset-chat/v1\n' + stableJSON(prepared)`, the construction
+   every RESET node verifies (the repo's `exit-sign.mjs` does it
+   against a standard signer keystore). **Signing is free and works at
+   zero balance.**
+3. Submit `{prepared, signature, nonce}` to `POST /exit/verify` (any
+   agent may carry it). The nonce is consumed by the first submission,
+   so replays fail. The pool verifies the signature locally
+   (`lib/exit.mjs`) and opens a case in `state/exits.json`; a valid
+   signature from an address with no ledger position opens nothing.
+4. Execution (once the operator arms the executor — see
+   `lib/exit-exec.mjs`): unlock `max(due, 0.1)` → wait 144 blocks →
+   withdraw → transfer the full due → close the position on the public
+   ledger (`closePosition` in `lib/pool.mjs`; settled exits appear on
+   the ledger page and the member's address page). Unknown receipts are
+   resolved by re-reading the chain, never blindly re-sent — a transfer
+   is never re-sent at all. Your amount is frozen at the moment the
+   unlock is sent; rounds settling during the 24-hour wait are not
+   included (any earnings landing afterwards stay as pending, payable
+   under the normal rules). The 0.03 TNK transfer fee is paid by the
+   **pool**, never deducted: if a transfer fails on fees, the case
+   parks in `halted_funds_ready` with the RESET safe in the pool
+   balance.
+
+**Two independent locks.** The signature stops a stranger from kicking
+a member out (a forged or replayed request opens no case). The **payee
+lock** stops theft of the payout itself: exit proceeds are paid *only*
+to the address the ledger records for that position — no field in any
+request can name a different recipient.
+
+(The old fingerprint micro-transfer proof survives only as a manual
+operator exception for edge cases — it is not part of the automated
+flow in any way.)
+
 ## Layout
 
 | file | role |
@@ -135,13 +196,19 @@ only in the Experience Shares proposal above):
 | `lib/pool.mjs` | accounting core: contributions, snapshots, pro-rata settlement, payouts, hash-chained events |
 | `lib/fpmatch.mjs` | fingerprint math + inflow attribution + unclaimed claims (pure, unit-tested) |
 | `lib/fprun.mjs` | shared matcher runner: state IO + candidate loading, used by both matcher paths |
+| `lib/exit.mjs` | exit primitives: official signing-text construction, Ed25519 verification, dissolution planning, executor conservation self-check |
+| `lib/exit-exec.mjs` | exit executor: signed-request intake (registry → cases) + unlock → wait → withdraw → pay state machine. **`ARMED = false` as delivered** |
+| `exit-sign.mjs` | member-side helper: sign an exit prepared message with your own signer keystore (official keystore code) |
 | `ledger.mjs` | operator CLI: `init / contribute / settle / payouts / status` over `state/live-ledger.json` |
-| `pool-worker.mjs` | live worker for the pool wallet: status, header posting, fingerprint pass, full-balance lock (idle balance ≥ 0.1 is locked in full in one move; each lock move is at least the 0.1 minimum), level-1000 claim, settlement recording, matcher-timer watchdog. **No transfer/unlock/withdraw code path.** |
+| `pool-worker.mjs` | live worker for the pool wallet: status, header posting, fingerprint pass, exit pass (signature intake always; money movement only when the exit executor is armed), full-balance lock (idle balance ≥ 0.1 is locked in full in one move; each lock move is at least the 0.1 minimum), level-1000 claim, settlement recording, matcher-timer watchdog |
 | `fp-match.mjs` | 1-minute fingerprint matcher (systemd timer `reset-pool-fpmatch`): attributes inflows, parks the rest as unclaimed |
 | `claim-unclaimed.mjs` | claim a parked amount with its address alone (fingerprint tail check) |
 | `verify.mjs` | independent report verifier (no shared settlement code) |
 | `simulate.mjs` | end-to-end demo driven by the real contract `minePayout` |
-| `test.mjs` | unit checks: parsing, pro-rata + dust, fees, thresholds, tamper evidence |
+| `test.mjs` | unit checks: parsing, pro-rata + dust, fees, thresholds, tamper evidence, exit close-out + dissolution boundary |
+| `test-exit.mjs` | exit suite: signature crypto end-to-end (pool key, official cross-checks), registry intake, executor state machine vs a fake chain |
+| `state/exits.json` | exit case book (verified cases, rejections, dissolution state) |
+| `worker/` | calculation-registry Worker + D1: calculator filings, lookups, and the exit endpoints (`POST /exit`, `POST /exit/verify`) — see `worker/README.md` |
 | `state/live-ledger.json` | the live ledger (currently: no contributors, total 0) |
 | `state/demo-ledger.json`, `reports/` | simulation output |
 
@@ -149,6 +216,7 @@ only in the Experience Shares proposal above):
 
 ```sh
 node test.mjs                      # unit checks
+node test-exit.mjs                 # exit mechanism: signature crypto + intake + state machine
 node simulate.mjs                  # 24 simulated rounds, real contract payout math
 node verify.mjs reports/round-*.json   # independently verify every round report
 node pool-worker.mjs               # live on-chain status of the pool address
@@ -182,5 +250,11 @@ tenth of the pool's per-round take for their share, accumulated until the
 5. Payouts: when a contributor's pending ≥ 0.01, execute the transfer as a
    separate explicitly-approved step and record it. (Deliberately not
    automated in this prototype.)
-6. Exits: a contributor's principal can leave only through
-   `unlock` + the 144-block wait; plan exit batches accordingly.
+6. Exits: built per the charter above — signed intent via the registry,
+   pool-side verification, case in `state/exits.json`, executor state
+   machine. It ships **disarmed** (`ARMED = false` in
+   `lib/exit-exec.mjs`): requests verify and case automatically, but no
+   coin moves until the operator flips `ARMED` to `true` as a code
+   change, after applying the registry migration
+   (`worker/migrations/0001_exit.sql`), redeploying the Worker and
+   regenerating the site.
