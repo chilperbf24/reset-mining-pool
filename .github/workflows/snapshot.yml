@@ -12,6 +12,9 @@ on:
 permissions:
   contents: write
 
+# Serialize runs: only one refresh executes at a time, later triggers
+# queue instead of running in parallel (cancel-in-progress must stay
+# false — cancelling a run mid-generation would lose that snapshot).
 concurrency:
   group: snapshot-refresh
   cancel-in-progress: false
@@ -22,6 +25,17 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+
+      # A queued run keeps the head SHA from when it was created, which
+      # may be several snapshot commits behind by the time it starts.
+      # Sync to the true tip of main BEFORE generating, so the new
+      # snapshot builds on the latest state instead of rebasing a stale
+      # generated commit onto a newer one (content conflicts in the
+      # generated files — the cause of the 2026-10-21 failed runs).
+      - name: Sync to latest main
+        run: |
+          git fetch origin main
+          git reset --hard FETCH_HEAD
 
       - uses: actions/setup-node@v4
         with:
@@ -40,5 +54,18 @@ jobs:
             exit 0
           fi
           git commit -m "Snapshot refresh $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git pull --rebase origin main
-          git push origin main
+          # Other publishers (e.g. the local ledger publish chain) can
+          # land a commit while this run generates. Rebase onto the
+          # latest main before pushing, and retry the whole
+          # fetch/rebase/push cycle up to 3 times before failing.
+          for attempt in 1 2 3; do
+            if git pull --rebase origin main && git push origin main; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; will re-sync and retry."
+            git rebase --abort 2>/dev/null || true
+            sleep $((attempt * 5))
+          done
+          echo "Failed to push after 3 attempts."
+          exit 1
