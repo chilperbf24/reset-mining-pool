@@ -18,6 +18,21 @@
       "contributed": "2661039",
       "pending": "133192",
       "paid_total": "0"
+    },
+    "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3": {
+      "contributed": "1173155",
+      "pending": "0",
+      "paid_total": "0"
+    },
+    "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d": {
+      "contributed": "8216449",
+      "pending": "0",
+      "paid_total": "0"
+    },
+    "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d": {
+      "contributed": "1658858",
+      "pending": "0",
+      "paid_total": "0"
     }
   },
   "carry_units": "2",
@@ -138,6 +153,45 @@
       },
       "prev": "0795e91d2f4bef9481d67df08f0fa9e8d33a288f56cb27b213e001b539d1a36e",
       "hash": "2341c1105a8bf583a8bf1c78f452cbb30cf5eb5bcc4fa7bcdc6cd2b3f0a3e7c9"
+    },
+    {
+      "i": 10,
+      "type": "contribution",
+      "data": {
+        "address": "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3",
+        "amount_units": "1173155",
+        "source": "fingerprint-auto",
+        "fp_tail_units": "173155",
+        "detected_at": "2026-10-22T02:28:30.652Z"
+      },
+      "prev": "2341c1105a8bf583a8bf1c78f452cbb30cf5eb5bcc4fa7bcdc6cd2b3f0a3e7c9",
+      "hash": "8fe270af40a0408e4b07f198c6125eca6cd5b475adde571e1bc0ea3c6d3d7b4a"
+    },
+    {
+      "i": 11,
+      "type": "contribution",
+      "data": {
+        "address": "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d",
+        "amount_units": "8216449",
+        "source": "fingerprint-claim",
+        "unclaimed_id": 3,
+        "detected_at": "2026-10-22T02:18:29.758Z"
+      },
+      "prev": "8fe270af40a0408e4b07f198c6125eca6cd5b475adde571e1bc0ea3c6d3d7b4a",
+      "hash": "b1d88d1f57c5decc999dc67f8b567a50d7d960cb087cc69b7be1e606333d7ca6"
+    },
+    {
+      "i": 12,
+      "type": "contribution",
+      "data": {
+        "address": "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d",
+        "amount_units": "1658858",
+        "source": "fingerprint-auto",
+        "fp_tail_units": "658858",
+        "detected_at": "2026-10-22T02:38:27.775Z"
+      },
+      "prev": "b1d88d1f57c5decc999dc67f8b567a50d7d960cb087cc69b7be1e606333d7ca6",
+      "hash": "3835a71393fd71b1193a5147ea584bd7d4830d5c66aa181a30c82006e4c5e4ba"
     }
   ],
   "rounds": [
