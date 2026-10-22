@@ -213,18 +213,20 @@ const fixedNow = () => Date.parse('2026-10-22T01:00:00.000Z');
   assert.equal(checkConservation(ledger).ok, true);
   ok('executor: breaching the 0.1 line escalates to full dissolution — all members settled, pool marked dissolved');
 }
-{ // ARMED=false (the delivered state): intake works, no chain call is made
-  assert.equal(ARMED, false);
+{ // Disarmed executor (armed: false passed explicitly — the module constant
+  // itself was flipped to true at the 2026-10-22 gate opening): intake
+  // works, no chain call is made.
+  assert.equal(typeof ARMED, 'boolean');
   const ledger = emptyState(POOL);
   addContribution(ledger, X, parseCoin('0.08'));
   addContribution(ledger, Y, parseCoin('0.15'));
   const exits = emptyExits(); exits.cases.push(mkCase(X, 'case-x'));
   const chain = fakeChain({ balance: 0n, deposit: parseCoin('0.23') });
-  const acts = await runExitPass({ ledger, exits, chain, registry: null, now: fixedNow, armed: ARMED });
+  const acts = await runExitPass({ ledger, exits, chain, registry: null, now: fixedNow, armed: false });
   assert.equal(exits.cases[0].status, 'verified');
   assert.deepEqual(chain.calls, []);
   assert.equal(acts.length, 0);
-  ok('safety gate: with ARMED=false a verified case never touches the chain');
+  ok('safety gate: with the executor disarmed a verified case never touches the chain');
 }
 { // transfer fails on TNK fees -> halted_funds_ready, position untouched
   const ledger = emptyState(POOL);
