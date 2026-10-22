@@ -11,31 +11,44 @@
 // backfilled alongside (see ../backfill.sql), so any tail / address /
 // amount can be looked up in one query.
 //
-// SAFETY LINE — read before touching attribution logic anywhere:
-//   A registry record is a CLUE for reconciliation and diagnosis, NOT a
-//   crediting credential. POST /calc performs NO identity authentication:
-//   anyone can file a calculation for any address (that openness is its
-//   purpose — the calculator is public). Contribution attribution stays
-//   exactly as it has always been: an on-chain inflow's tail + the
-//   fingerprint rules in lib/fpmatch.mjs decide who gets credited. A row
-//   in this table must never by itself move money or ledger entries.
+// ATTRIBUTION ROLE — read before touching attribution logic anywhere:
+//   Since the operator ruling of 2026-10-22 this registry is the
+//   PRIMARY attribution source for pool inflows (the matcher in
+//   lib/fprun.mjs + lib/fpmatch.mjs implements it): a calc record whose
+//   (tail, exact amount) matches an inflow exactly and names ONE
+//   address credits that address (source 'registry-calc'); fingerprint
+//   reverse lookup over the network miner list is only the fallback
+//   for amounts with no exact registry record. Rationale: the tail
+//   space has only 999999 values, so network-wide fingerprint
+//   collisions are inevitable as the address count grows — a filed
+//   calculation is the tie-breaker that says whose amount it was.
+//   POST /calc performs NO identity authentication (the calculator is
+//   public, that openness is its purpose) — but the Worker revalidates
+//   every filing server-side: the stored fingerprint is THIS code's
+//   recomputation for the filed address, and exact must equal
+//   planned + fp, so a row can only ever name the address whose
+//   fingerprint the amount actually carries.
 //
 // Endpoints:
 //   POST /calc    public, self-validating (address<->fingerprint re-check)
 //   GET  /lookup  operator only (header X-Registry-Key == REGISTRY_KEY secret)
 //   POST /fulfill operator only: mark calc records (by tail and/or
 //                 address) as fulfilled when their inflow has landed
+//   POST /hold    operator only: freeze the calc records behind a
+//                 parked unclaimed entry (status 'held' — sweep-proof
+//                 evidence until attribution lands)
 //   POST /sweep   operator only: delete expired calc records (TTL below)
 //   GET  /health  public: { ok, records } — count only, never any detail
 //
 // Calc-record TTL: a kind='calc' row is a visitor's stated INTENT to
-// transfer. If no matching inflow fulfils it within 30 minutes it is
-// deleted (POST /sweep, plus opportunistically on every POST /calc).
-// Rows the matcher marked status='fulfilled' (via POST /fulfill, when
-// the inflow landed and was credited) are exempt, and import /
-// auto_match / unclaimed rows NEVER expire — those are historical
-// facts, not intentions. Deleting a calc row loses nothing but a stale
-// clue: attribution never reads this table (see the safety line above).
+// transfer. While it sits at status='ok' and no matching inflow
+// fulfils it within 30 minutes it is deleted (POST /sweep, plus
+// opportunistically on every POST /calc). Rows the matcher marked
+// status='fulfilled' (via POST /fulfill, when the inflow landed and
+// was credited) are exempt, rows it froze as status='held' (via
+// POST /hold, evidence for a parked unclaimed entry) are exempt, and
+// import / auto_match / unclaimed rows NEVER expire — those are
+// historical facts, not intentions.
 //
 // This file is self-contained on purpose (no repo imports): the address
 // normalize + fingerprint code below MIRRORS lib/fpmatch.mjs exactly —
@@ -160,11 +173,13 @@ function keyMatches(given, expected) {
 const calcCutoff = () => new Date(Date.now() - CALC_TTL_MS).toISOString();
 
 // Delete expired calc intentions (see the TTL note in the header).
-// ONLY kind='calc' rows go; fulfilled ones stay, and the historical
-// kinds (import / auto_match / unclaimed) are never touched.
+// ONLY kind='calc' rows still at status='ok' go. 'fulfilled' rows are
+// the audit trail; 'held' rows are evidence frozen by the matcher
+// behind a parked unclaimed entry; the historical kinds (import /
+// auto_match / unclaimed) are never touched.
 async function sweepExpiredCalcs(env) {
   const r = await env.REGISTRY_DB.prepare(
-    `DELETE FROM records WHERE kind = 'calc' AND status <> 'fulfilled' AND ts < ?`)
+    `DELETE FROM records WHERE kind = 'calc' AND status = 'ok' AND ts < ?`)
     .bind(calcCutoff()).run();
   return r?.meta?.changes ?? 0;
 }
@@ -331,7 +346,10 @@ async function postFulfill(request, env) {
   if (tailRaw === null && !addrRaw) {
     return json({ ok: false, error: 'give tail or address' }, 400);
   }
-  const conds = [`kind = 'calc'`, `status <> 'fulfilled'`, `ts >= ?`];
+  // In-TTL rows fulfill as before; a 'held' row fulfils at ANY age —
+  // being frozen as evidence must not make it unclosable once the
+  // parked entry it backs finally gets attributed.
+  const conds = [`kind = 'calc'`, `status <> 'fulfilled'`, `(ts >= ? OR status = 'held')`];
   const binds = [calcCutoff()];
   if (tailRaw !== null) {
     if (!/^[0-9]{1,6}$/.test(tailRaw) || Number(tailRaw) > 999999) {
@@ -349,6 +367,36 @@ async function postFulfill(request, env) {
   const r = await env.REGISTRY_DB.prepare(
     `UPDATE records SET status = 'fulfilled' WHERE ${conds.join(' AND ')}`)
     .bind(...binds).run();
+  return json({ ok: true, updated: r?.meta?.changes ?? 0 });
+}
+
+// POST /hold {tail, exact_units} — operator only. The matcher calls
+// this when it parks an inflow as unclaimed and the registry holds the
+// exact calculation behind it: those rows move status 'ok' -> 'held',
+// which exempts them from the sweep at ANY age (see sweepExpiredCalcs)
+// until the entry is attributed and /fulfill closes them out. Without
+// this, the 30-minute TTL would delete precisely the evidence a parked
+// entry needs for its (possibly much later) attribution. Only 'ok'
+// rows transition — a fulfilled row stays fulfilled; holding is
+// idempotent (re-holding an already-held row reports updated: 0).
+async function postHold(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  let body;
+  try { body = await request.json(); }
+  catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  const tailRaw = body && body.tail != null ? String(body.tail) : null;
+  const exact = unitsField(body ? body.exact_units : undefined);
+  if (tailRaw === null || exact === null || exact === undefined) {
+    return json({ ok: false, error: 'give tail and exact_units' }, 400);
+  }
+  if (!/^[0-9]{1,6}$/.test(tailRaw) || Number(tailRaw) > 999999) {
+    return json({ ok: false, error: 'tail must be 0..999999' }, 400);
+  }
+  const r = await env.REGISTRY_DB.prepare(
+    `UPDATE records SET status = 'held' WHERE kind = 'calc' AND status = 'ok' AND fp_units = ? AND exact_units = ?`)
+    .bind(String(Number(tailRaw)), exact.toString()).run();
   return json({ ok: true, updated: r?.meta?.changes ?? 0 });
 }
 
@@ -375,6 +423,7 @@ export default {
       if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
       if (url.pathname === '/calc' && request.method === 'POST') return await postCalc(request, env);
       if (url.pathname === '/fulfill' && request.method === 'POST') return await postFulfill(request, env);
+      if (url.pathname === '/hold' && request.method === 'POST') return await postHold(request, env);
       if (url.pathname === '/sweep' && request.method === 'POST') return await postSweep(request, env);
       if (url.pathname === '/lookup' && request.method === 'GET') return await getLookup(request, env, url);
       if (url.pathname === '/health' && request.method === 'GET') return await getHealth(env);

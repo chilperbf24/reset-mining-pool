@@ -14,15 +14,25 @@ Worker is the registry backend that ends that:
   by **tail**, **address** or **amount** shows everything known about a
   transfer, side by side.
 
-## ⚠ Safety line
+## ⚠ Attribution role (operator ruling, 2026-10-22)
 
-A registry record is a **clue for reconciliation and diagnosis, never a
-crediting credential**. `POST /calc` authenticates nobody — anyone can
-file a calculation for any address; that openness is the calculator's
-whole design. Contribution attribution stays exactly as before: an
-on-chain inflow's tail plus the fingerprint rules in `lib/fpmatch.mjs`
-decide who is credited, and anything unmatched is parked as unclaimed.
-A row in this registry must never by itself move money or ledger entries.
+This registry is the matcher's **primary attribution source**. A calc
+record whose (tail, exact amount) matches an inflow exactly and names
+ONE address credits that address (`source: 'registry-calc'` in the
+ledger); fingerprint reverse lookup over the network miner list is
+only the fallback for amounts with no exact registry record. The
+principle: the tail space has only 999999 values, so network-wide
+fingerprint collisions are inevitable as the address count grows — a
+filed calculation is the tie-breaker that says whose amount it was,
+and when the two sources disagree the registry wins (the collision is
+written into the ledger event).
+
+`POST /calc` still authenticates nobody — anyone can file a calculation
+for any address; that openness is the calculator's whole design. What
+makes a record safe to attribute on is the server-side revalidation:
+the stored fingerprint is the Worker's own recomputation for the filed
+address and `exact = planned + fp` is enforced, so a record can only
+ever name the address whose fingerprint the amount actually carries.
 (IPs are stored only as sha256 hashes, for rate limiting.)
 
 ## Endpoints
@@ -30,29 +40,36 @@ A row in this registry must never by itself move money or ledger entries.
 | Route | Auth | Behavior |
 |---|---|---|
 | `POST /calc` | public | Body `{address, normalized?, planned_units, fp_units, exact_units, status}` with `status` ∈ `ok \| blocked_pool \| invalid`. The Worker re-normalizes the address (64-hex or trac1) and **recomputes the fingerprint server-side**; an `ok` report whose numbers disagree (fp mismatch, `exact ≠ planned + fp`, planned not a 0.01 multiple) is rejected `400`. Per-IP rate limit: 30/min (D1-counted). |
-| `GET /lookup?tail=\|?address=\|?amount=` | header `X-Registry-Key` | All records (every kind) matching any given filter, JSON. `401` without the key. This is the operator's reconciliation view — and what `fp-match` consults before parking an inflow as unclaimed. |
-| `POST /fulfill` | header `X-Registry-Key` | Body `{tail?, address?}` (at least one). Marks matching `calc` records (still inside their TTL) `status='fulfilled'` — the matcher calls this when an inflow lands and is credited, so the record survives the sweep as the "calculated → arrived" trail. Returns `{ ok, updated }`. |
-| `POST /sweep` | header `X-Registry-Key` | Deletes every expired calc record (see TTL below), returns `{ ok, deleted }`. The same deletion also runs opportunistically at the top of every `POST /calc`. |
+| `GET /lookup?tail=\|?address=\|?amount=` | header `X-Registry-Key` | All records (every kind) matching any given filter, JSON. `401` without the key. This is the operator's reconciliation view — and what the matcher consults FIRST for attribution (exact tail+amount hit), before any fingerprint fallback. |
+| `POST /fulfill` | header `X-Registry-Key` | Body `{tail?, address?}` (at least one). Marks matching `calc` records `status='fulfilled'` — the matcher calls this when an inflow lands and is credited, so the record survives the sweep as the "calculated → arrived" trail. In-TTL rows and `held` rows (any age) are marked. Returns `{ ok, updated }`. |
+| `POST /hold` | header `X-Registry-Key` | Body `{tail, exact_units}`. Moves the exact-matching `calc` records from `status='ok'` to `status='held'` — the matcher calls this when it parks an inflow as unclaimed, freezing the calculation as sweep-proof evidence until attribution lands (held rows are exempt from the TTL at any age; a later `/fulfill` closes them out). Idempotent. Returns `{ ok, updated }`. |
+| `POST /sweep` | header `X-Registry-Key` | Deletes every expired calc record still at `status='ok'` (see TTL below), returns `{ ok, deleted }`. The same deletion also runs opportunistically at the top of every `POST /calc`. |
 | `GET /health` | public | `{ ok: true, records: <total count> }` — count only, no detail. |
 
 ## Calc-record TTL: 30 minutes
 
 A `kind='calc'` row is a visitor's stated **intention** to transfer, so
-it expires: **30 minutes** after filing, an unfulfilled calc record is
-deleted by the sweep (`POST /sweep`, called once per matcher pass, and
-opportunistically on every `POST /calc`). Two exemptions:
+it expires: **30 minutes** after filing, a calc record still at
+`status='ok'` is deleted by the sweep (`POST /sweep`, called once per
+matcher pass, and opportunistically on every `POST /calc`). Three
+exemptions:
 
 * records the matcher marked **`fulfilled`** (via `POST /fulfill`) when
   their inflow landed — kept as the audit trail;
+* records the matcher froze as **`held`** (via `POST /hold`) because a
+  parked unclaimed entry is backed by them — evidence must outlive the
+  window it took to file the calculation, however long attribution
+  takes; a later `/fulfill` closes them out;
 * the historical kinds — **`import` / `auto_match` / `unclaimed` never
   expire**: those are facts, not intentions.
 
-Deleting a calc row loses nothing but a stale clue: contribution
-attribution never reads this table (fingerprint rules alone decide), so
-an inflow that arrives *after* its calc record expired is still
-matched and credited exactly as before. The calculator page mirrors
-the window for the visitor: a live countdown, an "expired" state at
-zero, and the transfer panel hidden once the window closes.
+If a calc row does expire before its inflow arrives, the inflow is not
+lost: the fingerprint fallback attributes it exactly as before, and if
+it parks as unclaimed, the entry is re-checked against the registry on
+every pass (a re-filed calculation then credits it retroactively). The
+calculator page mirrors the window for the visitor: a live countdown,
+an "expired" state at zero, and the transfer panel hidden once the
+window closes.
 
 Schema: `schema.sql` (table `records`). Seed history: `backfill.sql` /
 `seed.jsonl`, generated from the live books by `gen-backfill.mjs`
@@ -133,19 +150,24 @@ curl -H "X-Registry-Key: <key>" "https://reset-pool-registry.<you>.workers.dev/l
    the Join step text ("computed locally in your browser … nothing is
    sent anywhere") predates this registry — update EN/ZH wording to say
    the calculation is also filed to the pool's registry for matching.
-2. **Matcher** — give the fp-match service the operator endpoint + key
-   via its environment (systemd unit `Environment=` or the cron/agent
-   environment — **not** any file in this repo):
+2. **Matcher** — the operator endpoint + key live in
+   `~/.reset-pool-registry.env` (mode 600, **not** in this repo):
    ```
    REGISTRY_URL=https://reset-pool-registry.<you>.workers.dev
    REGISTRY_KEY=<the same secret>
    ```
-   With these set, each new unclaimed entry's note gains a
-   `registry has calc for <address> at <ts>` lead when the registry has
-   one; every credit (automatic match or successful claim) marks its
-   calc record `fulfilled` via `POST /fulfill`, and each pass calls
-   `POST /sweep` once to clear expired intentions. Unset/unreachable
-   changes nothing (silent fallback).
+   `lib/fprun.mjs` resolves them from the process environment first
+   and falls back to that env file, so every launcher (systemd unit,
+   cron-driven pool worker, operator CLI) reaches the registry with no
+   per-launcher wiring; the systemd unit additionally names the file
+   via `EnvironmentFile=` (see the repo's `systemd/` templates). With
+   the registry reachable, each pass decides fresh inflows
+   registry-first (exact (tail, amount) hit → `registry-calc` credit),
+   re-checks every open unclaimed entry, `/hold`s the evidence behind
+   parked entries, marks credits `fulfilled` via `POST /fulfill`, and
+   calls `POST /sweep` once. A configured-but-unreachable registry is
+   **loud**: the pass records `registry_error` in `state/matcher.json`
+   and logs it — never a silent fallback.
 
 ## Files
 

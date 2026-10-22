@@ -81,7 +81,10 @@ only in the Experience Shares proposal above):
 - Pick a planned amount that is a multiple of **0.01** RESET.
 - Your fingerprint is `fp = (sha256(your address)[0..4] as uint32 BE)
   mod 999999 + 1` units (1–999999). The Join section on the homepage computes your
-  exact amount in your browser; nothing is sent anywhere.
+  exact amount in your browser and files the calculation (address +
+  amounts) with the pool's registry — that filing is what the matcher
+  consults first when your transfer lands (see the attribution order
+  below).
 - **Address formats are interchangeable:** the 64-hex RESET address and the
   `trac1…` (TNK) address are the same 32-byte key in two encodings (bech32m,
   payload = the raw key). The homepage calculator, every site lookup and
@@ -93,13 +96,34 @@ only in the Experience Shares proposal above):
 - A matcher service (`fp-match.mjs`, systemd timer, every 60 seconds)
   watches the pool's balance + deposit, first deducts settled claim
   earnings (via the gateway's `last_result`, so earnings are never
-  mistaken for contributions), then reverse-looks the remaining inflow's
-  tail up among all network addresses and credits the **full amount** to
-  the unique match.
-- If the tail matches zero or several addresses (a collision), or the
-  sender is a brand-new address not yet on any network list, the amount
-  is parked in `state/unclaimed.json` — never guessed. Claiming needs
-  only the address itself:
+  mistaken for contributions), then attributes the remaining inflow —
+  **the full amount, credited in this order** (operator ruling,
+  2026-10-22):
+  1. **Calculation registry first.** The homepage calculator files
+     every calculation (address + planned + exact amount) with the
+     pool's registry (`worker/`). If a filed calculation's
+     (tail, exact amount) matches the inflow exactly and names ONE
+     address, the inflow is credited to that address
+     (source `registry-calc`) — the network list is not consulted for
+     that amount at all.
+  2. **Fingerprint reverse lookup as fallback.** Only when the
+     registry holds no exact record for the amount (an unregistered
+     transfer, or a calculation from before the registry existed), the
+     inflow's tail is reverse-looked up among all network addresses
+     and credited to the unique match (source `fingerprint-auto`).
+  The registry is the tie-breaker on purpose: the tail space has only
+  999999 values, so fingerprint collisions across the network are
+  inevitable as it grows — if a filed calculation and the fingerprint
+  fallback would name different senders, the registry wins and the
+  collision is written into the ledger event.
+- If neither source can attribute it (no registry record, zero or
+  several fingerprint hits, or a sender not yet on any network list),
+  the amount is parked in `state/unclaimed.json` — never guessed.
+  Parked entries are **re-checked against the registry on every
+  matcher pass**, so a late filing still lands its credit; while an
+  entry waits, the matcher freezes its registry evidence
+  (`POST /hold`) so the registry's 30-minute TTL cannot delete it.
+  Claiming manually needs only the address itself:
   `node claim-unclaimed.mjs <entry-id | amount-units> <address>`
   re-checks the tail against that address and credits it — no GitHub, no
   signature. A round amount (tail 0) can never be claimed this way.
@@ -145,7 +169,8 @@ tenth of the pool's per-round take for their share, accumulated until the
 1. Contributor computes their exact fingerprint amount in the Join section
    on the homepage and transfers it to the pool address (their own action).
 2. The 1-minute matcher credits it automatically under their address
-   (fingerprint tail); anything unmatchable parks in `state/unclaimed.json`
+   (their filed registry calculation first, fingerprint tail as
+   fallback); anything unmatchable parks in `state/unclaimed.json`
    for `claim-unclaimed.mjs`. Manual fallback if ever needed:
    `node ledger.mjs contribute <addr> <amount> <tx-ref>`
 3. Start the worker under supervision (`pool-worker.mjs --loop …` plus a

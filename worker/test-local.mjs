@@ -13,20 +13,39 @@ import { encodeTracAddress, fingerprint } from '../lib/fpmatch.mjs';
 // Supports exactly the SQL shapes the Worker issues: INSERT INTO
 // records (cols) VALUES (?,...), DELETE / UPDATE ... WHERE <conds>,
 // SELECT COUNT(*) [WHERE <conds>], SELECT * ... WHERE <col> = ?.
-// <conds> are AND-joined atoms: col = ?, col >= ?, col < ?,
-// col = 'lit', col <> 'lit' — '?' params are consumed in order.
+// <conds> are AND-joined atoms (split at paren depth 0): col = ?,
+// col >= ?, col < ?, col = 'lit', col <> 'lit', or one parenthesized
+// (atom OR atom) group — '?' params are consumed in textual order.
 function condPredicate(where, params) {
   let pi = 0;
-  const tests = where.split(/\s+AND\s+/i).map(raw => {
+  const atomPred = raw => {
     const atom = raw.trim();
     let m;
+    if ((m = atom.match(/^\((.+)\s+OR\s+(.+)\)$/s))) {
+      const l = atomPred(m[1]), r = atomPred(m[2]);
+      return row => l(row) || r(row);
+    }
     if ((m = atom.match(/^(\w+) = \?$/))) { const c = m[1], v = params[pi++]; return r => r[c] === v; }
     if ((m = atom.match(/^(\w+) >= \?$/))) { const c = m[1], v = params[pi++]; return r => r[c] >= v; }
     if ((m = atom.match(/^(\w+) < \?$/))) { const c = m[1], v = params[pi++]; return r => r[c] < v; }
     if ((m = atom.match(/^(\w+) <> '([^']*)'$/))) { const c = m[1], v = m[2]; return r => r[c] !== v; }
     if ((m = atom.match(/^(\w+) = '([^']*)'$/))) { const c = m[1], v = m[2]; return r => r[c] === v; }
     throw new Error(`mock: unsupported condition atom: ${atom}`);
-  });
+  };
+  const atoms = [];
+  let depth = 0, start = 0;
+  for (let i = 0; i < where.length; i++) {
+    const ch = where[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth--;
+    else if (depth === 0 && /^\s+AND\s+/i.test(where.slice(i))) {
+      atoms.push(where.slice(start, i));
+      i += where.slice(i).match(/^\s+AND\s+/i)[0].length - 1;
+      start = i + 1;
+    }
+  }
+  atoms.push(where.slice(start));
+  const tests = atoms.map(atomPred);
   return r => tests.every(t => t(r));
 }
 class MockStmt {
@@ -47,10 +66,11 @@ class MockStmt {
       this.db.rows = this.db.rows.filter(r => !pred(r));
       return { meta: { changes: before - this.db.rows.length } };
     }
-    if ((m = this.sql.match(/^UPDATE records SET status = 'fulfilled' WHERE (.+)$/s))) {
-      const pred = condPredicate(m[1], this.params);
+    if ((m = this.sql.match(/^UPDATE records SET status = '(\w+)' WHERE (.+)$/s))) {
+      const newStatus = m[1];
+      const pred = condPredicate(m[2], this.params);
       let changes = 0;
-      for (const r of this.db.rows) if (pred(r)) { r.status = 'fulfilled'; changes++; }
+      for (const r of this.db.rows) if (pred(r)) { r.status = newStatus; changes++; }
       return { meta: { changes } };
     }
     assert.fail(`mock: unsupported run SQL: ${this.sql}`);
@@ -247,6 +267,40 @@ r = await j(await call('POST', '/fulfill', { key: KEY, body: {} }));
 assert.equal(r.status, 400); ok('fulfill with neither tail nor address -> 400');
 r = await j(await call('POST', '/fulfill', { key: KEY, body: { address: 'junk' } }));
 assert.equal(r.status, 400); ok('fulfill with unparseable address -> 400');
+
+// --- hold: freeze a parked entry's calc evidence past the TTL
+const H1 = 'ab'.repeat(32), fpH1 = fingerprint(H1);
+r = await j(await call('POST', '/calc', { body: { address: H1, planned_units: '2000000',
+  fp_units: String(fpH1), exact_units: String(2000000 + fpH1), status: 'ok' } }));
+assert.equal(r.status, 201, JSON.stringify(r.body));
+const exactH1 = String(2000000 + fpH1);
+r = await j(await call('POST', '/hold', { body: { tail: String(fpH1), exact_units: exactH1 } }));
+assert.equal(r.status, 401); ok('hold without operator key -> 401');
+r = await j(await call('POST', '/hold', { key: KEY, body: { tail: String(fpH1) } }));
+assert.equal(r.status, 400); ok('hold without exact_units -> 400');
+r = await j(await call('POST', '/hold', { key: KEY, body: { tail: '1000000', exact_units: exactH1 } }));
+assert.equal(r.status, 400); ok('hold with out-of-range tail -> 400');
+r = await j(await call('POST', '/hold', { key: KEY, body: { tail: String(fpH1), exact_units: '999999999' } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 0, JSON.stringify(r.body));
+ok('hold with a non-matching exact -> updated 0, no error');
+r = await j(await call('POST', '/hold', { key: KEY, body: { tail: String(fpH1), exact_units: exactH1 } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 1, JSON.stringify(r.body));
+const rowH1 = db.rows.find(x => x.kind === 'calc' && x.address_hex === H1);
+assert.equal(rowH1.status, 'held'); ok('hold moves the exact (tail, exact) calc ok -> held');
+r = await j(await call('POST', '/hold', { key: KEY, body: { tail: String(fpH1), exact_units: exactH1 } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 0, JSON.stringify(r.body));
+ok('re-holding an already-held record is idempotent (updated 0)');
+rowH1.ts = oldTs; // age the held record well past the TTL
+r = await j(await call('POST', '/sweep', { key: KEY }));
+assert(db.rows.includes(rowH1) && rowH1.status === 'held');
+ok('an aged held record survives the sweep (evidence freeze)');
+r = await j(await call('POST', '/fulfill', { key: KEY, body: { tail: String(fpH1), address: H1 } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 1, JSON.stringify(r.body));
+assert.equal(rowH1.status, 'fulfilled');
+ok('fulfill closes out an aged held record (held is exempt from the fulfill TTL too)');
+r = await j(await call('POST', '/hold', { key: KEY, body: { tail: String(fpH1), exact_units: exactH1 } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 0, JSON.stringify(r.body));
+ok('holding a fulfilled record does not resurrect it (updated 0)');
 
 // opportunistic sweep: filing any new calc clears expired intentions
 db.seed([{ ts: oldTs, kind: 'calc', address_hex: C4, planned_units: '1000000', fp_units: '555555', exact_units: '1555555', status: 'ok', source: 'calculator' }]);
