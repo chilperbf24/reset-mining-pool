@@ -187,9 +187,8 @@ const settledHtml = closedContributors.length ? `
 <table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thPrincipal">Principal returned</th><th data-i18n="thEarnings">Earnings paid</th><th data-i18n="thTotalPaid">Total paid</th><th data-i18n="thSettledAt">Settled</th></tr>${settledRows}
 </table>` : '';
 
-const reportRows = liveReports.length ? liveReports.map(r => `
-        <tr><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
-  : `<tr><td colspan="4" class="muted" data-i18n="noRounds">No rounds settled yet.</td></tr>`;
+// (reportRows is built further down, once the on-chain deposit is known —
+// each round row also carries its claim as a share of that deposit.)
 
 const fc = u => { try { return formatCoin(BigInt(u)); } catch { return '—'; } };
 // On-chain pool figures for the overview cards and the status bar below
@@ -210,6 +209,27 @@ const poolStatusHtml = ledger.dissolved
   : poolMining
   ? `<div class="poolstatus"><span class="pdot" style="background:var(--accent)"></span><span data-i18n="poolStatusMining" data-dep="${chainDeposit}">Mining — ${chainDeposit} RESET locked</span></div>`
   : `<div class="poolstatus"><span class="pdot" style="background:var(--warn)"></span><span data-i18n="poolStatusWaiting">Waiting for funding — contributions open</span></div>`;
+
+// --- Yield-ratio stats: computed from live data at generation time, never
+// hard-coded. Claims come from the published round reports; the deposit
+// denominator is the pool's CURRENT on-chain deposit; the network
+// denominator is the mine/view full-list deposit sum (totalStaked above).
+const depNow = Number(chainDepositUnits);
+const pct2 = ratio => (ratio == null || !isFinite(ratio) ? '—' : (ratio * 100).toFixed(2) + '%');
+const pctSig = ratio => { if (ratio == null || !isFinite(ratio)) return '—'; const p = ratio * 100; if (!(p > 0)) return '0%';
+  const d = Math.max(2, Math.min(6, Math.ceil(-Math.log10(p)) + 1)); return p.toFixed(d) + '%'; };
+const shareOfDeposit = claimUnits => (depNow > 0 ? Number(claimUnits) / depNow : null);
+const settledByRound = [...liveReports].sort((a, b) => a.round - b.round);
+const latestSettled = settledByRound[settledByRound.length - 1] ?? null;
+const yieldLatestTxt = latestSettled ? pct2(shareOfDeposit(latestSettled.claim.amount_units)) : '—';
+const last7Settled = settledByRound.slice(-7);
+const yieldAvg7Txt = last7Settled.length
+  ? pct2(shareOfDeposit(last7Settled.reduce((s, r) => s + Number(r.claim.amount_units), 0) / last7Settled.length)) : '—';
+const netShareTxt = (totalStaked > 0n && chainDepositUnits > 0n)
+  ? pctSig(Number(chainDepositUnits) / Number(totalStaked)) : '—';
+const reportRows = settledByRound.length ? settledByRound.map(r => `
+        <tr><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${pct2(shareOfDeposit(r.claim.amount_units))}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
+  : `<tr><td colspan="5" class="muted" data-i18n="noRounds">No rounds settled yet.</td></tr>`;
 let explorerHtml;
 if (!gwState) {
   explorerHtml = `<p class="muted" data-i18n="expDown">Gateway unreachable when this page was generated — try again later.</p>`;
@@ -448,6 +468,9 @@ const html = `<!doctype html>
  <div class="stat"><b>${chainBalance}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
  <div class="stat"><b>${chainRound}</b><span data-i18n="statRound">Current Mine round</span></div>
  <div class="stat"><b>${ledger.rounds.length}</b><span data-i18n="statSettled">Rounds settled</span></div>
+ <div class="stat"><b>${yieldLatestTxt}</b><span data-i18n="statYieldLatest">Latest settled round — yield as % of deposit</span></div>
+ <div class="stat"><b>${yieldAvg7Txt}</b><span data-i18n="statYieldAvg7">Avg per-round yield as % of deposit (last 7 settled)</span></div>
+ <div class="stat"><b>${netShareTxt}</b><span data-i18n="statNetShare">Pool deposit as % of network-wide stake</span></div>
 </div>
 ${poolStatusHtml}
 
@@ -473,8 +496,9 @@ ${settledHtml}
 </section>
 <section class="tabpage" id="tab-reports">
 <h2 data-i18n="reportsTitle">Round reports</h2>
-<table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>${reportRows}
+<table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>${reportRows}
 </table>
+<p class="muted" data-i18n="reportsRatioNote">“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.</p>
 
 </section>
 <section class="tabpage" id="tab-verify">
@@ -533,6 +557,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  poolAddrLabel: "Pool address (transfer your exact computed amount here)", poolAddrHint: "To join, never send a round amount — first compute your exact amount", poolAddrHintLink: "with the calculator in the Join section ↓", poolJoinLink: "join via the calculator ↓", copy: "Copy address",
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
+ statYieldLatest: "Latest settled round — yield as % of deposit", statYieldAvg7: "Avg per-round yield as % of deposit (last 7 settled)", statNetShare: "Pool deposit as % of network-wide stake",
  poolStatusWaiting: "Waiting for funding — contributions open", poolStatusMining: "Mining — {deposit} RESET locked",
  poolStatusDissolved: "Dissolved — all positions settled",
  queryTitle: "Check your position",
@@ -602,7 +627,8 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  ledgerTitle: "Public ledger", thContributor: "Contributor", thContributed: "Contributed", thPending: "Pending payout", thPaid: "Paid total",
  settledTitle: "Settled exits", thPrincipal: "Principal returned", thEarnings: "Earnings paid", thTotalPaid: "Total paid", thSettledAt: "Settled",
  noContributors: "No contributors yet — be the first.",
- reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thShares: "Shares", thHash: "Report hash",
+ reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thRatio: "Share of deposit", thShares: "Shares", thHash: "Report hash",
+ reportsRatioNote: "“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.",
  noRounds: "No rounds settled yet.",
  verifyTitle: "Verify it yourself",
  verify1: "Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the chain's claim record for the pool address and round), the fee and every share. Recompute:",
@@ -640,6 +666,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  poolAddrLabel: "池地址（把计算器算出的专属金额精确转到这里）", poolAddrHint: "入池切勿直接转整数金额——先算出你的专属金额", poolAddrHintLink: "用下方入池板块的计算器 ↓", poolJoinLink: "用计算器入池 ↓", copy: "复制地址",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
+ statYieldLatest: "最近一轮收益占质押比", statYieldAvg7: "近 7 个已结算轮平均每轮收益占质押比", statNetShare: "池子质押占全网总质押比",
  poolStatusWaiting: "等待注资 — 正在开放出资", poolStatusMining: "挖矿中 — 已锁仓 {deposit} RESET",
  poolStatusDissolved: "已解散 — 全部结清",
  queryTitle: "查询我的份额",
@@ -709,7 +736,8 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  ledgerTitle: "公开账本", thContributor: "出资人", thContributed: "已出资", thPending: "待分收益", thPaid: "已分发总额",
  settledTitle: "已结清退出", thPrincipal: "退回本金", thEarnings: "结清收益", thTotalPaid: "结清总额", thSettledAt: "结清日期",
  noContributors: "尚无人出资——来做第一个。",
- reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thShares: "分账份数", thHash: "报告哈希",
+ reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thRatio: "占质押比", thShares: "分账份数", thHash: "报告哈希",
+ reportsRatioNote: "「占质押比」= 每轮 claim ÷ 池子当前链上总质押（所有轮次同一分母），方便横向比较。",
  noRounds: "尚无已结算轮次。",
  verifyTitle: "自己验一遍",
  verify1: "每份轮次报告都会公开全部输入：出资人快照、claim 金额（可与链上该轮池地址的 claim 记录对照）、手续费和每一份分账。复算公式：",
