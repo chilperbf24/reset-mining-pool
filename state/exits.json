@@ -1,5 +1,54 @@
 {
-  "cases": [],
+  "cases": [
+    {
+      "id": "exit-20261022-001-3e8d",
+      "address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+      "registry_id": 14,
+      "nonce": "b0be3820e2cd2e42",
+      "status": "cancelled",
+      "origin": "member",
+      "dissolution": false,
+      "created_at": "2026-10-22T04:08:31.398Z",
+      "verified_at": "2026-10-22T04:08:31.398Z",
+      "principal_units": "2661039",
+      "earnings_units": "151077",
+      "due_units": "2812116",
+      "unlock": {
+        "amount_units": "10000000",
+        "pre_exits": [],
+        "counted_at": 972559,
+        "release_at": null,
+        "attempts": 1,
+        "sent": false
+      },
+      "withdraw": null,
+      "paid_at": null,
+      "halt_reason": "cancelled by user 2026-10-22 12:52 — rehearsal called off, DO NOT RESUME",
+      "history": [
+        {
+          "at": "2026-10-22T04:08:31.398Z",
+          "event": "verified"
+        },
+        {
+          "at": "2026-10-22T04:08:31.748Z",
+          "event": "planned",
+          "due_units": "2812116",
+          "unlock_units": "10000000",
+          "deposit_after_units": "20121161"
+        },
+        {
+          "at": "2026-10-22T04:08:35.122Z",
+          "event": "halted",
+          "reason": "unlock_accepted: The gateway accepted the submission. Check status for application and settlement; acceptance is not finality."
+        },
+        {
+          "at": "2026-10-22T04:57:06.702Z",
+          "event": "cancelled",
+          "reason": "cancelled by user 2026-10-22 12:52 — rehearsal called off, DO NOT RESUME"
+        }
+      ]
+    }
+  ],
   "dissolution": null,
   "rejections": [],
   "v": 1

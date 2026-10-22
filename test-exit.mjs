@@ -11,7 +11,7 @@ import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
 import { emptyState, addContribution, settleRound, parseCoin, formatCoin, checkConservation } from './lib/pool.mjs';
 import { buildPrepared, agentSigningText, stableJSON, verifyExitSubmission, ed25519Verify, exitText } from './lib/exit.mjs';
-import { intakeExitSubmissions, advanceExitCases, runExitPass, emptyExits, ARMED } from './lib/exit-exec.mjs';
+import { intakeExitSubmissions, advanceExitCases, runExitPass, emptyExits, ARMED, isCancelled } from './lib/exit-exec.mjs';
 import { unlock, wipeWallet, publicAddress } from '../reset/signer/lib/keystore.mjs';
 import { stableJSON as officialStableJSON } from '../reset/contract/rules/json.js';
 import { checkText } from '../reset/features/chat/text.js';
@@ -276,6 +276,29 @@ const fixedNow = () => Date.parse('2026-10-22T01:00:00.000Z');
   assert.match(exits.cases[0].halt_reason, /conservation/);
   assert.deepEqual(chain.calls, []);
   ok('executor: a conservation failure halts the case before any signer call');
+}
+
+{ // cancelled case: terminal. Even with its unlock entry matured on-chain
+  // and the executor armed, no pass may advance or revive it — the
+  // regression lock for the user-cancelled 2026-10-22 rehearsal case.
+  const ledger = emptyState(POOL);
+  addContribution(ledger, X, parseCoin('0.08'));
+  addContribution(ledger, Y, parseCoin('0.15'));
+  const exits = emptyExits();
+  const c = mkCase(X, 'case-cancelled');
+  c.status = 'cancelled';
+  c.halt_reason = 'cancelled by user — rehearsal called off, DO NOT RESUME';
+  c.unlock = { amount_units: '10000000', pre_exits: [], counted_at: 1000, release_at: 1144, attempts: 1, sent: true };
+  exits.cases.push(c);
+  const chain = fakeChain({ balance: 0n, deposit: parseCoin('0.13'), counted: 2000 });
+  chain.exits.push({ amount: '10000000', release: 1144 }); // the unlock DID land and has matured
+  await advanceExitCases({ ledger, exits, chain, now: fixedNow, armed: true });
+  await advanceExitCases({ ledger, exits, chain, now: fixedNow, armed: true });
+  assert.equal(isCancelled(exits.cases[0]), true);
+  assert.equal(exits.cases[0].status, 'cancelled');
+  assert.deepEqual(chain.calls, []); // no withdraw, no transfer, nothing
+  assert.equal(ledger.contributors[X].closed, undefined);
+  ok('executor: a cancelled case is terminal — armed passes never advance or revive it, even with a matured exit entry on-chain');
 }
 
 console.log(`\ntest-exit: all ${n} checks passed`);
