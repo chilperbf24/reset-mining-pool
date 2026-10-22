@@ -160,7 +160,14 @@ curl -H "X-Registry-Key: <key>" "https://reset-pool-registry.<you>.workers.dev/l
    and falls back to that env file, so every launcher (systemd unit,
    cron-driven pool worker, operator CLI) reaches the registry with no
    per-launcher wiring; the systemd unit additionally names the file
-   via `EnvironmentFile=` (see the repo's `systemd/` templates). With
+   via `EnvironmentFile=` (see the repo's `systemd/` templates).
+   **Proxy caveat for reinstalls:** a systemd service starts with a
+   clean environment — on hosts whose egress goes through an HTTP
+   proxy, the installed env file must ALSO carry the proxy variables
+   (`http_proxy`/`https_proxy`/uppercase twins/`no_proxy`/
+   `NODE_USE_ENV_PROXY`), or the service can reach neither the gateway
+   nor the registry (first timer pass after the 2026-10-22 install
+   failed exactly this way). With
    the registry reachable, each pass decides fresh inflows
    registry-first (exact (tail, amount) hit → `registry-calc` credit),
    re-checks every open unclaimed entry, `/hold`s the evidence behind
