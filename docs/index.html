@@ -120,6 +120,9 @@
  <div class="stat"><b>0.00150325</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
  <div class="stat"><b>477</b><span data-i18n="statRound">Current Mine round</span></div>
  <div class="stat"><b>8</b><span data-i18n="statSettled">Rounds settled</span></div>
+ <div class="stat"><b>0.33%</b><span data-i18n="statYieldLatest">Latest settled round — yield as % of deposit</span></div>
+ <div class="stat"><b>0.35%</b><span data-i18n="statYieldAvg7">Avg per-round yield as % of deposit (last 7 settled)</span></div>
+ <div class="stat"><b>0.0078%</b><span data-i18n="statNetShare">Pool deposit as % of network-wide stake</span></div>
 </div>
 <div class="poolstatus"><span class="pdot" style="background:var(--accent)"></span><span data-i18n="poolStatusMining" data-dep="0.22933277">Mining — 0.22933277 RESET locked</span></div>
 
@@ -138,11 +141,11 @@
 
 <h2 data-i18n="expNetTitle">Network overview</h2>
 <div class="grid">
- <div class="stat"><b><a href="https://mempool.space/block/00000000000000000000d00214b89cd7502ee25317051611d7caea465bab6484" target="_blank" rel="noopener">972563</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>972558</b><span data-i18n="expCounted">Counted height</span></div>
+ <div class="stat"><b><a href="https://mempool.space/block/00000000000000000001fe3a2623a3ed5d4d2ad5851f328ccc322407fe6148c9" target="_blank" rel="noopener">972564</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>972559</b><span data-i18n="expCounted">Counted height</span></div>
  <div class="stat"><b>477</b><span data-i18n="expRound">Current round</span></div>
  <div class="stat"><b>972559–972561 <span data-i18n="expClosed">closed</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
- <div class="stat"><b>0.02715338</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>3.12090338</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
  <div class="stat"><b>18.56250000</b><span data-i18n="expGuideline">Round guideline (RESET)</span></div>
  <div class="stat"><b>499</b><span data-i18n="expClaims">Claims this round</span></div>
  <div class="stat"><b>2822.05257999</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
@@ -161,7 +164,7 @@
 </div>
 <h2 data-i18n="expWatchTitle">Watched addresses</h2>
 <table><tr><th data-i18n="thContributor">Address</th><th data-i18n="thBalance">Balance</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thClaimNow">Claim this round</th><th data-i18n="thFair">Fair estimate</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thLast">Last result</th></tr>
-<tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab('overview');setTimeout(function(){document.getElementById('join').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a></td><td>0.00150325</td><td>0.22933277</td><td>level 1000</td><td>0.00000220</td><td>0 / 9</td><td>#476: 0.00075015</td></tr>
+<tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab('overview');setTimeout(function(){document.getElementById('join').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a></td><td>0.00150325</td><td>0.22933277</td><td>level 1000</td><td>0.00025361</td><td>0 / 9</td><td>#476: 0.00075015</td></tr>
 </table>
 <div class="card"><b data-i18n="lbTitle">Staking leaderboard</b>
 <p class="muted" data-i18n="lbCardNote">Every staking address ranked by deposit, with balances — 15 per page on its own page.</p>
@@ -182,16 +185,17 @@
 </section>
 <section class="tabpage" id="tab-reports">
 <h2 data-i18n="reportsTitle">Round reports</h2>
-<table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>
-        <tr><td>465</td><td>0.00080396</td><td>3</td><td class="mono">ba3302d07f95be84…</td></tr>
-        <tr><td>466</td><td>0.00080259</td><td>3</td><td class="mono">0d89731909aea475…</td></tr>
-        <tr><td>469</td><td>0.00078831</td><td>3</td><td class="mono">a092312cde75e857…</td></tr>
-        <tr><td>470</td><td>0.00078101</td><td>3</td><td class="mono">f7f3946b95b03cb5…</td></tr>
-        <tr><td>471</td><td>0.00087073</td><td>3</td><td class="mono">6e902f74b5d31a8f…</td></tr>
-        <tr><td>473</td><td>0.00086369</td><td>3</td><td class="mono">8bcb7d660f66d0c3…</td></tr>
-        <tr><td>474</td><td>0.00075487</td><td>3</td><td class="mono">8e7015840b1dd959…</td></tr>
-        <tr><td>475</td><td>0.00075310</td><td>6</td><td class="mono">2d25cd661a287831…</td></tr>
+<table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>
+        <tr><td>465</td><td>0.00080396</td><td>0.35%</td><td>3</td><td class="mono">ba3302d07f95be84…</td></tr>
+        <tr><td>466</td><td>0.00080259</td><td>0.35%</td><td>3</td><td class="mono">0d89731909aea475…</td></tr>
+        <tr><td>469</td><td>0.00078831</td><td>0.34%</td><td>3</td><td class="mono">a092312cde75e857…</td></tr>
+        <tr><td>470</td><td>0.00078101</td><td>0.34%</td><td>3</td><td class="mono">f7f3946b95b03cb5…</td></tr>
+        <tr><td>471</td><td>0.00087073</td><td>0.38%</td><td>3</td><td class="mono">6e902f74b5d31a8f…</td></tr>
+        <tr><td>473</td><td>0.00086369</td><td>0.38%</td><td>3</td><td class="mono">8bcb7d660f66d0c3…</td></tr>
+        <tr><td>474</td><td>0.00075487</td><td>0.33%</td><td>3</td><td class="mono">8e7015840b1dd959…</td></tr>
+        <tr><td>475</td><td>0.00075310</td><td>0.33%</td><td>6</td><td class="mono">2d25cd661a287831…</td></tr>
 </table>
+<p class="muted" data-i18n="reportsRatioNote">“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.</p>
 
 </section>
 <section class="tabpage" id="tab-verify">
@@ -225,21 +229,21 @@ altering a single share makes verification fail.</p>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
 <div class="grid">
  <div class="stat"><b>477</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972563</b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>972564</b><span data-i18n="expTip">Bitcoin tip</span></div>
  <div class="stat"><b>499</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>2936.20040344</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+ <div class="stat"><b>2936.40852949</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
  <div class="stat"><b>708</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
- <div class="stat"><b>0.02715338</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>3.12090338</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="mktSnapNote">Snapshot data — refreshed about every 10 minutes when this page is regenerated.</p>
 <h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
 <div class="dexslot"><p data-i18n="dexPlaceholder" style="margin:0">Live order-book data from the official DEX node will appear here once the node connection is live.</p></div>
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-22 03:53:06 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-22 03:59:26 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":8,"dissolved":null,"updated":"2026-10-22 03:53:06 UTC","snapshot_ms":1792641186112,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"267101","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"195370","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"142152","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"3950","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"27665","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"5585","paid_units":"0","closed":null}}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":8,"dissolved":null,"updated":"2026-10-22 03:59:26 UTC","snapshot_ms":1792641566614,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"267101","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"195370","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"142152","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"3950","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"27665","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"5585","paid_units":"0","closed":null}}};
 const REGISTRY_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/calc";
 const REGISTRY_EXIT_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/exit";
 const T = {
@@ -275,6 +279,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  poolAddrLabel: "Pool address (transfer your exact computed amount here)", poolAddrHint: "To join, never send a round amount — first compute your exact amount", poolAddrHintLink: "with the calculator in the Join section ↓", poolJoinLink: "join via the calculator ↓", copy: "Copy address",
  statTotal: "Total contributed (RESET)", statContributors: "Contributors", statDeposit: "Locked deposit on-chain",
  statBalance: "Pool balance on-chain", statRound: "Current Mine round", statSettled: "Rounds settled",
+ statYieldLatest: "Latest settled round — yield as % of deposit", statYieldAvg7: "Avg per-round yield as % of deposit (last 7 settled)", statNetShare: "Pool deposit as % of network-wide stake",
  poolStatusWaiting: "Waiting for funding — contributions open", poolStatusMining: "Mining — {deposit} RESET locked",
  poolStatusDissolved: "Dissolved — all positions settled",
  queryTitle: "Check your position",
@@ -344,7 +349,8 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  ledgerTitle: "Public ledger", thContributor: "Contributor", thContributed: "Contributed", thPending: "Pending payout", thPaid: "Paid total",
  settledTitle: "Settled exits", thPrincipal: "Principal returned", thEarnings: "Earnings paid", thTotalPaid: "Total paid", thSettledAt: "Settled",
  noContributors: "No contributors yet — be the first.",
- reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thShares: "Shares", thHash: "Report hash",
+ reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thRatio: "Share of deposit", thShares: "Shares", thHash: "Report hash",
+ reportsRatioNote: "“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.",
  noRounds: "No rounds settled yet.",
  verifyTitle: "Verify it yourself",
  verify1: "Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the chain's claim record for the pool address and round), the fee and every share. Recompute:",
@@ -382,6 +388,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  poolAddrLabel: "池地址（把计算器算出的专属金额精确转到这里）", poolAddrHint: "入池切勿直接转整数金额——先算出你的专属金额", poolAddrHintLink: "用下方入池板块的计算器 ↓", poolJoinLink: "用计算器入池 ↓", copy: "复制地址",
  statTotal: "出资总额（RESET）", statContributors: "出资人数", statDeposit: "链上锁仓",
  statBalance: "链上池余额", statRound: "当前挖矿轮次", statSettled: "已结算轮次",
+ statYieldLatest: "最近一轮收益占质押比", statYieldAvg7: "近 7 个已结算轮平均每轮收益占质押比", statNetShare: "池子质押占全网总质押比",
  poolStatusWaiting: "等待注资 — 正在开放出资", poolStatusMining: "挖矿中 — 已锁仓 {deposit} RESET",
  poolStatusDissolved: "已解散 — 全部结清",
  queryTitle: "查询我的份额",
@@ -451,7 +458,8 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  ledgerTitle: "公开账本", thContributor: "出资人", thContributed: "已出资", thPending: "待分收益", thPaid: "已分发总额",
  settledTitle: "已结清退出", thPrincipal: "退回本金", thEarnings: "结清收益", thTotalPaid: "结清总额", thSettledAt: "结清日期",
  noContributors: "尚无人出资——来做第一个。",
- reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thShares: "分账份数", thHash: "报告哈希",
+ reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thRatio: "占质押比", thShares: "分账份数", thHash: "报告哈希",
+ reportsRatioNote: "「占质押比」= 每轮 claim ÷ 池子当前链上总质押（所有轮次同一分母），方便横向比较。",
  noRounds: "尚无已结算轮次。",
  verifyTitle: "自己验一遍",
  verify1: "每份轮次报告都会公开全部输入：出资人快照、claim 金额（可与链上该轮池地址的 claim 记录对照）、手续费和每一份分账。复算公式：",
