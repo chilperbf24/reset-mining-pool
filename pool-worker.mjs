@@ -42,6 +42,7 @@ import { execFile } from 'node:child_process';
 import { MIN_DEPOSIT, formatCoin, settleRound, totalContributed, planLock } from './lib/pool.mjs';
 import { runFingerprintPass, registryConfig } from './lib/fprun.mjs';
 import { runExitPass, registryExitClient, loadExits, saveExits, ARMED as EXIT_ARMED } from './lib/exit-exec.mjs';
+import { updateLossLog } from './lib/losslog.mjs';
 
 const HOME = process.env.HOME;
 const SIGNER = `${HOME}/workspace/reset/signer`;
@@ -235,6 +236,16 @@ async function exitStep(s) {
   }
 }
 
+// Rehearsal loss log (lib/losslog.mjs): while the cancelled exit
+// rehearsal's 0.1 sits in its exit entry, the pool claims at a reduced
+// deposit — record each settled round's shortfall raw-first. Pure
+// accounting (gateway reads + a state file), never moves coins, never
+// books compensation. Never throws into the pass.
+async function lossLogStep(s) {
+  try { return await updateLossLog({ address: s.address, log }); }
+  catch (e) { log({ event: 'losslog_error', error: String((e && e.message) || e).slice(0, 160) }); return null; }
+}
+
 // Watchdog for the 1-minute fingerprint matcher: if its systemd timer is
 // not active, start it. Best-effort only; never fails the pass.
 function sh(cmd, args) {
@@ -278,6 +289,8 @@ async function singlePass() {
   }
   const settled = await maybeSettle(s3.address);
   if (settled) out.settled = settled;
+  const ll = await lossLogStep(s3);
+  if (ll) out.losslog = ll;
   out.fp_timer = await checkFpTimer();
   out.claim_due = claimDue(s3);
   out.funded = toUnits(s3.balance) + toUnits(s3.deposit) >= MIN_DEPOSIT;

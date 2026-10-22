@@ -1,0 +1,63 @@
+{
+  "v": 1,
+  "kind": "reset-pool-rehearsal-loss-log",
+  "purpose": "Per-round record of the pool claim shortfall caused by the cancelled 2026-10-22 exit rehearsal: an unlock of 0.1 (contract granularity) cut the pool claim deposit from 0.22933277 to 0.12933277 for the rounds in this window. Raw fields are captured first so every figure can be recomputed under any convention later. NO compensation is booked from this log without a separate user approval.",
+  "case_id": "exit-20261022-001-3e8d",
+  "pool_address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+  "window": {
+    "opened_by": "rehearsal unlock counted_at 972559 (2026-10-22T04:08:31Z), release 972703",
+    "full_deposit_units": "22933277",
+    "reduced_deposit_units": "12933277",
+    "delta_units": "10000000",
+    "release": 972703,
+    "closed": false,
+    "closed_at": null,
+    "close_condition": "chain exits empty AND deposit back at or above full_deposit_units (re-lock done); entries are appended for settled rounds until then"
+  },
+  "methods": {
+    "exact": "network claiming total for the round is known: counterfactual = actual x FULL x T / (claim_deposit x (T + delta)), anchored on the round actual amount",
+    "linear-upper-bound": "network total unknown: counterfactual = actual x FULL / claim_deposit (an upper bound, since the true denominator would also grow by delta)",
+    "raw-only": "raw fields only; no counterfactual computed (e.g. claim deposit unknown, or an evidence row for a round that was not affected)"
+  },
+  "round_snapshots": {
+    "477": {
+      "round": 477,
+      "settled_totals": {
+        "network_claim_total_units": "282205257999",
+        "guideline_units": "1856250000",
+        "network_claims": 499,
+        "paid_units": "1856249735",
+        "captured_at": "2026-10-22T05:05:09.363Z"
+      }
+    },
+    "478": {
+      "round": 478,
+      "captured_at": "2026-10-22T05:05:09.363Z",
+      "counted": 972565,
+      "pool_claim_deposit_units": "12933277",
+      "network_claim_total_units": "280910326422",
+      "network_claims": 499,
+      "guideline_units": "1856250000",
+      "fair_share_estimate_units": "14368"
+    }
+  },
+  "entries": [
+    {
+      "round": 477,
+      "kind": "evidence",
+      "affected": false,
+      "settled_at": "2026-10-22T04:58:35Z",
+      "claim_deposit_units": "22933277",
+      "actual_amount_units": "150847",
+      "network_claim_total_units": "282205257999",
+      "network_total_source": "gateway /v1/mine/view last (round 477), captured 2026-10-22 ~05:02Z before round 478 settled",
+      "guideline_units": "1856250000",
+      "counterfactual_amount_units": null,
+      "diff_units": "0",
+      "allocation": {},
+      "allocation_dust_units": "0",
+      "method": "raw-only",
+      "evidence": "pool.log 2026-10-22T03:22:10Z: claim event round 477 registered=true, claim_state.deposit = 0.22933277 — registered about 46 minutes BEFORE the rehearsal unlock (2026-10-22T04:08:31Z). Cross-check: guideline x full / total = 150847 vs actual fair 150847 (small formula residue), while at the reduced deposit the same formula gives 85070 — the actual amount is only consistent with a full-deposit claim. CONCLUSION: round 477 claimed at full deposit, NOT affected by the rehearsal; evidence row only, excluded from the diff table."
+    }
+  ]
+}

@@ -7,6 +7,8 @@
 // the ledger and the settled-round reports:
 //   - state/live-ledger.json   (contributions, rounds, payouts)
 //   - reports/live-round-*.json (per-round settlement reports)
+//   - state/rehearsal-loss-log.json (per-round shortfall record of the
+//     cancelled 2026-10-22 exit rehearsal; evidence, published as-is)
 // Nothing else is staged — gateway cache, matcher state and unclaimed
 // records stay local (they are gitignored by design; the ledger is the
 // public record).
@@ -42,9 +44,9 @@ function acquireLock() {
 async function main() {
   if (!acquireLock()) { console.log(JSON.stringify({ published: false, reason: 'locked' })); return; }
   try {
-    const status = await run('git', ['status', '--porcelain=v1', '--', 'state/live-ledger.json', 'reports/']);
+    const status = await run('git', ['status', '--porcelain=v1', '--', 'state/live-ledger.json', 'state/rehearsal-loss-log.json', 'reports/']);
     const files = status.split('\n').map(l => l.slice(3).trim()).filter(Boolean)
-      .filter(p => p === 'state/live-ledger.json' || /^reports\/live-round-\d+\.json$/.test(p));
+      .filter(p => p === 'state/live-ledger.json' || p === 'state/rehearsal-loss-log.json' || /^reports\/live-round-\d+\.json$/.test(p));
     if (!files.length) { console.log(JSON.stringify({ published: false, reason: 'no ledger changes' })); return; }
     if (DRY) { console.log(JSON.stringify({ published: false, dryRun: true, wouldCommit: files })); return; }
 
