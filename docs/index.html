@@ -88,12 +88,8 @@
 
 <h2 data-i18n="exitTitle">Leave the pool — full exit</h2>
 <div class="card">
- <div class="warnbar"><span data-i18n="exitClosed">⏸ Exits are temporarily closed. The operator has paused the exit channel while the pool is small; it reopens once the pool has grown and the exit executor has passed a full end-to-end live test. The exit form below is disabled meanwhile — position lookup still works.</span><br><a href="exit.html" data-i18n="exitFullLink">Read the full exit process →</a></div>
- <p data-i18n="exitIntro">Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.</p>
- <p data-i18n="exitHow"><b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.</p>
- <p><input id="exitAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"> <button onclick="exitShow()" data-i18n="exitPosBtn">Show my position</button></p>
- <div id="exitPos" style="margin-top:10px"></div>
- <div id="exitFlow" style="margin-top:12px"></div>
+ <div class="warnbar"><span data-i18n="exitClosed">⏸ Exits are temporarily closed. The operator has paused the exit channel while the pool is small; it reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Meanwhile the full exit interface is on the exit page, shown disabled.</span></div>
+ <p><span data-i18n="exitCardLine">Position lookup and the exit interface live on the exit page:</span> <a href="exit.html" data-i18n="exitFullLink">Go to the exit page →</a></p>
 </div>
 
 <h2 data-i18n="expTitle">Experience Shares — the proposed newcomer program</h2>
@@ -122,7 +118,7 @@
  <div class="stat"><b>6</b><span data-i18n="statContributors">Contributors</span></div>
  <div class="stat"><b>0.25573592</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
  <div class="stat"><b>0.00591104</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
- <div class="stat"><b>513</b><span data-i18n="statRound">Current Mine round</span></div>
+ <div class="stat"><b>514</b><span data-i18n="statRound">Current Mine round</span></div>
  <div class="stat"><b>41</b><span data-i18n="statSettled">Rounds settled</span></div>
  <div class="stat"><b>0.03797935</b><span data-i18n="statEarnings">Cumulative earnings — all settled rounds (RESET)</span></div>
  <div class="stat"><b>0.58%</b><span data-i18n="statYieldLatest">Latest settled round — yield as % of deposit</span></div>
@@ -146,14 +142,14 @@
 
 <h2 data-i18n="expNetTitle">Network overview</h2>
 <div class="grid">
- <div class="stat"><b><a href="https://mempool.space/block/000000000000000000002627dba49c155168cc844a1111ac764d114bc4a84bac" target="_blank" rel="noopener">972780</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>972775</b><span data-i18n="expCounted">Counted height</span></div>
- <div class="stat"><b>513</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972775–972777 <span data-i18n="expClosed">closed</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
- <div class="stat"><b>3.14358881</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b><a href="https://mempool.space/block/000000000000000000005404a391ccc5775fd7b5b6f662efd2ffd1724d0a9302" target="_blank" rel="noopener">972781</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>972776</b><span data-i18n="expCounted">Counted height</span></div>
+ <div class="stat"><b>514</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>972781–972783 <span data-i18n="expOpen">open</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
+ <div class="stat"><b>6.23733881</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
  <div class="stat"><b>18.56250000</b><span data-i18n="expGuideline">Round guideline (RESET)</span></div>
- <div class="stat"><b>540</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>3276.18960862</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
+ <div class="stat"><b>505</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>3301.00104276</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
 </div>
 <h2 data-i18n="expLastTitle">Last settled round</h2>
 <div class="card">
@@ -169,7 +165,7 @@
 </div>
 <h2 data-i18n="expWatchTitle">Watched addresses</h2>
 <table><tr><th data-i18n="thContributor">Address</th><th data-i18n="thBalance">Balance</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thClaimNow">Claim this round</th><th data-i18n="thFair">Fair estimate</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thLast">Last result</th></tr>
-<tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab('overview');setTimeout(function(){document.getElementById('join').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a></td><td>0.00591104</td><td>0.25573592</td><td>level 1000</td><td>0.00024538</td><td>0 / 17</td><td>#512: 0.00149245</td></tr>
+<tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab('overview');setTimeout(function(){document.getElementById('join').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a></td><td>0.00591104</td><td>0.25573592</td><td>level 1000</td><td>0.00048322</td><td>0 / 17</td><td>#512: 0.00149245</td></tr>
 </table>
 <div class="card"><b data-i18n="lbTitle">Staking leaderboard</b>
 <p class="muted" data-i18n="lbCardNote">Every staking address ranked by deposit, with balances — 15 per page on its own page.</p>
@@ -271,22 +267,22 @@ altering a single share makes verification fail.</p>
 </div>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
 <div class="grid">
- <div class="stat"><b>513</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>972780</b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>540</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>3333.40107078</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
- <div class="stat"><b>632</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
- <div class="stat"><b>3.14358881</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>514</b><span data-i18n="expRound">Current round</span></div>
+ <div class="stat"><b>972781</b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>505</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>3333.63975204</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
+ <div class="stat"><b>633</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
+ <div class="stat"><b>6.23733881</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="mktSnapNote">Snapshot data — refreshed about every 10 minutes when this page is regenerated.</p>
 <h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
 <div class="dexslot"><p data-i18n="dexPlaceholder" style="margin:0">Live order-book data from the official DEX node will appear here once the node connection is live.</p></div>
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 13:37:40 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 13:47:04 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":41,"dissolved":null,"updated":"2026-10-23 13:37:40 UTC","snapshot_ms":1792762660887,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"972641","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"711436","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"517640","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"169478","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"1187085","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"239653","paid_units":"0","closed":null}}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":41,"dissolved":null,"updated":"2026-10-23 13:47:04 UTC","snapshot_ms":1792763224958,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"972641","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"711436","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"517640","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"169478","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"1187085","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"239653","paid_units":"0","closed":null}}};
 const REGISTRY_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/calc";
 const REGISTRY_EXIT_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/exit";
 const T = {
@@ -367,8 +363,8 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  exitSubmittedOk: "Signature received. The pool verifies it and opens your exit case automatically — watch the Ledger tab. No further action is needed.",
  tabExit: "Exit",
  tabAbout: "About",
- exitClosed: "⏸ Exits are temporarily closed. The operator has paused the exit channel while the pool is small; it reopens once the pool has grown and the exit executor has passed a full end-to-end live test. The exit form below is disabled meanwhile — position lookup still works.",
- exitFullLink: "Read the full exit process →",
+ exitClosed: "⏸ Exits are temporarily closed. The operator has paused the exit channel while the pool is small; it reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Meanwhile the full exit interface is on the exit page, shown disabled.",
+ exitFullLink: "Go to the exit page →", exitCardLine: "Position lookup and the exit interface live on the exit page:",
  exitClosedNote: "The exit channel is temporarily closed, so no request can be filed right now.",
  exitErrServer: "The registry answered:", exitErrNet: "Could not reach the registry — try again in a moment.",
  exitBadJson: "That does not parse as a submission JSON object.",
@@ -482,8 +478,8 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  exitSubmittedOk: "签名已收到。池子会自动验签并建案执行——留意账本页即可，你不需要再做任何事。",
  tabExit: "退出",
  tabAbout: "详细介绍",
- exitClosed: "⏸ 退出通道暂时关闭。池子规模尚小，运营者已暂停退出通道；待池子金额规模上来、且退出执行器完成整机端到端实测后再开放。关闭期间下方退出表单停用——份额查询照常可用。",
- exitFullLink: "查看完整退出流程 →",
+ exitClosed: "⏸ 退出通道暂时关闭。池子规模尚小，运营者已暂停退出通道；待池子金额规模上来、且退出执行器完成整机端到端实测后再开放。期间完整退出界面在退出页以禁用态展示。",
+ exitFullLink: "去退出页 →", exitCardLine: "份额查询与退出界面都在退出页：",
  exitClosedNote: "退出通道暂时关闭，目前无法登记退出申请。",
  exitErrServer: "登记后台回复：", exitErrNet: "连不上登记后台——稍后再试。",
  exitBadJson: "这不是可解析的提交 JSON。",
@@ -741,70 +737,11 @@ async function fpCalc() {
 }
 document.getElementById('fpAddr').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
 document.getElementById('fpAmt').addEventListener('keydown', e => { if (e.key === 'Enter') fpCalc(); });
-// --- Exit flow (Overview, inside #join): the page only carries the two
-// public registry calls — POST /exit issues a one-time prepared message,
-// the member signs it with their own signer, POST /exit/verify files the
-// signature. Verification and execution happen pool-side; the payout can
-// only ever go to the address's own ledger entry.
-// Exit channel status (operator ruling 2026-10-23): TEMPORARILY CLOSED.
-// While EXIT_CHANNEL_OPEN is false the page renders NO working exit form:
-// position lookup only — no apply button, and exitApply/exitSubmit refuse
-// to run. Mirrors the registry gate (EXIT_OPEN var, worker/) and the
-// executor gate (lib/exit-exec.mjs ARMED); all three open together.
-const EXIT_CHANNEL_OPEN = false;
-let exitPrepared = null;
-function exitShow() {
-  const t = T[lang];
-  const addr = normalizeAddress(document.getElementById('exitAddr').value.trim());
-  const pos = document.getElementById('exitPos'), flow = document.getElementById('exitFlow');
-  flow.innerHTML = ''; exitPrepared = null;
-  if (!addr) { pos.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
-  const c = SNAPSHOT.contributors[addr];
-  if (!c) { pos.innerHTML = '<span style="color:var(--warn)">' + t.exitNoPos + '</span>'; return; }
-  if (c.closed) { pos.innerHTML = '<span style="color:var(--warn)">' + t.qClosed.replace('{date}', String(c.closed.at).slice(0, 10)).replace('{total}', fmt(c.closed.total_units)) + '</span>'; return; }
-  pos.innerHTML = '<table><tr><td>' + t.qContributed + '</td><td>' + fmt(c.contributed_units) + ' RESET</td></tr>' +
-    '<tr><td>' + t.qPending + '</td><td>' + fmt(c.pending_units) + ' RESET</td></tr></table>' +
-    (EXIT_CHANNEL_OPEN
-      ? '<div style="margin-top:10px"><button id="exitApplyBtn2" style="font-weight:700">' + t.exitApplyBtn + '</button></div>'
-      : '<p style="margin-top:10px;color:var(--warn)">' + t.exitClosedNote + '</p>');
-  if (EXIT_CHANNEL_OPEN) document.getElementById('exitApplyBtn2').addEventListener('click', () => exitApply(addr));
-}
-async function exitApply(addr) {
-  if (!EXIT_CHANNEL_OPEN) return; // channel closed — no intent is filed
-  const t = T[lang];
-  const flow = document.getElementById('exitFlow');
-  flow.innerHTML = '<span class="muted">…</span>';
-  try {
-    const r = await fetch(REGISTRY_EXIT_ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ address: addr }) });
-    const j = await r.json();
-    if (!j.ok) { flow.innerHTML = '<span style="color:var(--warn)">' + t.exitErrServer + ' ' + (j.error || r.status) + '</span>'; return; }
-    exitPrepared = j.exit.prepared;
-    flow.innerHTML = '<p>' + t.exitIssued + '</p>' +
-      '<div class="muted">' + t.exitSignTextLabel + '</div>' +
-      '<div class="mono" style="word-break:break-all;white-space:pre-wrap">' + String(j.exit.signing_text).replace(/</g, '&lt;') + '</div>' +
-      '<div class="muted" style="margin-top:10px">' + t.exitPreparedLabel + ' <button class="exitCopyP">' + t.copyBtn + '</button></div>' +
-      '<div class="mono" style="word-break:break-all">' + JSON.stringify(exitPrepared) + '</div>' +
-      '<p><textarea id="exitSig" rows="4" style="width:100%;box-sizing:border-box" placeholder="' + t.exitSubmitPh + '"></textarea></p>' +
-      '<button onclick="exitSubmit()" style="font-weight:700">' + t.exitSubmitBtn + '</button>' +
-      '<div id="exitSubmitResult" style="margin-top:10px"></div>';
-    flow.querySelector('.exitCopyP').addEventListener('click', ev => copyText(JSON.stringify(exitPrepared), ev.currentTarget));
-  } catch (e) { flow.innerHTML = '<span style="color:var(--warn)">' + t.exitErrNet + '</span>'; }
-}
-async function exitSubmit() {
-  if (!EXIT_CHANNEL_OPEN) return; // channel closed — nothing is submitted
-  const t = T[lang];
-  const box = document.getElementById('exitSubmitResult');
-  let sub;
-  try { sub = JSON.parse(document.getElementById('exitSig').value.trim()); }
-  catch (e) { box.innerHTML = '<span style="color:var(--warn)">' + t.exitBadJson + '</span>'; return; }
-  try {
-    const r = await fetch(REGISTRY_EXIT_ENDPOINT + '/verify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sub) });
-    const j = await r.json();
-    if (!j.ok) { box.innerHTML = '<span style="color:var(--warn)">' + t.exitErrServer + ' ' + (j.error || r.status) + '</span>'; return; }
-    box.innerHTML = '<span style="color:var(--accent)">' + t.exitSubmittedOk + '</span>';
-  } catch (e) { box.innerHTML = '<span style="color:var(--warn)">' + t.exitErrNet + '</span>'; }
-}
-document.getElementById('exitAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitShow(); });
+// --- Exit flow: the interface lives on the standalone exit page
+// (docs/exit.html), position lookup included. This page's exit card
+// only links there; nothing on this page files or submits an exit.
+// The registry gate (worker EXIT_OPEN) and the executor gate
+// (lib/exit-exec.mjs ARMED) are unchanged by this move.
 // --- Markets tab: TNK live price, polled client-side from CoinGecko (CORS *).
 // Failures are silent: the last good values stay on screen and the next
 // 30 s cycle retries. Nothing else on this page makes network calls.

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RESET Mining Pool — Exit at a glance</title>
+<title>RESET Mining Pool — Leave the pool — full exit</title>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('pool-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <style>
  :root, :root[data-theme="light"]{--bg:#ffffff;--fg:#1f2328;--muted:#59636e;--card:#f6f8fa;--border:#d1d9e0;--border2:#e3e8ee;--code:#eaeef2;--input:#ffffff;--accent:#1a7f37;--warn:#9e6a03;--hl:#fff3cd}
@@ -10,144 +10,224 @@
  .muted{color:var(--muted)} .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all}
  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0}
  button{background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer}
+ button:disabled{cursor:not-allowed;opacity:.65}
  a{color:var(--accent)} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
  .topbtns{display:flex;gap:6px;flex-shrink:0}
  .warnbar{border:1.5px solid var(--warn);border-left:6px solid var(--warn);background:color-mix(in srgb, var(--warn) 14%, var(--card));border-radius:10px;padding:12px 14px;font-size:17px;line-height:1.5;margin:14px 0;color:var(--fg)}
- .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}
- .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
- .stat b{display:block;font-size:20px} .stat span{color:var(--muted);font-size:13px}
- ul.tight{margin:0;padding-left:20px} ul.tight li{margin:5px 0}
- .steps{list-style:none;padding:0;margin:10px 0;display:grid;gap:8px}
- .steps li{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin:0}
- .steps .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--fg);color:var(--bg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
- ul.friction{padding-left:20px} ul.friction li{margin:6px 0}
+ input{background:var(--input);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;min-width:min(430px,78%)}
+ textarea{width:100%;box-sizing:border-box;background:var(--input);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:8px;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.5}
+ textarea:disabled{opacity:.8}
+ table{border-collapse:collapse;margin-top:8px} td{padding:2px 16px 2px 0}
+ .stage h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+ .stepdot{flex:none;width:24px;height:24px;border-radius:50%;background:var(--fg);color:var(--bg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+ .closedtag{font-size:12px;font-weight:700;color:var(--warn);border:1.5px solid var(--warn);border-radius:999px;padding:1px 9px;background:color-mix(in srgb, var(--warn) 12%, transparent)}
+ .stage.off{opacity:.55;filter:grayscale(.35)}
+ .stage.off .stepdot{background:var(--muted)}
+ .noncebox{border:1.5px dashed var(--border);border-radius:8px;padding:12px;color:var(--muted);background:var(--card);margin-top:10px}
  .morelink{font-size:17px;font-weight:600;margin:20px 0 6px}
 </style></head><body>
 <div class="topbar"><div>
-<h1 data-i18n="title">Leaving the pool — exit at a glance</h1>
+<h1 data-i18n="title">Leave the pool — full exit</h1>
 <p class="muted"><a href="index.html" data-i18n="back">← Back to the pool page</a></p>
 </div><div class="topbtns"><button id="themeBtn" onclick="toggleTheme()">🌙</button><button id="langBtn" onclick="toggleLang()">中文</button></div></div>
 
-<div class="warnbar" data-i18n="closedBanner">⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so exits are paused for now. The channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Until then the registry accepts no new exit intents and the exit form on the Overview tab is disabled. This page stays up so you can read how an exit works before it reopens.</div>
+<div class="warnbar" data-i18n="closedBanner">⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so exits are paused for now; the channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. The interface below is the real one, shown as it will run — filing and submission are disabled, position lookup works.</div>
 
-<h2 data-i18n="whatTitle">Exiting, in four lines</h2>
-<div class="card"><ul class="tight">
- <li data-i18n="s1">A position on the ledger under your address can be exited — a right, not an approval.</li>
- <li data-i18n="s2">Full exits only: principal + pending earnings, settled in one payment.</li>
- <li data-i18n="s3">Paid only to the address you contributed from — no step can change the payee.</li>
- <li data-i18n="s4">The pool pays the transfer fee; you receive the full amount.</li>
-</ul></div>
+<p data-i18n="exitIntro">Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.</p>
+<p data-i18n="exitHow"><b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.</p>
 
-<div class="grid">
- <div class="stat"><b>≈ 24 h</b><span data-i18n="factWait">The wait — 144 Bitcoin blocks</span></div>
- <div class="stat"><b>0.1</b><span data-i18n="factMin">Minimum per single unlock (RESET)</span></div>
- <div class="stat"><b>0.03 TNK</b><span data-i18n="factFee">Transfer fee — paid by the pool</span></div>
- <div class="stat"><b data-i18n="factFreezeV">At case opening</b><span data-i18n="factFreeze">When your payout is frozen</span></div>
+<div class="card stage" id="stage1">
+ <h3><span class="stepdot">1</span> <span data-i18n="seg1Title">Check your position</span></h3>
+ <p><input id="exitAddr" data-i18n-ph="queryPh" placeholder="Your address — RESET hex or trac1…"> <button type="button" id="exitPosBtn" onclick="exitShow()" data-i18n="exitPosBtn">Show my position</button></p>
+ <div id="exitPos"></div>
 </div>
 
-<h2 data-i18n="stepsTitle">The ten steps</h2>
-<ol class="steps">
- <li><span class="n">1</span><div data-i18n="step1"><b>Check your position.</b> Enter your address on the Overview or Ledger tab — that is what an exit settles.</div></li>
- <li><span class="n">2</span><div data-i18n="step2"><b>File an intent.</b> The registry issues a one-time statement (nonce, 30 min). Your own AI can file it.</div></li>
- <li><span class="n">3</span><div data-i18n="step3"><b>Sign it.</b> Sign the exact text with your own signer — no transfer, zero balance OK.</div></li>
- <li><span class="n">4</span><div data-i18n="step4"><b>Submit.</b> The nonce burns on first use — replays fail. Verified signature = case opened.</div></li>
- <li><span class="n">5</span><div data-i18n="step5"><b>Amount frozen.</b> Your payout is fixed from the ledger at the moment the case opens.</div></li>
- <li><span class="n">6</span><div data-i18n="step6"><b>Pool unlocks.</b> Minimum 0.1 per unlock (contract); the excess returns after the wait and re-locks.</div></li>
- <li><span class="n">7</span><div data-i18n="step7"><b>Wait.</b> 144 Bitcoin blocks — about 24 hours.</div></li>
- <li><span class="n">8</span><div data-i18n="step8"><b>Pool withdraws.</b> At the first window after maturity, the amount returns to the pool balance.</div></li>
- <li><span class="n">9</span><div data-i18n="step9"><b>You are paid.</b> The full frozen amount goes to your original address.</div></li>
- <li><span class="n">10</span><div data-i18n="step10"><b>Closed on the ledger.</b> Hash-chained events record the exit — anyone can recompute it.</div></li>
-</ol>
+<div class="card stage off" id="stage2">
+ <h3><span class="stepdot">2</span> <span data-i18n="seg2Title">File the exit intent</span> <span class="closedtag" data-i18n="closedTag">Temporarily closed</span></h3>
+ <p><button type="button" id="exitApplyBtn" disabled data-i18n="exitApplyBtn">File exit intent — get a one-time statement</button></p>
+ <div class="noncebox mono" id="nonceBox" data-i18n="noncePh">Once filing is open, your one-time statement — the prepared message with its nonce — will appear here.</div>
+</div>
 
-<h2 data-i18n="fricTitle">The honest frictions</h2>
-<ul class="friction">
- <li data-i18n="fric1">While unlocked, that part earns nothing — those rounds pay everyone less, pro-rata, including you.</li>
- <li data-i18n="fric2">If a pool claim is still unsettled, the contract refuses the withdraw — pickup slips to the next window.</li>
- <li data-i18n="fric3">If an exit leaves under 0.1 staked, the rest sits idle until the balance tops it up to 0.1 again.</li>
-</ul>
+<div class="card stage" id="stage3">
+ <h3><span class="stepdot">3</span> <span data-i18n="seg3Title">Sign the statement</span></h3>
+ <div class="muted"><span data-i18n="exitSignTextLabel">Signing text — exactly what your key signs</span> <button type="button" id="copySignBtn" data-i18n="copyBtn">Copy</button></div>
+ <textarea id="signTpl" readonly rows="4">reset-chat/v1
+{"addr":"<your address>","kind":"agent","nonce":"<one-time nonce>","text":"EXIT full pool position. Pool 4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 member <your address> nonce <one-time nonce>","ts":<timestamp>,"v":1}</textarea>
+ <p class="muted" data-i18n="signGuide">Sign this exact text with your own wallet — or hand it to your own AI's signer. Signing moves no coins and works at zero balance.</p>
+</div>
+
+<div class="card stage off" id="stage4">
+ <h3><span class="stepdot">4</span> <span data-i18n="seg4Title">Submit the signature</span> <span class="closedtag" data-i18n="closedTag">Temporarily closed</span></h3>
+ <p><textarea id="exitSig" rows="4" disabled data-i18n-ph="exitSubmitPh" placeholder="Paste the submission JSON here — {prepared, signature, nonce}"></textarea></p>
+ <p><button type="button" id="exitSubmitBtn" disabled data-i18n="exitSubmitBtn">Submit signature — verify &amp; open my case</button></p>
+</div>
 
 <p class="morelink"><a href="about.html#exit" data-i18n="moreLink">Full introduction — including the detailed exit walkthrough →</a></p>
 
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 13:37:40 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 13:47:04 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT_MS = 1792762660893;
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":41,"dissolved":null,"updated":"2026-10-23 13:47:04 UTC","snapshot_ms":1792763224958,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"972641","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"711436","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"517640","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"169478","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"1187085","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"239653","paid_units":"0","closed":null}}};
+const SNAPSHOT_MS = 1792763224979;
+const EXIT_POOL = "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6";
 const T = {
-en: { title: "Leaving the pool — exit at a glance", langBtn: "中文", back: "← Back to the pool page",
+en: { title: "Leave the pool — full exit", langBtn: "中文", back: "← Back to the pool page",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
- closedBanner: "⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so exits are paused for now. The channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Until then the registry accepts no new exit intents and the exit form on the Overview tab is disabled. This page stays up so you can read how an exit works before it reopens.",
- whatTitle: "Exiting, in four lines",
- s1: "A position on the ledger under your address can be exited — a right, not an approval.",
- s2: "Full exits only: principal + pending earnings, settled in one payment.",
- s3: "Paid only to the address you contributed from — no step can change the payee.",
- s4: "The pool pays the transfer fee; you receive the full amount.",
- factWait: "The wait — 144 Bitcoin blocks", factMin: "Minimum per single unlock (RESET)",
- factFee: "Transfer fee — paid by the pool", factFreezeV: "At case opening", factFreeze: "When your payout is frozen",
- stepsTitle: "The ten steps",
- step1: "<b>Check your position.</b> Enter your address on the Overview or Ledger tab — that is what an exit settles.",
- step2: "<b>File an intent.</b> The registry issues a one-time statement (nonce, 30 min). Your own AI can file it.",
- step3: "<b>Sign it.</b> Sign the exact text with your own signer — no transfer, zero balance OK.",
- step4: "<b>Submit.</b> The nonce burns on first use — replays fail. Verified signature = case opened.",
- step5: "<b>Amount frozen.</b> Your payout is fixed from the ledger at the moment the case opens.",
- step6: "<b>Pool unlocks.</b> Minimum 0.1 per unlock (contract); the excess returns after the wait and re-locks.",
- step7: "<b>Wait.</b> 144 Bitcoin blocks — about 24 hours.",
- step8: "<b>Pool withdraws.</b> At the first window after maturity, the amount returns to the pool balance.",
- step9: "<b>You are paid.</b> The full frozen amount goes to your original address.",
- step10: "<b>Closed on the ledger.</b> Hash-chained events record the exit — anyone can recompute it.",
- fricTitle: "The honest frictions",
- fric1: "While unlocked, that part earns nothing — those rounds pay everyone less, pro-rata, including you.",
- fric2: "If a pool claim is still unsettled, the contract refuses the withdraw — pickup slips to the next window.",
- fric3: "If an exit leaves under 0.1 staked, the rest sits idle until the balance tops it up to 0.1 again.",
+ closedBanner: "⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so exits are paused for now; the channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. The interface below is the real one, shown as it will run — filing and submission are disabled, position lookup works.",
+ exitIntro: "Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.",
+ exitHow: "<b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.",
+ seg1Title: "Check your position", queryPh: "Your address — RESET hex or trac1…", exitPosBtn: "Show my position",
+ qInvalid: "That does not look like a valid address — enter the 64-hex RESET address or the trac1 address (the same key in two encodings).",
+ exitNoPos: "This address has no open position in the current ledger snapshot.",
+ qClosed: "This position was settled by a full exit on {date} — total paid {total} RESET.",
+ qShare: "Share of pool", qContributed: "Contributed", qPending: "Pending payout", qDue: "Due on exit (principal + pending)",
+ seg2Title: "File the exit intent", exitApplyBtn: "File exit intent — get a one-time statement",
+ noncePh: "Once filing is open, your one-time statement — the prepared message with its nonce — will appear here.",
+ seg3Title: "Sign the statement", exitSignTextLabel: "Signing text — exactly what your key signs",
+ copyBtn: "Copy", copiedOk: "Copied ✓",
+ signGuide: "Sign this exact text with your own wallet — or hand it to your own AI's signer. Signing moves no coins and works at zero balance.",
+ phAddr: "<your address>", phNonce: "<one-time nonce>", phTs: "<timestamp>",
+ seg4Title: "Submit the signature", exitSubmitPh: "Paste the submission JSON here — {prepared, signature, nonce}",
+ exitSubmitBtn: "Submit signature — verify & open my case", closedTag: "Temporarily closed",
  moreLink: "Full introduction — including the detailed exit walkthrough →",
  footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
-zh: { title: "退出拼池——一眼看懂", langBtn: "English", back: "← 返回拼池主页",
+zh: { title: "退出拼池——全额退出", langBtn: "English", back: "← 返回拼池主页",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
- closedBanner: "⏸ <b>退出通道暂时关闭。</b>池子规模尚小，运营者已暂停退出。待池子金额规模上来、且退出执行器完成整机端到端实测后，通道再开放。在此之前，登记后台不接受新的退出意向，概览页的退出表单也已停用。本页保留，是为了让你在通道重开之前就能把退出到底怎么走看清楚。",
- whatTitle: "退出，四行说清",
- s1: "只要账本上有你地址名下的份额，你就能退——是权利，不是审批。",
- s2: "只退全额：本金＋待分收益，一次性结清。",
- s3: "只打回你入池的原地址——任何环节都改不了收款地址。",
- s4: "转账费池子承担，你收到的是全额。",
- factWait: "等待期——144 个比特币块", factMin: "单笔 unlock 最低（RESET）",
- factFee: "转账费——池子承担", factFreezeV: "建案那一刻", factFreeze: "应退额的冻结时点",
- stepsTitle: "十步流程",
- step1: "<b>查份额。</b>在概览页或账本页输入你的地址——退出结清的就是这份份额。",
- step2: "<b>登记意向。</b>登记后台签发一次性声明（单次口令，30 分钟有效），可由你自己的 AI 代办。",
- step3: "<b>签名。</b>用自己的签名器签原文；不用转币，钱包零余额也能签。",
- step4: "<b>提交验签。</b>口令首次提交即烧毁，重放无效；验签通过即建案。",
- step5: "<b>冻结金额。</b>应退额在建案那一刻按账本快照定死。",
- step6: "<b>池子 unlock。</b>合约单笔最低 0.1；多出部分等待期满后回池复锁。",
- step7: "<b>等待。</b>144 个比特币块——约 24 小时。",
- step8: "<b>池子 withdraw。</b>到期后第一个可执行窗口，把金额取回池子余额。",
- step9: "<b>打款。</b>冻结的全额转账打回你的原地址。",
- step10: "<b>账本关账。</b>全过程记为哈希链事件，任何人可复算。",
- fricTitle: "摩擦，实话实说",
- fric1: "等待期内，解出的那部分质押不产收益——那几轮全池收益按份额一起变低，包括你。",
- fric2: "若池子有某轮 claim 还没结算完，合约会拒绝 withdraw，取回会顺延到下一个可执行窗口。",
- fric3: "某笔退出后池子剩下的质押若不足 0.1，要等余额攒够 0.1 才能复锁，期间不产收益。",
+ closedBanner: "⏸ <b>退出通道暂时关闭。</b>池子规模尚小，运营者已暂停退出；待池子金额规模上来、且退出执行器完成整机端到端实测后，通道再开放。下面就是将来原样启用的真实界面——登记与提交两步暂时禁用，份额查询照常可用。",
+ exitIntro: "退出是你的权利，不是向谁申请批准：验证通过的退出申请会被自动执行。三件事先讲明——<b>只退全额</b>（本金＋待分收益一次结清）；到账需<b>约 24 小时</b>（合约的 144 个比特币块退出等待期）；若某笔退出会让池子质押跌破 0.1，<b>全池解散、所有人一并结清</b>。",
+ exitHow: "<b>证明是你本人，不用转币——用签名。</b>你的币在池子里，钱包可能是空的；签名零成本、零余额可办。服务器会签发一份一次性声明（官方签名消息格式），你用自己的签名器签好后把签名提交回来即可。申请和提交可以由任何人代劳——包括你自己的 AI——但只有你的私钥能签。而且退出款<b>只打回你账本上的地址本人</b>：整个流程没有任何一步能改收款地址。",
+ seg1Title: "查份额", queryPh: "你的地址——RESET 十六进制或 trac1…", exitPosBtn: "查看我的份额",
+ qInvalid: "这不像一个有效地址——请填 64 位十六进制 RESET 地址或 trac1 地址（两者是同一把钥匙的两种写法）。",
+ exitNoPos: "该地址在当前账本快照里没有未结清的份额。",
+ qClosed: "该份额已于 {date} 通过全额退出结清——共打款 {total} RESET。",
+ qShare: "占池份额", qContributed: "已出资", qPending: "待分收益", qDue: "应退额（本金＋待分）",
+ seg2Title: "登记退出意向", exitApplyBtn: "登记意向 · 领取一次性口令",
+ noncePh: "通道开放并登记后，你的一次性声明（prepared 声明对象＋口令）会显示在这里。",
+ seg3Title: "签名", exitSignTextLabel: "签名文本——你的私钥实际签的就是这段",
+ copyBtn: "复制", copiedOk: "复制成功 ✓",
+ signGuide: "用你自己的钱包、或你自己 AI 的 signer 签这段原文即可——签名不转币，钱包零余额也能签。",
+ phAddr: "<你的地址>", phNonce: "<一次性口令>", phTs: "<时间戳>",
+ seg4Title: "提交验签", exitSubmitPh: "把提交 JSON 粘贴到这里——{prepared, signature, nonce}",
+ exitSubmitBtn: "提交签名 · 验签建案", closedTag: "暂时关闭",
  moreLink: "完整详细介绍（含退出全流程细节）→",
  footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
 };
 let lang = localStorage.getItem('pool-lang') || 'en'; // first visit always opens in English
+let lastExitQuery = '';
+function fmt(u) { if (u == null) return '—'; const b = BigInt(u); return (b / 100000000n) + '.' + (b % 100000000n).toString().padStart(8, '0'); }
 function snapshotTimeText() { const d = new Date(SNAPSHOT_MS); const p = n => String(n).padStart(2, '0');
   if (lang === 'zh') { const b = new Date(d.getTime() + 8 * 3600000);
     return b.getUTCFullYear() + '-' + p(b.getUTCMonth() + 1) + '-' + p(b.getUTCDate()) + ' ' + p(b.getUTCHours()) + ':' + p(b.getUTCMinutes()) + ':' + p(b.getUTCSeconds()) + ' GMT+8'; }
   return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC'; }
+// --- Address formats: the 64-hex RESET address and the trac1 (TNK) address
+// are the SAME 32-byte key in two encodings (bech32m, HRP "trac", payload =
+// the raw key, checksum verified). normalizeAddress maps either spelling to
+// canonical lowercase hex. Mirrors lib/fpmatch.mjs exactly (same helper as
+// the Overview page).
+function normalizeAddress(input) {
+  if (typeof input !== 'string') return null;
+  var s = input.trim();
+  if (/^[0-9a-fA-F]{64}$/.test(s)) return s.toLowerCase();
+  if (!/^trac1/i.test(s)) return null;
+  if (s !== s.toLowerCase() && s !== s.toUpperCase()) return null; // bech32 forbids mixed case
+  var a = s.toLowerCase();
+  var pos = a.lastIndexOf('1');
+  if (pos < 1 || a.slice(0, pos) !== 'trac') return null;
+  var part = a.slice(pos + 1);
+  if (part.length < 6) return null;
+  var CS = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+  var data = [];
+  for (var i = 0; i < part.length; i++) { var v = CS.indexOf(part[i]); if (v < 0) return null; data.push(v); }
+  var GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  var vals = [];
+  for (var j = 0; j < 4; j++) vals.push('trac'.charCodeAt(j) >> 5);
+  vals.push(0);
+  for (var j2 = 0; j2 < 4; j2++) vals.push('trac'.charCodeAt(j2) & 31);
+  vals = vals.concat(data);
+  var chk = 1;
+  for (var k = 0; k < vals.length; k++) { var top = chk >>> 25; chk = ((chk & 0x1ffffff) << 5) ^ vals[k];
+    for (var b = 0; b < 5; b++) if ((top >>> b) & 1) chk ^= GEN[b]; }
+  if ((chk >>> 0) !== 0x2bc830a3) return null; // bech32m checksum
+  var acc = 0, bits = 0, bytes = [];
+  var payload = data.slice(0, data.length - 6);
+  for (var m = 0; m < payload.length; m++) { acc = (acc << 5) | payload[m]; bits += 5;
+    while (bits >= 8) { bits -= 8; bytes.push((acc >> bits) & 0xff); } }
+  if (bits >= 5 || ((acc << (8 - bits)) & 0xff) !== 0) return null;
+  if (bytes.length !== 32) return null;
+  return bytes.map(function (x) { return x.toString(16).padStart(2, '0'); }).join('');
+}
+// Stage 1 — position lookup. Pure readout of the published snapshot on
+// this page: no network call, works while the channel is closed.
+function exitShow() {
+  const t = T[lang];
+  const raw = document.getElementById('exitAddr').value.trim();
+  lastExitQuery = raw;
+  const addr = normalizeAddress(raw);
+  const pos = document.getElementById('exitPos');
+  if (!addr) { pos.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  const c = SNAPSHOT.contributors[addr];
+  if (!c) { pos.innerHTML = '<span style="color:var(--warn)">' + t.exitNoPos + '</span>'; return; }
+  if (c.closed) { pos.innerHTML = '<span style="color:var(--warn)">' + t.qClosed.replace('{date}', String(c.closed.at).slice(0, 10)).replace('{total}', fmt(c.closed.total_units)) + '</span>'; return; }
+  const total = BigInt(SNAPSHOT.total_units), contrib = BigInt(c.contributed_units), pend = BigInt(c.pending_units);
+  const sharePct = total === 0n ? '0.00' : (Number(contrib * 1000000n / total) / 10000).toFixed(2);
+  pos.innerHTML = '<table>' +
+    '<tr><td>' + t.qShare + '</td><td>' + sharePct + '%</td></tr>' +
+    '<tr><td>' + t.qContributed + '</td><td>' + fmt(contrib) + ' RESET</td></tr>' +
+    '<tr><td>' + t.qPending + '</td><td>' + fmt(pend) + ' RESET</td></tr>' +
+    '<tr><td>' + t.qDue + '</td><td><b>' + fmt(contrib + pend) + ' RESET</b></td></tr></table>';
+}
+// Stage 3 — the signing-text template, in the exact bytes a member's key
+// signs once stage 2 issues a real intent (official agentSigningText:
+// 'reset-chat/v1' + stableJSON of {v, kind, addr, text, ts, nonce}; the
+// statement text is lib/exit.mjs exitText). Placeholders stand where the
+// issued address / nonce / timestamp will go.
+function buildSignTemplate() {
+  const t = T[lang];
+  const text = 'EXIT full pool position. Pool ' + EXIT_POOL + ' member ' + t.phAddr + ' nonce ' + t.phNonce;
+  return 'reset-chat/v1\n' + '{"addr":"' + t.phAddr + '","kind":"agent","nonce":"' + t.phNonce + '","text":"' + text + '","ts":' + t.phTs + ',"v":1}';
+}
+function copyText(txt, btn) {
+  const done = () => {
+    if (!btn) return;
+    const old = btn.textContent;
+    btn.textContent = T[lang].copiedOk;
+    setTimeout(() => { btn.textContent = btn.dataset && btn.dataset.i18n ? (T[lang][btn.dataset.i18n] || old) : old; }, 1500);
+  };
+  const fallback = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta); done();
+    } catch (e) {}
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done).catch(fallback);
+  else fallback();
+}
+// Stages 2 and 4 are DISABLED presentation only: their buttons/textarea
+// carry the disabled attribute and this script registers NO handler for
+// them and contains no fetch at all — nothing can be filed or submitted
+// from this page while the channel is closed.
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
 function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function applyLang() {
   const t = T[lang];
   document.querySelectorAll('[data-i18n]').forEach(el => { const v = t[el.dataset.i18n]; if (v != null) el.innerHTML = v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t[el.dataset.i18nPh]; });
   document.getElementById('langBtn').textContent = t.langBtn;
   document.title = 'RESET Mining Pool — ' + t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   document.getElementById('snapshotTime').textContent = snapshotTimeText();
+  document.getElementById('signTpl').value = buildSignTemplate();
+  if (lastExitQuery) exitShow();
   syncThemeBtn();
 }
+document.getElementById('copySignBtn').addEventListener('click', ev => copyText(document.getElementById('signTpl').value, ev.currentTarget));
+document.getElementById('exitAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitShow(); });
 applyLang();
 </script>
 </body></html>
