@@ -435,18 +435,35 @@
         "guideline_units": "1856250000",
         "network_claims": 529,
         "paid_units": "1856125779",
-        "captured_at": "2026-10-23T04:48:41.483Z"
+        "captured_at": "2026-10-23T05:28:33.595Z"
       }
     },
     "502": {
       "round": 502,
-      "captured_at": "2026-10-23T04:48:41.483Z",
-      "counted": 972708,
+      "captured_at": "2026-10-23T05:08:35.019Z",
+      "counted": 972709,
       "pool_claim_deposit_units": "12933277",
       "network_claim_total_units": "306764273001",
       "network_claims": 561,
       "guideline_units": "1856250000",
-      "fair_share_estimate_units": "168"
+      "fair_share_estimate_units": "13211",
+      "settled_totals": {
+        "network_claim_total_units": "306764273001",
+        "guideline_units": "1856250000",
+        "network_claims": 561,
+        "paid_units": "1856187370",
+        "captured_at": "2026-10-23T05:38:38.847Z"
+      }
+    },
+    "503": {
+      "round": 503,
+      "captured_at": "2026-10-23T05:38:38.847Z",
+      "counted": 972714,
+      "pool_claim_deposit_units": "12933277",
+      "network_claim_total_units": "312165874927",
+      "network_claims": 537,
+      "guideline_units": "1856250000",
+      "fair_share_estimate_units": "167"
     }
   },
   "entries": [
@@ -1102,6 +1119,35 @@
         "fair_units": "79056",
         "fair_share_estimate_units": "13340",
         "network_claims": 529
+      },
+      "affected": true
+    },
+    {
+      "round": 502,
+      "kind": "settled",
+      "settled_at": "2026-10-23T05:38:38.847Z",
+      "claim_deposit_units": "12933277",
+      "actual_amount_units": "78260",
+      "network_claim_total_units": "306764273001",
+      "network_total_source": "gateway /v1/mine/view last.deposit (settled-round totals)",
+      "guideline_units": "1856250000",
+      "counterfactual_amount_units": "138766",
+      "diff_units": "60506",
+      "allocation": {
+        "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7": "9893",
+        "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d": "13525",
+        "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6": "7198",
+        "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d": "22226",
+        "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3": "3173",
+        "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d": "4487"
+      },
+      "allocation_dust_units": "4",
+      "method": "exact",
+      "raw": {
+        "report_hash": "0885ffe586733af27127f236c158765de946145b9eee9062a873b77102c9527d",
+        "fair_units": "78260",
+        "fair_share_estimate_units": "13211",
+        "network_claims": 561
       },
       "affected": true
     }

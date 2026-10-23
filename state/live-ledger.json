@@ -6,32 +6,32 @@
   "contributors": {
     "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d": {
       "contributed": "5000000",
-      "pending": "754521",
+      "pending": "772016",
       "paid_total": "0"
     },
     "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7": {
       "contributed": "3657260",
-      "pending": "551892",
+      "pending": "564689",
       "paid_total": "0"
     },
     "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6": {
       "contributed": "2661039",
-      "pending": "401556",
+      "pending": "410867",
       "paid_total": "0"
     },
     "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3": {
       "contributed": "1173155",
-      "pending": "118304",
+      "pending": "122408",
       "paid_total": "0"
     },
     "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d": {
       "contributed": "8216449",
-      "pending": "828646",
+      "pending": "857395",
       "paid_total": "0"
     },
     "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d": {
       "contributed": "1658858",
-      "pending": "167289",
+      "pending": "173093",
       "paid_total": "0"
     }
   },
@@ -478,6 +478,17 @@
       },
       "prev": "6e6334d1f22d2a57d37663bd06fe1a03ae6b0043d90f81ea7ab843b40a0fbbdd",
       "hash": "a961edc7829c04ecbbe7ddd77da342c2fa1ef551b3c1e84502c282d67e5e1fec"
+    },
+    {
+      "i": 39,
+      "type": "round_settled",
+      "data": {
+        "round": 502,
+        "claim_amount_units": "78260",
+        "snapshot_hash": "c920d2d1de37ec82b76f72e8770771538dfcebad9bc80dc3ac012586a173f547"
+      },
+      "prev": "a961edc7829c04ecbbe7ddd77da342c2fa1ef551b3c1e84502c282d67e5e1fec",
+      "hash": "5a435829e385d1b7d11034f162f9bca42eed21f2c343d18634b05cce2a34efb5"
     }
   ],
   "rounds": [
@@ -640,6 +651,11 @@
       "round": 501,
       "claim_amount_units": "79056",
       "report_hash": "08e89bb637a37f1c91a252f1202df44c4c77f61ccccb3ef9c0e4dd1cf1ad64f5"
+    },
+    {
+      "round": 502,
+      "claim_amount_units": "78260",
+      "report_hash": "0885ffe586733af27127f236c158765de946145b9eee9062a873b77102c9527d"
     }
   ],
   "payouts": []
