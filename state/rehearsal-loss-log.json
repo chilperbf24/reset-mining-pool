@@ -412,17 +412,24 @@
       "network_claim_total_units": "301939452932",
       "network_claims": 510,
       "guideline_units": "1856250000",
-      "fair_share_estimate_units": "160"
+      "fair_share_estimate_units": "160",
+      "settled_totals": {
+        "network_claim_total_units": "301939452932",
+        "guideline_units": "1856250000",
+        "network_claims": 510,
+        "paid_units": "1856124945",
+        "captured_at": "2026-10-23T03:38:35.883Z"
+      }
     },
     "501": {
       "round": 501,
-      "captured_at": "2026-10-23T03:28:55.832Z",
-      "counted": 972699,
+      "captured_at": "2026-10-23T03:38:35.883Z",
+      "counted": 972703,
       "pool_claim_deposit_units": "12933277",
-      "network_claim_total_units": "303450320890",
-      "network_claims": 512,
+      "network_claim_total_units": "303675494136",
+      "network_claims": 529,
       "guideline_units": "1856250000",
-      "fair_share_estimate_units": "39712"
+      "fair_share_estimate_units": "13340"
     }
   },
   "entries": [
@@ -1020,6 +1027,35 @@
         "fair_units": "79767",
         "fair_share_estimate_units": "13449",
         "network_claims": 512
+      },
+      "affected": true
+    },
+    {
+      "round": 500,
+      "kind": "settled",
+      "settled_at": "2026-10-23T03:38:35.883Z",
+      "claim_deposit_units": "12933277",
+      "actual_amount_units": "79510",
+      "network_claim_total_units": "301939452932",
+      "network_total_source": "gateway /v1/mine/view last.deposit (settled-round totals)",
+      "guideline_units": "1856250000",
+      "counterfactual_amount_units": "140982",
+      "diff_units": "61472",
+      "allocation": {
+        "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7": "10051",
+        "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d": "13741",
+        "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6": "7313",
+        "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d": "22581",
+        "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3": "3224",
+        "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d": "4559"
+      },
+      "allocation_dust_units": "3",
+      "method": "exact",
+      "raw": {
+        "report_hash": "7f7c20a1e497df4b6ce36804c6af3791f44c406e154c2d252c4fcc121318710f",
+        "fair_units": "79510",
+        "fair_share_estimate_units": "160",
+        "network_claims": 510
       },
       "affected": true
     }
