@@ -227,8 +227,11 @@ const yieldAvg7Txt = last7Settled.length
   ? pct2(shareOfDeposit(last7Settled.reduce((s, r) => s + Number(r.claim.amount_units), 0) / last7Settled.length)) : '—';
 const netShareTxt = (totalStaked > 0n && chainDepositUnits > 0n)
   ? pctSig(Number(chainDepositUnits) / Number(totalStaked)) : '—';
-const reportRows = settledByRound.length ? settledByRound.map(r => `
-        <tr><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${pct2(shareOfDeposit(r.claim.amount_units))}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
+// Reports table shows newest first and is paged client-side (15 per
+// page, same pager as the leaderboard). settledByRound stays ascending
+// for the yield stats above; only the table render reverses it.
+const reportRows = settledByRound.length ? [...settledByRound].reverse().map(r => `
+        <tr data-rp="1"><td>${r.round}</td><td>${formatCoin(r.claim.amount_units)}</td><td>${pct2(shareOfDeposit(r.claim.amount_units))}</td><td>${r.shares.length}</td><td class="mono">${esc(r.report_hash.slice(0, 16))}…</td></tr>`).join('')
   : `<tr><td colspan="5" class="muted" data-i18n="noRounds">No rounds settled yet.</td></tr>`;
 let explorerHtml;
 if (!gwState) {
@@ -377,6 +380,7 @@ const html = `<!doctype html>
  .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 2px;border-bottom:1px solid var(--border);padding-bottom:10px}
  .tabbtn{font:inherit;background:var(--code);color:var(--fg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;text-decoration:none;display:inline-block}
  .tabbtn.active{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}
+ .pager{display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap}
  section.tabpage{animation:fade .15s ease-in} @keyframes fade{from{opacity:.4}to{opacity:1}}
  .bar{height:8px;background:var(--code);border-radius:99px;overflow:hidden;margin-top:6px}
  .bar i{display:block;height:100%;background:var(--accent)}
@@ -496,8 +500,13 @@ ${settledHtml}
 </section>
 <section class="tabpage" id="tab-reports">
 <h2 data-i18n="reportsTitle">Round reports</h2>
-<table><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr>${reportRows}
-</table>
+<table><thead><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr></thead><tbody id="rpBody">${reportRows}
+</tbody></table>
+<div class="pager">
+ <button id="rpPrev" onclick="goRpPage(rpPage - 1)" data-i18n="prev">← Prev</button>
+ <span id="rpInfo" class="muted"></span>
+ <button id="rpNext" onclick="goRpPage(rpPage + 1)" data-i18n="next">Next →</button>
+</div>
 <p class="muted" data-i18n="reportsRatioNote">“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.</p>
 
 </section>
@@ -630,6 +639,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  reportsTitle: "Round reports", thRound: "Round", thClaim: "Claim received (RESET)", thRatio: "Share of deposit", thShares: "Shares", thHash: "Report hash",
  reportsRatioNote: "“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.",
  noRounds: "No rounds settled yet.",
+ prev: "← Prev", next: "Next →", pageOf: (a, b) => "Page " + a + " of " + b,
  verifyTitle: "Verify it yourself",
  verify1: "Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the chain's claim record for the pool address and round), the fee and every share. Recompute:",
  verify2: "Integer-division dust is carried into the next round, never kept. At any time: <code>Σ claims = Σ pending + Σ paid + fees + carried dust</code>. An open-source verifier that recomputes reports independently is available from the operator — altering a single share makes verification fail.",
@@ -739,6 +749,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  reportsTitle: "轮次报告", thRound: "轮次", thClaim: "本轮 claim 到账（RESET）", thRatio: "占质押比", thShares: "分账份数", thHash: "报告哈希",
  reportsRatioNote: "「占质押比」= 每轮 claim ÷ 池子当前链上总质押（所有轮次同一分母），方便横向比较。",
  noRounds: "尚无已结算轮次。",
+ prev: "← 上一页", next: "下一页 →", pageOf: (a, b) => "第 " + a + " / " + b + " 页",
  verifyTitle: "自己验一遍",
  verify1: "每份轮次报告都会公开全部输入：出资人快照、claim 金额（可与链上该轮池地址的 claim 记录对照）、手续费和每一份分账。复算公式：",
  verify2: "整数除法的灰尘结转到下一轮，绝不私吞。任何时刻都应有：<code>Σ claim = Σ 待分 + Σ 已分发 + 手续费 + 结转灰尘</code>。开源验证器可向池主索取——改动任何一份分账，验证都会失败。",
@@ -763,7 +774,23 @@ function applyLang() {
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
   if (fpUsed) fpCalc();
+  renderReports();
 }
+// Reports table pagination: rows are server-rendered newest-first; this
+// only shows one 15-row page at a time (same pager idiom as the
+// leaderboard page: prev / page-of / next, buttons disabled at bounds).
+const RP_PAGE_SIZE = 15;
+let rpPage = 0;
+function renderReports() {
+  const rows = document.querySelectorAll('#rpBody tr[data-rp]');
+  const pages = Math.max(1, Math.ceil(rows.length / RP_PAGE_SIZE));
+  rpPage = Math.min(Math.max(0, rpPage), pages - 1);
+  rows.forEach((tr, i) => { tr.style.display = Math.floor(i / RP_PAGE_SIZE) === rpPage ? '' : 'none'; });
+  const info = document.getElementById('rpInfo'); if (info) info.textContent = T[lang].pageOf(rpPage + 1, pages);
+  const pv = document.getElementById('rpPrev'); if (pv) pv.disabled = rpPage <= 0;
+  const nx = document.getElementById('rpNext'); if (nx) nx.disabled = rpPage >= pages - 1;
+}
+function goRpPage(p) { rpPage = p; renderReports(); }
 function toggleLang() { lang = lang === 'zh' ? 'en' : 'zh'; localStorage.setItem('pool-lang', lang); applyLang(); }
 function syncThemeBtn() { const dark = document.documentElement.dataset.theme === 'dark'; document.getElementById('themeBtn').textContent = dark ? T[lang].themeToLight : T[lang].themeToDark; }
 function toggleTheme() { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('pool-theme', next); } catch (e) {} syncThemeBtn(); }
