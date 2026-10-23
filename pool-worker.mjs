@@ -49,6 +49,7 @@ const SIGNER = `${HOME}/workspace/reset/signer`;
 const POOL_DIR = `${HOME}/.reset-pool-signer`;
 const PWFILE = `${POOL_DIR}/.wallet-password`;
 const LEDGER = `${HOME}/workspace/reset-pool/state/live-ledger.json`;
+const CLAIM_PAUSE = `${HOME}/workspace/reset-pool/state/claim-pause.json`;
 const EXITS = `${HOME}/workspace/reset-pool/state/exits.json`;
 const LOG = `${HOME}/workspace/reset-pool/pool.log`;
 
@@ -77,6 +78,22 @@ async function call(name, args, tries = 4, waitMs = 10000) {
   throw lastErr;
 }
 const claimDue = s => parseFloat(s.deposit) >= 0.1 && s.mine.window_open && s.claim === null;
+
+// One-shot claim pause (state/claim-pause.json): when the file names the
+// current round, every claim entry point skips registering for exactly
+// that round. Exists to open a withdraw window: the contract refuses
+// withdraw while a claim is unsettled, and steady-state mining always
+// has one in flight. The file is removed once it has served its purpose;
+// a stale file can never skip a later round (exact round match only).
+function claimPauseTarget() {
+  try {
+    if (!existsSync(CLAIM_PAUSE)) return null;
+    const p = JSON.parse(readFileSync(CLAIM_PAUSE, 'utf8'));
+    return Number.isInteger(p?.round) ? p.round : null;
+  } catch { return null; }
+}
+const claimPaused = s => claimPauseTarget() === s.mine.round;
+const CLAIM_SKIP_REASON = 'withdraw window — rehearsal restore, user-approved 2026-10-23';
 
 async function connect() {
   const pw = readFileSync(PWFILE, 'utf8').trim();
@@ -284,8 +301,13 @@ async function singlePass() {
   if (lock) out.lock = lock;
   let s3 = await call('status', {});
   if (claimDue(s3)) {
-    out.claim = await doClaim(s3);
-    s3 = await call('status', {});
+    if (claimPaused(s3)) {
+      log({ event: 'claim_skipped', round: s3.mine.round, reason: CLAIM_SKIP_REASON });
+      out.claim_skipped = s3.mine.round;
+    } else {
+      out.claim = await doClaim(s3);
+      s3 = await call('status', {});
+    }
   }
   const settled = await maybeSettle(s3.address);
   if (settled) out.settled = settled;
@@ -301,6 +323,11 @@ async function singlePass() {
 async function claimOnce() {
   const s = await call('status', {});
   if (!claimDue(s)) { console.log(JSON.stringify({ ok: true, claim_due: false, note: 'window closed, already claimed, or pool deposit below 0.1' })); return; }
+  if (claimPaused(s)) {
+    log({ event: 'claim_skipped', round: s.mine.round, reason: CLAIM_SKIP_REASON });
+    console.log(JSON.stringify({ ok: true, claim_skipped: s.mine.round, reason: CLAIM_SKIP_REASON }));
+    return;
+  }
   const rec = await doClaim(s);
   console.log(JSON.stringify({ ok: true, action: 'claim', ...rec }));
 }
@@ -317,7 +344,7 @@ async function loopWatch(budgetSecs) {
     }
     lastTip = s.tip;
     try { await maybeLock(s); } catch {}
-    if (claimDue(s)) {
+    if (claimDue(s) && !claimPaused(s)) {
       log({ event: 'claim_due', round: s.mine.round });
       console.log(JSON.stringify({ ok: true, claim_due: true, round: s.mine.round, iters }));
       return;
