@@ -24,6 +24,16 @@
  .stage.off{opacity:.55;filter:grayscale(.35)}
  .stage.off .stepdot{background:var(--muted)}
  .noncebox{border:1.5px dashed var(--border);border-radius:8px;padding:12px;color:var(--muted);background:var(--card);margin-top:10px}
+ .track{list-style:none;margin:8px 0;padding:0}
+ .track li{display:flex;gap:10px;align-items:flex-start;padding:4px 0}
+ .tdot{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:12px;margin-top:1px}
+ .track li.done .tdot{background:var(--accent);border-color:var(--accent);color:#fff}
+ .track li.now .tdot{border-color:var(--warn);background:var(--hl)}
+ .track li.todo{color:var(--muted)}
+ .tsub{color:var(--muted);font-size:13px}
+ .casecard{border-top:1px solid var(--border2);padding-top:12px;margin-top:12px}
+ .statustag{font-size:12px;font-weight:700;border:1.5px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 9px}
+ .statustag.warn{border-color:var(--warn);color:var(--warn)}
  .morelink{font-size:17px;font-weight:600;margin:20px 0 6px}
 </style></head><body>
 <div class="topbar"><div>
@@ -62,14 +72,23 @@
  <p><button type="button" id="exitSubmitBtn" disabled data-i18n="exitSubmitBtn">Submit signature — verify &amp; open my case</button></p>
 </div>
 
+<div class="card stage" id="stage5">
+ <h3><span class="stepdot">5</span> <span data-i18n="seg5Title">Track your exit</span></h3>
+ <p><input id="exitCaseAddr" data-i18n-ph="queryPh" placeholder="Your address — RESET hex or trac1…"> <button type="button" id="exitCaseBtn" onclick="exitCaseShow()" data-i18n="caseBtn">Check progress</button></p>
+ <div id="exitCase"></div>
+ <p class="muted" id="caseNote"></p>
+</div>
+
 <p class="morelink"><a href="about.html#exit" data-i18n="moreLink">Full introduction — including the detailed exit walkthrough →</a></p>
 
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 14:02:39 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 14:10:34 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":41,"dissolved":null,"updated":"2026-10-23 14:02:39 UTC","snapshot_ms":1792764159791,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"972641","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"711436","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"517640","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"169478","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"1187085","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"239653","paid_units":"0","closed":null}}};
-const SNAPSHOT_MS = 1792764159797;
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":41,"dissolved":null,"updated":"2026-10-23 14:10:34 UTC","snapshot_ms":1792764634425,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"972641","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"711436","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"517640","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"169478","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"1187085","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"239653","paid_units":"0","closed":null}}};
+const SNAPSHOT_MS = 1792764634442;
+const EXIT_CASES = [{"id":"exit-20261022-001-3e8d","address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","status":"cancelled","dissolution":false,"created_at":"2026-10-22T04:08:31.398Z","verified_at":"2026-10-22T04:08:31.398Z","principal_units":"2661039","earnings_units":"151077","due_units":"2812116","unlock":{"amount_units":"10000000","landed":true,"counted_at":972559,"release_at":972703},"withdrawn_at":null,"paid_at":null,"paid_units":null}];
+const SNAPSHOT_COUNTED = 972778;
 const EXIT_POOL = "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6";
 const T = {
 en: { title: "Leave the pool — full exit", langBtn: "中文", back: "← Back to the pool page",
@@ -90,6 +109,18 @@ en: { title: "Leave the pool — full exit", langBtn: "中文", back: "← Back 
  phAddr: "<your address>", phNonce: "<one-time nonce>", phTs: "<timestamp>",
  seg4Title: "Submit the signature", exitSubmitPh: "Paste the submission JSON here — {prepared, signature, nonce}",
  exitSubmitBtn: "Submit signature — verify & open my case", closedTag: "Temporarily closed",
+ seg5Title: "Track your exit", caseBtn: "Check progress",
+ caseNote: "Progress is read from this page's published snapshot (refreshed about every 10 minutes); blocks remaining are counted against snapshot height {h}.",
+ caseNone: "This address has no exit case in the published snapshot.",
+ nCase: "Case opened — payout frozen", nUnlock: "Stake unlocked", nWait: "Waiting for maturity",
+ nWithdrawn: "Withdrawn back to the pool balance", nPaid: "Paid out — case closed",
+ fCase: "Case", fDue: "Frozen payout due", fUnlockAmt: "Unlocked", fRelease: "Release height", fPaidAmt: "Paid",
+ kRemaining: "about {n} blocks to go", kMatured: "matured",
+ stVerified: "Filed — waiting to unlock", stUnlocking: "Unlocking", stWaiting: "Waiting for maturity",
+ stWithdrawing: "Withdrawing", stPaying: "Paying out", stDone: "Done — paid in full",
+ stHalted: "Paused", stCancelled: "Cancelled — closed for good",
+ caseCancelledNote: "This case was cancelled and is closed for good — it will never be executed. The stake it had unlocked was afterwards withdrawn and re-locked in full; the full story is in the About page's exit chapter.",
+ caseHaltedNote: "This case is paused, waiting on the operator — nothing is needed from you.",
  moreLink: "Full introduction — including the detailed exit walkthrough →",
  footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
@@ -111,6 +142,18 @@ zh: { title: "退出拼池——全额退出", langBtn: "English", back: "← �
  phAddr: "<你的地址>", phNonce: "<一次性口令>", phTs: "<时间戳>",
  seg4Title: "提交验签", exitSubmitPh: "把提交 JSON 粘贴到这里——{prepared, signature, nonce}",
  exitSubmitBtn: "提交签名 · 验签建案", closedTag: "暂时关闭",
+ seg5Title: "退出进度查询", caseBtn: "查询进度",
+ caseNote: "进度数据来自本页的已发布快照（约每 10 分钟刷新一次）；剩余块数按快照块高 {h} 计算。",
+ caseNone: "该地址在已发布快照里没有退出案件。",
+ nCase: "已建案 · 应退冻结", nUnlock: "已解出质押", nWait: "等待到期",
+ nWithdrawn: "已取回至池子余额", nPaid: "已打款 · 关账",
+ fCase: "案件号", fDue: "冻结应退额", fUnlockAmt: "解出额", fRelease: "到期块高", fPaidAmt: "打款额",
+ kRemaining: "还剩约 {n} 块", kMatured: "已到期",
+ stVerified: "已建案 · 待解出", stUnlocking: "解出中", stWaiting: "等待到期",
+ stWithdrawing: "取回中", stPaying: "打款中", stDone: "已完成 · 全额打款",
+ stHalted: "已暂停", stCancelled: "已作废 · 终局关闭",
+ caseCancelledNote: "该案件已作废、终局关闭，永不会再被执行。它曾解出的质押其后已取回并整笔复锁——来龙去脉见详细介绍页的退出章。",
+ caseHaltedNote: "该案件已暂停、等待运营者处理——你不需要做任何事。",
  moreLink: "完整详细介绍（含退出全流程细节）→",
  footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
@@ -179,6 +222,71 @@ function exitShow() {
     '<tr><td>' + t.qPending + '</td><td>' + fmt(pend) + ' RESET</td></tr>' +
     '<tr><td>' + t.qDue + '</td><td><b>' + fmt(contrib + pend) + ' RESET</b></td></tr></table>';
 }
+// Stage 5 — exit-case progress. Same deal as stage 1: a pure readout of
+// the published snapshot embedded in this page (EXIT_CASES, the public
+// projection of the executor's case file), no network call. The track is
+// drawn from the case FACTS (unlock landed? matured at the snapshot
+// height? withdrawn? paid?) rather than the raw status alone, and a
+// cancelled case renders as a terminal card — never a half-done track.
+let lastCaseQuery = '';
+function caseStatusText(cs, t) {
+  if (cs.status === 'done') return t.stDone;
+  if (cs.status === 'cancelled') return t.stCancelled;
+  if (cs.status === 'verified') return t.stVerified;
+  if (cs.status === 'unlocking') return t.stUnlocking;
+  if (cs.status === 'waiting_maturity') return t.stWaiting;
+  if (cs.status === 'withdrawing') return t.stWithdrawing;
+  if (cs.status === 'paying') return t.stPaying;
+  if (cs.status && cs.status.indexOf('halted') === 0) return t.stHalted;
+  return cs.status || '';
+}
+function renderCase(cs, t) {
+  let rows = '<tr><td>' + t.fCase + '</td><td class="mono">' + cs.id + '</td></tr>' +
+    '<tr><td>' + t.fDue + '</td><td><b>' + fmt(cs.due_units) + ' RESET</b></td></tr>';
+  if (cs.unlock && cs.unlock.landed) {
+    rows += '<tr><td>' + t.fUnlockAmt + '</td><td>' + fmt(cs.unlock.amount_units) + ' RESET</td></tr>';
+    if (cs.unlock.release_at != null) rows += '<tr><td>' + t.fRelease + '</td><td>' + cs.unlock.release_at + '</td></tr>';
+  }
+  if (cs.paid_units != null) rows += '<tr><td>' + t.fPaidAmt + '</td><td><b>' + fmt(cs.paid_units) + ' RESET</b></td></tr>';
+  const warnTag = cs.status === 'cancelled' || (cs.status || '').indexOf('halted') === 0;
+  const head = '<p style="margin:0"><span class="statustag' + (warnTag ? ' warn' : '') + '">' + caseStatusText(cs, t) + '</span></p>';
+  let body = '<table>' + rows + '</table>';
+  if (cs.status === 'cancelled') {
+    body += '<p class="muted">' + t.caseCancelledNote + '</p>';
+    return '<div class="casecard">' + head + body + '</div>';
+  }
+  const landed = !!(cs.unlock && cs.unlock.landed);
+  const release = cs.unlock ? cs.unlock.release_at : null;
+  const matured = !!cs.withdrawn_at || !!cs.paid_at || (release != null && SNAPSHOT_COUNTED != null && SNAPSHOT_COUNTED >= release);
+  const withdrawn = !!cs.withdrawn_at || !!cs.paid_at || cs.status === 'paying' || cs.status === 'done';
+  const paid = cs.status === 'done';
+  const nodes = [];
+  nodes.push({ cls: 'done', mark: '✓', label: t.nCase, sub: cs.created_at ? String(cs.created_at).slice(0, 10) : '' });
+  nodes.push({ cls: landed ? 'done' : 'now', mark: landed ? '✓' : '●', label: t.nUnlock, sub: landed ? fmt(cs.unlock.amount_units) + ' RESET' : '' });
+  let waitSub = '';
+  if (release != null) waitSub = t.fRelease + ' ' + release + (matured ? ' · ' + t.kMatured
+    : (SNAPSHOT_COUNTED != null ? ' · ' + t.kRemaining.replace('{n}', String(Math.max(0, release - SNAPSHOT_COUNTED))) : ''));
+  nodes.push({ cls: matured ? 'done' : (landed ? 'now' : 'todo'), mark: matured ? '✓' : (landed ? '●' : ''), label: t.nWait, sub: waitSub });
+  nodes.push({ cls: withdrawn ? 'done' : (matured ? 'now' : 'todo'), mark: withdrawn ? '✓' : (matured ? '●' : ''), label: t.nWithdrawn, sub: cs.withdrawn_at ? String(cs.withdrawn_at).slice(0, 10) : '' });
+  nodes.push({ cls: paid ? 'done' : (withdrawn ? 'now' : 'todo'), mark: paid ? '✓' : (withdrawn ? '●' : ''), label: t.nPaid, sub: paid ? fmt(cs.paid_units) + ' RESET · ' + String(cs.paid_at || '').slice(0, 10) : '' });
+  body += '<ul class="track">' + nodes.map(n =>
+    '<li class="' + n.cls + '"><span class="tdot">' + n.mark + '</span><span>' + n.label +
+    (n.sub ? ' <span class="tsub">' + n.sub + '</span>' : '') + '</span></li>').join('') + '</ul>';
+  if ((cs.status || '').indexOf('halted') === 0) body += '<p class="muted">' + t.caseHaltedNote + '</p>';
+  return '<div class="casecard">' + head + body + '</div>';
+}
+function exitCaseShow() {
+  const t = T[lang];
+  const raw = document.getElementById('exitCaseAddr').value.trim();
+  lastCaseQuery = raw;
+  const box = document.getElementById('exitCase');
+  const addr = normalizeAddress(raw);
+  if (!addr) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  const list = EXIT_CASES.filter(cs => cs.address === addr)
+    .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  if (!list.length) { box.innerHTML = '<span style="color:var(--warn)">' + t.caseNone + '</span>'; return; }
+  box.innerHTML = list.map(cs => renderCase(cs, t)).join('');
+}
 // Stage 3 — the signing-text template, in the exact bytes a member's key
 // signs once stage 2 issues a real intent (official agentSigningText:
 // 'reset-chat/v1' + stableJSON of {v, kind, addr, text, ts, nonce}; the
@@ -223,11 +331,14 @@ function applyLang() {
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   document.getElementById('snapshotTime').textContent = snapshotTimeText();
   document.getElementById('signTpl').value = buildSignTemplate();
+  document.getElementById('caseNote').textContent = t.caseNote.replace('{h}', SNAPSHOT_COUNTED == null ? '—' : SNAPSHOT_COUNTED);
   if (lastExitQuery) exitShow();
+  if (lastCaseQuery) exitCaseShow();
   syncThemeBtn();
 }
 document.getElementById('copySignBtn').addEventListener('click', ev => copyText(document.getElementById('signTpl').value, ev.currentTarget));
 document.getElementById('exitAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitShow(); });
+document.getElementById('exitCaseAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitCaseShow(); });
 applyLang();
 </script>
 </body></html>

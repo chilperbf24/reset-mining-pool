@@ -8,6 +8,7 @@
 //   settlement / contribution.
 import { readFileSync, writeFileSync, appendFileSync, existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { formatCoin, totalContributed } from './lib/pool.mjs';
+import { publicExitCases } from './lib/exit-public.mjs';
 
 // Root = this script's own directory, so the generator runs anywhere
 // (a maintainer's machine or a GitHub Actions runner checkout).
@@ -174,6 +175,17 @@ const snapshotData = {
     closed: c.closed ? { total_units: c.closed.total_units, principal_units: c.closed.principal_units,
       earnings_units: c.closed.earnings_units, at: c.closed.at } : null }])),
 };
+
+// --- Exit-case progress data (exit page stage 5): the published public
+// summary (state/exit-cases.json — publish-state.mjs refreshes it from
+// the executor's state/exits.json on every pass); when the summary has
+// not been generated yet, project the local executor state directly.
+// snapshotCounted is the gateway height the "blocks remaining" math on
+// the exit page is counted against (same snapshot as everything else).
+let exitCasesPub = [];
+try { exitCasesPub = JSON.parse(readFileSync(`${ROOT}/state/exit-cases.json`, 'utf8')).cases ?? []; }
+catch { try { exitCasesPub = publicExitCases(JSON.parse(readFileSync(`${ROOT}/state/exits.json`, 'utf8'))); } catch {} }
+const snapshotCounted = gwState?.counted ?? null;
 
 const activeContributors = contributors.filter(([, c]) => !c.closed);
 const closedContributors = contributors.filter(([, c]) => c.closed);
@@ -1433,12 +1445,14 @@ console.log(JSON.stringify({ ok: true, file: `${ROOT}/docs/address.html`, accoun
 // while the channel is TEMPORARILY CLOSED (operator ruling 2026-10-23;
 // user direction the same evening: show the interface, just unusable for
 // now — no wall of text). Structure mirrors the old Overview exit card:
-// title, closed banner, the two short explainer paragraphs, then the four
+// title, closed banner, the two short explainer paragraphs, then the five
 // interface stages:
 //   1) position lookup — LIVE, read-only against the published snapshot
 //   2) file intent — DISABLED (disabled button + closed badge, no handler)
 //   3) sign — read-only signing-text template + copy button + one-line guide
 //   4) submit signature — DISABLED (textarea + button disabled, badge)
+//   5) exit-case progress — LIVE, read-only against the published public
+//      case summary (EXIT_CASES below, projected by lib/exit-public.mjs)
 // The page script contains NO network call at all, so stages 2/4 cannot
 // reach the registry from here even if the disabled attributes were
 // stripped — no handler exists. The backend double-safety is untouched:
@@ -1476,6 +1490,16 @@ const exitPage = `<!doctype html>
  .stage.off{opacity:.55;filter:grayscale(.35)}
  .stage.off .stepdot{background:var(--muted)}
  .noncebox{border:1.5px dashed var(--border);border-radius:8px;padding:12px;color:var(--muted);background:var(--card);margin-top:10px}
+ .track{list-style:none;margin:8px 0;padding:0}
+ .track li{display:flex;gap:10px;align-items:flex-start;padding:4px 0}
+ .tdot{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:var(--bg);display:inline-flex;align-items:center;justify-content:center;font-size:12px;margin-top:1px}
+ .track li.done .tdot{background:var(--accent);border-color:var(--accent);color:#fff}
+ .track li.now .tdot{border-color:var(--warn);background:var(--hl)}
+ .track li.todo{color:var(--muted)}
+ .tsub{color:var(--muted);font-size:13px}
+ .casecard{border-top:1px solid var(--border2);padding-top:12px;margin-top:12px}
+ .statustag{font-size:12px;font-weight:700;border:1.5px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 9px}
+ .statustag.warn{border-color:var(--warn);color:var(--warn)}
  .morelink{font-size:17px;font-weight:600;margin:20px 0 6px}
 </style></head><body>
 <div class="topbar"><div>
@@ -1513,6 +1537,13 @@ const exitPage = `<!doctype html>
  <p><button type="button" id="exitSubmitBtn" disabled data-i18n="exitSubmitBtn">Submit signature — verify &amp; open my case</button></p>
 </div>
 
+<div class="card stage" id="stage5">
+ <h3><span class="stepdot">5</span> <span data-i18n="seg5Title">Track your exit</span></h3>
+ <p><input id="exitCaseAddr" data-i18n-ph="queryPh" placeholder="Your address — RESET hex or trac1…"> <button type="button" id="exitCaseBtn" onclick="exitCaseShow()" data-i18n="caseBtn">Check progress</button></p>
+ <div id="exitCase"></div>
+ <p class="muted" id="caseNote"></p>
+</div>
+
 <p class="morelink"><a href="about.html#exit" data-i18n="moreLink">Full introduction — including the detailed exit walkthrough →</a></p>
 
 <p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">${updated}</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
@@ -1521,6 +1552,8 @@ const exitPage = `<!doctype html>
 <script>
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const SNAPSHOT_MS = ${Date.now()};
+const EXIT_CASES = ${JSON.stringify(exitCasesPub)};
+const SNAPSHOT_COUNTED = ${snapshotCounted == null ? 'null' : snapshotCounted};
 const EXIT_POOL = ${JSON.stringify(ledger.pool_address)};
 const T = {
 en: { title: "Leave the pool — full exit", langBtn: "中文", back: "← Back to the pool page",
@@ -1541,6 +1574,18 @@ en: { title: "Leave the pool — full exit", langBtn: "中文", back: "← Back 
  phAddr: "<your address>", phNonce: "<one-time nonce>", phTs: "<timestamp>",
  seg4Title: "Submit the signature", exitSubmitPh: "Paste the submission JSON here — {prepared, signature, nonce}",
  exitSubmitBtn: "Submit signature — verify & open my case", closedTag: "Temporarily closed",
+ seg5Title: "Track your exit", caseBtn: "Check progress",
+ caseNote: "Progress is read from this page's published snapshot (refreshed about every 10 minutes); blocks remaining are counted against snapshot height {h}.",
+ caseNone: "This address has no exit case in the published snapshot.",
+ nCase: "Case opened — payout frozen", nUnlock: "Stake unlocked", nWait: "Waiting for maturity",
+ nWithdrawn: "Withdrawn back to the pool balance", nPaid: "Paid out — case closed",
+ fCase: "Case", fDue: "Frozen payout due", fUnlockAmt: "Unlocked", fRelease: "Release height", fPaidAmt: "Paid",
+ kRemaining: "about {n} blocks to go", kMatured: "matured",
+ stVerified: "Filed — waiting to unlock", stUnlocking: "Unlocking", stWaiting: "Waiting for maturity",
+ stWithdrawing: "Withdrawing", stPaying: "Paying out", stDone: "Done — paid in full",
+ stHalted: "Paused", stCancelled: "Cancelled — closed for good",
+ caseCancelledNote: "This case was cancelled and is closed for good — it will never be executed. The stake it had unlocked was afterwards withdrawn and re-locked in full; the full story is in the About page's exit chapter.",
+ caseHaltedNote: "This case is paused, waiting on the operator — nothing is needed from you.",
  moreLink: "Full introduction — including the detailed exit walkthrough →",
  footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
@@ -1562,6 +1607,18 @@ zh: { title: "退出拼池——全额退出", langBtn: "English", back: "← �
  phAddr: "<你的地址>", phNonce: "<一次性口令>", phTs: "<时间戳>",
  seg4Title: "提交验签", exitSubmitPh: "把提交 JSON 粘贴到这里——{prepared, signature, nonce}",
  exitSubmitBtn: "提交签名 · 验签建案", closedTag: "暂时关闭",
+ seg5Title: "退出进度查询", caseBtn: "查询进度",
+ caseNote: "进度数据来自本页的已发布快照（约每 10 分钟刷新一次）；剩余块数按快照块高 {h} 计算。",
+ caseNone: "该地址在已发布快照里没有退出案件。",
+ nCase: "已建案 · 应退冻结", nUnlock: "已解出质押", nWait: "等待到期",
+ nWithdrawn: "已取回至池子余额", nPaid: "已打款 · 关账",
+ fCase: "案件号", fDue: "冻结应退额", fUnlockAmt: "解出额", fRelease: "到期块高", fPaidAmt: "打款额",
+ kRemaining: "还剩约 {n} 块", kMatured: "已到期",
+ stVerified: "已建案 · 待解出", stUnlocking: "解出中", stWaiting: "等待到期",
+ stWithdrawing: "取回中", stPaying: "打款中", stDone: "已完成 · 全额打款",
+ stHalted: "已暂停", stCancelled: "已作废 · 终局关闭",
+ caseCancelledNote: "该案件已作废、终局关闭，永不会再被执行。它曾解出的质押其后已取回并整笔复锁——来龙去脉见详细介绍页的退出章。",
+ caseHaltedNote: "该案件已暂停、等待运营者处理——你不需要做任何事。",
  moreLink: "完整详细介绍（含退出全流程细节）→",
  footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
@@ -1630,6 +1687,71 @@ function exitShow() {
     '<tr><td>' + t.qPending + '</td><td>' + fmt(pend) + ' RESET</td></tr>' +
     '<tr><td>' + t.qDue + '</td><td><b>' + fmt(contrib + pend) + ' RESET</b></td></tr></table>';
 }
+// Stage 5 — exit-case progress. Same deal as stage 1: a pure readout of
+// the published snapshot embedded in this page (EXIT_CASES, the public
+// projection of the executor's case file), no network call. The track is
+// drawn from the case FACTS (unlock landed? matured at the snapshot
+// height? withdrawn? paid?) rather than the raw status alone, and a
+// cancelled case renders as a terminal card — never a half-done track.
+let lastCaseQuery = '';
+function caseStatusText(cs, t) {
+  if (cs.status === 'done') return t.stDone;
+  if (cs.status === 'cancelled') return t.stCancelled;
+  if (cs.status === 'verified') return t.stVerified;
+  if (cs.status === 'unlocking') return t.stUnlocking;
+  if (cs.status === 'waiting_maturity') return t.stWaiting;
+  if (cs.status === 'withdrawing') return t.stWithdrawing;
+  if (cs.status === 'paying') return t.stPaying;
+  if (cs.status && cs.status.indexOf('halted') === 0) return t.stHalted;
+  return cs.status || '';
+}
+function renderCase(cs, t) {
+  let rows = '<tr><td>' + t.fCase + '</td><td class="mono">' + cs.id + '</td></tr>' +
+    '<tr><td>' + t.fDue + '</td><td><b>' + fmt(cs.due_units) + ' RESET</b></td></tr>';
+  if (cs.unlock && cs.unlock.landed) {
+    rows += '<tr><td>' + t.fUnlockAmt + '</td><td>' + fmt(cs.unlock.amount_units) + ' RESET</td></tr>';
+    if (cs.unlock.release_at != null) rows += '<tr><td>' + t.fRelease + '</td><td>' + cs.unlock.release_at + '</td></tr>';
+  }
+  if (cs.paid_units != null) rows += '<tr><td>' + t.fPaidAmt + '</td><td><b>' + fmt(cs.paid_units) + ' RESET</b></td></tr>';
+  const warnTag = cs.status === 'cancelled' || (cs.status || '').indexOf('halted') === 0;
+  const head = '<p style="margin:0"><span class="statustag' + (warnTag ? ' warn' : '') + '">' + caseStatusText(cs, t) + '</span></p>';
+  let body = '<table>' + rows + '</table>';
+  if (cs.status === 'cancelled') {
+    body += '<p class="muted">' + t.caseCancelledNote + '</p>';
+    return '<div class="casecard">' + head + body + '</div>';
+  }
+  const landed = !!(cs.unlock && cs.unlock.landed);
+  const release = cs.unlock ? cs.unlock.release_at : null;
+  const matured = !!cs.withdrawn_at || !!cs.paid_at || (release != null && SNAPSHOT_COUNTED != null && SNAPSHOT_COUNTED >= release);
+  const withdrawn = !!cs.withdrawn_at || !!cs.paid_at || cs.status === 'paying' || cs.status === 'done';
+  const paid = cs.status === 'done';
+  const nodes = [];
+  nodes.push({ cls: 'done', mark: '✓', label: t.nCase, sub: cs.created_at ? String(cs.created_at).slice(0, 10) : '' });
+  nodes.push({ cls: landed ? 'done' : 'now', mark: landed ? '✓' : '●', label: t.nUnlock, sub: landed ? fmt(cs.unlock.amount_units) + ' RESET' : '' });
+  let waitSub = '';
+  if (release != null) waitSub = t.fRelease + ' ' + release + (matured ? ' · ' + t.kMatured
+    : (SNAPSHOT_COUNTED != null ? ' · ' + t.kRemaining.replace('{n}', String(Math.max(0, release - SNAPSHOT_COUNTED))) : ''));
+  nodes.push({ cls: matured ? 'done' : (landed ? 'now' : 'todo'), mark: matured ? '✓' : (landed ? '●' : ''), label: t.nWait, sub: waitSub });
+  nodes.push({ cls: withdrawn ? 'done' : (matured ? 'now' : 'todo'), mark: withdrawn ? '✓' : (matured ? '●' : ''), label: t.nWithdrawn, sub: cs.withdrawn_at ? String(cs.withdrawn_at).slice(0, 10) : '' });
+  nodes.push({ cls: paid ? 'done' : (withdrawn ? 'now' : 'todo'), mark: paid ? '✓' : (withdrawn ? '●' : ''), label: t.nPaid, sub: paid ? fmt(cs.paid_units) + ' RESET · ' + String(cs.paid_at || '').slice(0, 10) : '' });
+  body += '<ul class="track">' + nodes.map(n =>
+    '<li class="' + n.cls + '"><span class="tdot">' + n.mark + '</span><span>' + n.label +
+    (n.sub ? ' <span class="tsub">' + n.sub + '</span>' : '') + '</span></li>').join('') + '</ul>';
+  if ((cs.status || '').indexOf('halted') === 0) body += '<p class="muted">' + t.caseHaltedNote + '</p>';
+  return '<div class="casecard">' + head + body + '</div>';
+}
+function exitCaseShow() {
+  const t = T[lang];
+  const raw = document.getElementById('exitCaseAddr').value.trim();
+  lastCaseQuery = raw;
+  const box = document.getElementById('exitCase');
+  const addr = normalizeAddress(raw);
+  if (!addr) { box.innerHTML = '<span style="color:var(--warn)">' + t.qInvalid + '</span>'; return; }
+  const list = EXIT_CASES.filter(cs => cs.address === addr)
+    .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  if (!list.length) { box.innerHTML = '<span style="color:var(--warn)">' + t.caseNone + '</span>'; return; }
+  box.innerHTML = list.map(cs => renderCase(cs, t)).join('');
+}
 // Stage 3 — the signing-text template, in the exact bytes a member's key
 // signs once stage 2 issues a real intent (official agentSigningText:
 // 'reset-chat/v1' + stableJSON of {v, kind, addr, text, ts, nonce}; the
@@ -1674,11 +1796,14 @@ function applyLang() {
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   document.getElementById('snapshotTime').textContent = snapshotTimeText();
   document.getElementById('signTpl').value = buildSignTemplate();
+  document.getElementById('caseNote').textContent = t.caseNote.replace('{h}', SNAPSHOT_COUNTED == null ? '—' : SNAPSHOT_COUNTED);
   if (lastExitQuery) exitShow();
+  if (lastCaseQuery) exitCaseShow();
   syncThemeBtn();
 }
 document.getElementById('copySignBtn').addEventListener('click', ev => copyText(document.getElementById('signTpl').value, ev.currentTarget));
 document.getElementById('exitAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitShow(); });
+document.getElementById('exitCaseAddr').addEventListener('keydown', e => { if (e.key === 'Enter') exitCaseShow(); });
 applyLang();
 </script>
 </body></html>`;

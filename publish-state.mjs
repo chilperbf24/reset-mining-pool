@@ -9,6 +9,9 @@
 //   - reports/live-round-*.json (per-round settlement reports)
 //   - state/rehearsal-loss-log.json (per-round shortfall record of the
 //     cancelled 2026-10-22 exit rehearsal; evidence, published as-is)
+//   - state/exit-cases.json (PUBLIC projection of the executor's exit
+//     cases, derived from state/exits.json by lib/exit-public.mjs on
+//     every run — feeds the exit page's progress lookup)
 //   - state/publish-status.json (lag-visibility record, rewritten on
 //     every run and staged whenever a ledger commit is made; its own
 //     changes never trigger a commit by themselves)
@@ -23,6 +26,7 @@
 // Usage: node publish-state.mjs [--dry-run]
 import { execFile } from 'node:child_process';
 import { openSync, closeSync, unlinkSync, statSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { publicExitSummary } from './lib/exit-public.mjs';
 
 const ROOT = new URL('.', import.meta.url).pathname.replace(/\/$/, '');
 const REPO = 'chilperbf24/reset-mining-pool';
@@ -52,6 +56,22 @@ const lastSettledRound = ledger => {
 const localLastRound = () => {
   try { return lastSettledRound(JSON.parse(readFileSync(`${ROOT}/state/live-ledger.json`, 'utf8'))); } catch { return null; }
 };
+
+// --- exit-case public summary ----------------------------------------------
+// Derived from the executor's state/exits.json on every run and rewritten
+// only when the case list actually changes (generated_at excluded from
+// the comparison), so it joins the publish set exactly when a case moves.
+const EXIT_PUB = `${ROOT}/state/exit-cases.json`;
+const refreshExitCases = () => {
+  try {
+    const summary = publicExitSummary(JSON.parse(readFileSync(`${ROOT}/state/exits.json`, 'utf8')));
+    let prev = null;
+    try { prev = JSON.parse(readFileSync(EXIT_PUB, 'utf8')); } catch {}
+    if (!prev || JSON.stringify(prev.cases) !== JSON.stringify(summary.cases)) {
+      writeFileSync(EXIT_PUB, JSON.stringify({ ...summary, generated_at: new Date().toISOString() }, null, 2) + '\n');
+    }
+  } catch {}
+};
 const publishedLastRound = async () => {
   try { return lastSettledRound(JSON.parse(await run('git', ['show', 'origin/main:state/live-ledger.json']))); } catch { return null; }
 };
@@ -69,9 +89,10 @@ function acquireLock() {
 async function main() {
   if (!acquireLock()) { console.log(JSON.stringify({ published: false, reason: 'locked' })); return; }
   try {
-    const status = await run('git', ['status', '--porcelain=v1', '--', 'state/live-ledger.json', 'state/rehearsal-loss-log.json', 'reports/']);
+    refreshExitCases();
+    const status = await run('git', ['status', '--porcelain=v1', '--', 'state/live-ledger.json', 'state/rehearsal-loss-log.json', 'state/exit-cases.json', 'reports/']);
     const files = status.split('\n').map(l => l.slice(3).trim()).filter(Boolean)
-      .filter(p => p === 'state/live-ledger.json' || p === 'state/rehearsal-loss-log.json' || /^reports\/live-round-\d+\.json$/.test(p));
+      .filter(p => p === 'state/live-ledger.json' || p === 'state/rehearsal-loss-log.json' || p === 'state/exit-cases.json' || /^reports\/live-round-\d+\.json$/.test(p));
     const localRound = localLastRound();
     // A previous run may have committed but failed to push (dirty-tree
     // rebase refusal, proxy flap): stranded local commits are publishable
