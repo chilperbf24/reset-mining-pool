@@ -10,8 +10,8 @@
     "reduced_deposit_units": "12933277",
     "delta_units": "10000000",
     "release": 972703,
-    "closed": false,
-    "closed_at": null,
+    "closed": true,
+    "closed_at": "2026-10-23T08:48:51.960Z",
     "close_condition": "chain exits empty AND deposit back at or above full_deposit_units (re-lock done); entries are appended for settled rounds until then"
   },
   "methods": {
@@ -503,7 +503,7 @@
         "guideline_units": "1856250000",
         "network_claims": 522,
         "paid_units": "1856129720",
-        "captured_at": "2026-10-23T08:08:58.058Z"
+        "captured_at": "2026-10-23T08:38:29.628Z"
       }
     },
     "506": {
@@ -514,17 +514,24 @@
       "network_claim_total_units": "315227471655",
       "network_claims": 553,
       "guideline_units": "1856250000",
-      "fair_share_estimate_units": "63636"
+      "fair_share_estimate_units": "63636",
+      "settled_totals": {
+        "network_claim_total_units": "315227471655",
+        "guideline_units": "1856250000",
+        "network_claims": 553,
+        "paid_units": "1856142942",
+        "captured_at": "2026-10-23T08:48:51.960Z"
+      }
     },
     "507": {
       "round": 507,
-      "captured_at": "2026-10-23T08:08:58.058Z",
-      "counted": 972734,
+      "captured_at": "2026-10-23T08:48:51.960Z",
+      "counted": 972739,
       "pool_claim_deposit_units": null,
-      "network_claim_total_units": "283822180385",
-      "network_claims": 326,
+      "network_claim_total_units": "319663764031",
+      "network_claims": 552,
       "guideline_units": "1856250000",
-      "fair_share_estimate_units": "28350"
+      "fair_share_estimate_units": "25099"
     }
   },
   "entries": [
@@ -1296,6 +1303,35 @@
         "fair_units": "76577",
         "fair_share_estimate_units": "12934",
         "network_claims": 522
+      },
+      "affected": true
+    },
+    {
+      "round": 506,
+      "kind": "settled",
+      "settled_at": "2026-10-23T08:48:51.960Z",
+      "claim_deposit_units": "12933277",
+      "actual_amount_units": "76158",
+      "network_claim_total_units": "315227471655",
+      "network_total_source": "gateway /v1/mine/view last.deposit (settled-round totals)",
+      "guideline_units": "1856250000",
+      "counterfactual_amount_units": "135039",
+      "diff_units": "58881",
+      "allocation": {
+        "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7": "9627",
+        "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d": "13162",
+        "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6": "7005",
+        "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d": "21629",
+        "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3": "3088",
+        "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d": "4366"
+      },
+      "allocation_dust_units": "4",
+      "method": "exact",
+      "raw": {
+        "report_hash": "d42f864139343e21c9495fba37e89c6a92758186b8758542764f8d3de4fbecd1",
+        "fair_units": "76158",
+        "fair_share_estimate_units": "63636",
+        "network_claims": 553
       },
       "affected": true
     }
