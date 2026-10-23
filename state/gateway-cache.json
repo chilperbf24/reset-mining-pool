@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-23T20:37:52.808Z",
+  "fetched_at": "2026-10-23T20:49:18.779Z",
   "state": {
     "tip": {
-      "height": 972829,
-      "hash": "000000000000000000012c24614420c5849bc0f01abfc53ea9afe610cb9868c0"
+      "height": 972830,
+      "hash": "000000000000000000007dafe9e87da174e538cf075d1fc96e80a3897ece98f3"
     },
-    "counted": 972824,
+    "counted": 972825,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 598,
-      "unlock": 599,
+      "lock": 599,
+      "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 66
+      "claim": 598
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 972829,
+        "last_beat": 972830,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 972831,
       "end": 972834,
       "window_open": true,
-      "S": "624297932",
+      "S": "933672932",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 534,
-      "claim_deposit": "338318182062",
+      "claim_count": 539,
+      "claim_deposit": "338408811535",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 972829,
+    "source_height": 972830,
     "header_error": null
   },
   "accounts": {
@@ -947,14 +947,14 @@
       "balance": "1727007",
       "deposit": "25573592",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 522,
         "claim": {
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "47190",
+        "fair_share_estimate": "70557",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -1973,7 +1973,7 @@
     ],
     [
       "230ddb1a0c8f0d9c5e2a961d3602baad4f16226327f7fec69716eae344ead5e7",
-      63039435,
+      84999378,
       0,
       0,
       20,
@@ -2131,7 +2131,7 @@
       0,
       0,
       19,
-      0,
+      1,
       520,
       158073,
       0
@@ -2472,7 +2472,7 @@
       0,
       0,
       22,
-      0,
+      1,
       519,
       109553,
       0
@@ -3902,7 +3902,7 @@
       0,
       0,
       16,
-      0,
+      1,
       520,
       112447,
       0
@@ -4067,7 +4067,7 @@
       0,
       0,
       3,
-      0,
+      1,
       520,
       59959,
       0
@@ -5552,7 +5552,7 @@
       0,
       0,
       5,
-      0,
+      1,
       520,
       54508,
       0
