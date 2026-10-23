@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-23T03:02:59.957Z",
+  "fetched_at": "2026-10-23T03:09:09.646Z",
   "state": {
     "tip": {
-      "height": 972697,
-      "hash": "0000000000000000000132182313fbdc4acf3d6530605a0a658ecd11b153a243"
+      "height": 972698,
+      "hash": "000000000000000000019e95c50885c4c70f3bf3ccc1360b6564112a1a29e802"
     },
-    "counted": 972692,
+    "counted": 972693,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -19,9 +19,9 @@
     "capacity_by_type": {
       "lock": 600,
       "unlock": 600,
-      "withdraw": 600,
+      "withdraw": 599,
       "guess": 600,
-      "claim": 99
+      "claim": 594
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 972697,
+        "last_beat": 972698,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 972699,
       "end": 972702,
       "window_open": true,
-      "S": "622367032",
+      "S": "931742032",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 501,
-      "claim_deposit": "301609688134",
+      "claim_count": 508,
+      "claim_deposit": "301919452932",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 972697,
+    "source_height": 972698,
     "header_error": null
   },
   "accounts": {
@@ -952,14 +952,14 @@
           "release": 972703
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 500,
         "claim": {
           "d": "12933277",
           "q": 1000
         },
-        "fair_share_estimate": "26687",
+        "fair_share_estimate": "39912",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -2543,7 +2543,7 @@
       0,
       0,
       8,
-      0,
+      1,
       498,
       124239,
       0
@@ -3071,7 +3071,7 @@
       0,
       0,
       1,
-      0,
+      1,
       494,
       131945,
       0
@@ -3478,7 +3478,7 @@
       0,
       0,
       8,
-      0,
+      1,
       498,
       358881,
       0
@@ -4738,17 +4738,6 @@
       0
     ],
     [
-      "73574b36d0abcb85229a202b7ea832c7c4c518303d991d20847e07da65e7aaab",
-      0,
-      82957107,
-      0,
-      7,
-      0,
-      475,
-      69674,
-      0
-    ],
-    [
       "73f2fce448f0b82af72c60cc72601bb20fc0a6ea6f26d18ff055e190762a44c8",
       50397027,
       10000000,
@@ -4853,7 +4842,7 @@
       0,
       0,
       0,
-      0,
+      1,
       0,
       0,
       0
@@ -5051,7 +5040,7 @@
       0,
       0,
       1,
-      0,
+      1,
       498,
       1039056,
       0
@@ -5733,7 +5722,7 @@
       0,
       0,
       14,
-      0,
+      1,
       498,
       62119,
       0
@@ -6569,7 +6558,7 @@
       0,
       0,
       14,
-      0,
+      1,
       498,
       62119,
       0
@@ -8467,7 +8456,7 @@
       0
     ]
   ],
-  "miners_total": 681,
+  "miners_total": 680,
   "accounts_full": {
     "00622f1b4f40b4cf94dc7c0ad85adcc12affae23a8207127d2a93cc13d552be0": {
       "balance": "89229",
