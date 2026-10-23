@@ -50,6 +50,13 @@ ever name the address whose fingerprint the amount actually carries.
 | `GET /exit/pending` | header `X-Registry-Key` | Submitted exit requests awaiting pool-side verification: `{ submissions: [{ id, address_hex, nonce, ts, prepared, signature, submitted_at }] }`, oldest first. |
 | `POST /exit/resolve` | header `X-Registry-Key` | Body `{id, result: 'verified' \| 'rejected', note?}`. Records the pool-side verdict on a `submitted` row (note carries the case id or the rejection reason). |
 
+**Exit channel gate (2026-10-23):** exits are temporarily closed.
+Unless the `EXIT_OPEN` var in `wrangler.toml` is exactly `"1"`,
+`POST /exit` and `POST /exit/verify` refuse new business with
+`403 { ok: false, closed: true, error: 'exit channel temporarily closed…' }`
+(the operator endpoints above are unaffected). Reopening also requires
+the pool-side executor gate (`ARMED = true` in `../lib/exit-exec.mjs`).
+
 Exit-request TTL: an intent that is never submitted (`status='pending'`)
 expires with the same 30-minute sweep as calc intentions. `submitted` /
 `verified` / `rejected` rows are evidence and are **never** deleted.

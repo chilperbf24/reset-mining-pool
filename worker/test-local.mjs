@@ -108,7 +108,7 @@ class MockD1 {
 // ------------------------------------------------------------- driving
 const KEY = 'test-operator-key';
 const db = new MockD1();
-const env = { REGISTRY_DB: db, REGISTRY_KEY: KEY };
+const env = { REGISTRY_DB: db, REGISTRY_KEY: KEY, EXIT_OPEN: '1' };
 const call = (method, path, { body, key, ip } = {}) => worker.fetch(new Request(`https://registry.test${path}`, {
   method,
   headers: {
@@ -385,5 +385,25 @@ db.seed([{ ts: oldExitTs, kind: 'exit_request', address_hex: C3, planned_units: 
   status: 'pending', source: 'exit', nonce: expNonce, payload: JSON.stringify({ prepared: expPrepared }) }]);
 r = await j(await call('POST', '/exit/verify', { body: { prepared: expPrepared, signature: 'cd'.repeat(64), nonce: expNonce } }));
 assert.equal(r.status, 410); ok('POST /exit/verify against an expired intent -> 410');
+
+// --- exit channel closed (EXIT_OPEN not '1'): both public endpoints
+// refuse new business with an explicit 403 + closed flag, while the
+// operator endpoints keep working (operator ruling 2026-10-23)
+const closedEnv = { REGISTRY_DB: db, REGISTRY_KEY: KEY, EXIT_OPEN: '0' };
+const callE = (e, method, path, { body, key } = {}) => worker.fetch(new Request(`https://registry.test${path}`, {
+  method,
+  headers: {
+    ...(body ? { 'content-type': 'application/json' } : {}),
+    ...(key ? { 'x-registry-key': key } : {}),
+  },
+  body: body ? JSON.stringify(body) : undefined,
+}), e);
+r = await j(await callE(closedEnv, 'POST', '/exit', { body: { address: B } }));
+assert.equal(r.status, 403); assert.equal(r.body.closed, true);
+assert.match(r.body.error, /temporarily closed/); ok('POST /exit while the channel is closed -> 403 closed (no intent issued)');
+r = await j(await callE(closedEnv, 'POST', '/exit/verify', { body: { prepared: intent.prepared, signature: 'cd'.repeat(64), nonce: intent.nonce } }));
+assert.equal(r.status, 403); assert.equal(r.body.closed, true); ok('POST /exit/verify while the channel is closed -> 403 closed');
+r = await j(await callE(closedEnv, 'GET', '/exit/pending', { key: KEY }));
+assert.equal(r.status, 200); ok('GET /exit/pending (operator) still works while closed');
 
 console.log(`\nworker/test-local: all ${n} checks passed`);

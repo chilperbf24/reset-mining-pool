@@ -39,6 +39,14 @@
 //                 evidence until attribution lands)
 //   POST /sweep   operator only: delete expired calc records (TTL below)
 //   GET  /health  public: { ok, records } — count only, never any detail
+//   EXIT CHANNEL STATUS (operator ruling, 2026-10-23): exits are
+//   TEMPORARILY CLOSED while the pool is small and the exit executor's
+//   full end-to-end live test is still outstanding. Unless the EXIT_OPEN
+//   var is exactly '1', POST /exit and POST /exit/verify refuse new
+//   business with an explicit 403 (no intent issued, no submission
+//   accepted). The operator endpoints stay available. Reopening is a
+//   var flip + redeploy here AND the pool-side code gate
+//   (lib/exit-exec.mjs ARMED) — both must be open for an exit to run.
 //   POST /exit    public: register an exit INTENT. The server builds the
 //                 official chat-protocol prepared message ({v:1,
 //                 kind:'agent', addr, text, ts, nonce}) with a one-time
@@ -441,6 +449,10 @@ async function postSweep(request, env) {
 const POOL_ADDRESS_DEFAULT = '4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6';
 const poolAddressOf = env => (typeof env.POOL_ADDRESS === 'string' && /^[0-9a-f]{64}$/.test(env.POOL_ADDRESS))
   ? env.POOL_ADDRESS : POOL_ADDRESS_DEFAULT;
+// Exit channel gate (see the status note at the top of this file).
+const exitChannelOpen = env => env.EXIT_OPEN === '1';
+const exitClosed = () => json({ ok: false, closed: true,
+  error: 'exit channel temporarily closed — exits are paused by the operator while the pool grows; no new exit intents are accepted right now' }, 403);
 // Byte-for-byte port of the official stableJSON (contract/rules/json.js).
 function stableJSON(value) {
   if (value === null || value === undefined) return 'null';
@@ -488,6 +500,7 @@ const exitView = row => {
 // agent able to POST can file on a member's behalf — the intent alone is
 // worthless without the member's own signature (see /exit/verify).
 async function postExit(request, env) {
+  if (!exitChannelOpen(env)) return exitClosed();
   try { await sweepExpiredCalcs(env); } catch {}
   let body;
   try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
@@ -521,6 +534,7 @@ async function postExit(request, env) {
 // before opening any case. A submission with an INVALID signature still
 // burns the nonce — the member simply files a fresh intent.
 async function postExitVerify(request, env) {
+  if (!exitChannelOpen(env)) return exitClosed();
   let body;
   try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ ok: false, error: 'body must be a JSON object' }, 400);

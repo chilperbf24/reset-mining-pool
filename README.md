@@ -130,6 +130,19 @@ only in the Experience Shares proposal above):
 
 ## Leaving the pool — the exit charter (operator ruling, 2026-10-22)
 
+> **Status (2026-10-23): the exit channel is TEMPORARILY CLOSED.** The
+> executor is disarmed (`ARMED = false` in `lib/exit-exec.mjs`) and the
+> registry refuses new exit intents (`EXIT_OPEN = "0"` in the Worker,
+> both public endpoints answer 403). Rationale, per the operator: the
+> pool is still small, and the executor has not yet passed a full
+> end-to-end live test — the one live rehearsal (2026-10-22) halted at
+> its first step on a gateway-receipt vocabulary mismatch before the
+> state machine ever advanced a case itself, and the funds were
+> restored through a manual path. The channel reopens once the pool has
+> grown and that end-to-end test passes. The charter below stands for
+> when it reopens; the public version of this flow is the site's
+> [exit page](https://chilperbf24.github.io/reset-mining-pool/exit.html).
+
 1. **Exit is a right, not an approval.** A verified exit request is
    executed automatically. Only an accounting anomaly (the books don't
    reconcile, the amount exceeds the recorded position, the chain state
@@ -150,8 +163,9 @@ for a proof transfer would lock out exactly the people the pool exists
 for. Instead:
 
 1. File an intent — `POST /exit` on the registry (the homepage exit
-   section does this; **any agent able to POST may file on a member's
-   behalf — including the member's own AI**). The server returns a
+   section does this while the channel is open; **any agent able to
+   POST may file on a member's behalf — including the member's own
+   AI**). The server returns a
    prepared chat-protocol message `{v:1, kind:'agent', addr, text, ts,
    nonce}` with a one-time nonce (30-minute TTL); `text` states the
    exit, the pool address, the member address and the nonce.
@@ -165,19 +179,42 @@ for. Instead:
    so replays fail. The pool verifies the signature locally
    (`lib/exit.mjs`) and opens a case in `state/exits.json`; a valid
    signature from an address with no ledger position opens nothing.
-4. Execution (once the operator arms the executor — see
-   `lib/exit-exec.mjs`): unlock `max(due, 0.1)` → wait 144 blocks →
-   withdraw → transfer the full due → close the position on the public
-   ledger (`closePosition` in `lib/pool.mjs`; settled exits appear on
-   the ledger page and the member's address page). Unknown receipts are
-   resolved by re-reading the chain, never blindly re-sent — a transfer
-   is never re-sent at all. Your amount is frozen at the moment the
-   unlock is sent; rounds settling during the 24-hour wait are not
-   included (any earnings landing afterwards stay as pending, payable
-   under the normal rules). The 0.03 TNK transfer fee is paid by the
-   **pool**, never deducted: if a transfer fails on fees, the case
-   parks in `halted_funds_ready` with the RESET safe in the pool
-   balance.
+4. Execution (the executor in `lib/exit-exec.mjs`, only while armed —
+   currently disarmed, see the status note above). The member's amount
+   is frozen **when the case opens**, from the ledger snapshot at that
+   moment (principal + pending then); rounds settling during the wait
+   are not added to it, and any earnings landing afterwards stay as
+   pending under the normal rules. The executor then runs:
+   - **unlock `max(due, 0.1)`** — the contract moves stake only in
+     single unlocks of at least 0.1, so even a small exit unlocks a
+     full 0.1 (a dissolution unlocks the whole deposit). The part
+     above the member's amount is paid to nobody: after the wait it
+     returns to the pool balance and is re-locked.
+   - **wait 144 blocks (~24 h)** — the contract's exit wait. Stated
+     plainly, it carries a pool-wide cost: the unlocked part earns
+     nothing during the wait, so every member's earnings for those
+     rounds are lower, shared pro-rata. (Measured in the 2026-10-22
+     rehearsal window: 27 rounds claimed at a 0.12933277 instead of
+     0.22933277 deposit cost the pool 0.01808455 in foregone claims.)
+   - **withdraw** — one contract gate applies: a withdrawal is refused
+     while any of the pool's round claims is still unsettled ("Your
+     Mine claim must settle before you can withdraw"), so the
+     withdrawal fires at the first executable window after maturity —
+     normally on time, occasionally later. The amount never expires
+     inside the exit entry.
+   - **transfer the full due** to the member's own ledger address,
+     then **close the position** on the public ledger (`closePosition`
+     in `lib/pool.mjs`; `exit_verified` / `exit_unlock` / `exit_paid`
+     hash-chained events; settled exits appear on the ledger page and
+     the member's address page).
+
+   Unknown receipts are resolved by re-reading the chain, never blindly
+   re-sent — a transfer is never re-sent at all. The 0.03 TNK transfer
+   fee is paid by the **pool**, never deducted: if a transfer fails on
+   fees, the case parks in `halted_funds_ready` with the RESET safe in
+   the pool balance. **Timeline:** case opening and unlock are
+   immediate; the wait is ~24 h; payout lands at the first executable
+   window after maturity.
 
 **Two independent locks.** The signature stops a stranger from kicking
 a member out (a forged or replayed request opens no case). The **payee

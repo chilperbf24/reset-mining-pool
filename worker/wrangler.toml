@@ -12,6 +12,11 @@ compatibility_date = "2024-11-01"
 # value when the var is absent.
 [vars]
 POOL_ADDRESS = "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6"
+# Exit channel gate (operator ruling 2026-10-23): exits temporarily
+# closed. POST /exit and POST /exit/verify refuse new business unless
+# this is exactly "1" (see src/index.js). Reopening also requires the
+# pool-side executor gate (lib/exit-exec.mjs ARMED = true).
+EXIT_OPEN = "0"
 
 [[d1_databases]]
 binding = "REGISTRY_DB"
