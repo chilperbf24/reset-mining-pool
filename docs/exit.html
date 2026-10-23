@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RESET Mining Pool — Exit process</title>
+<title>RESET Mining Pool — Exit at a glance</title>
 <script>try{document.documentElement.dataset.theme=localStorage.getItem('pool-theme')||'light'}catch(e){document.documentElement.dataset.theme='light'}</script>
 <style>
  :root, :root[data-theme="light"]{--bg:#ffffff;--fg:#1f2328;--muted:#59636e;--card:#f6f8fa;--border:#d1d9e0;--border2:#e3e8ee;--code:#eaeef2;--input:#ffffff;--accent:#1a7f37;--warn:#9e6a03;--hl:#fff3cd}
@@ -13,104 +13,121 @@
  a{color:var(--accent)} .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
  .topbtns{display:flex;gap:6px;flex-shrink:0}
  .warnbar{border:1.5px solid var(--warn);border-left:6px solid var(--warn);background:color-mix(in srgb, var(--warn) 14%, var(--card));border-radius:10px;padding:12px 14px;font-size:17px;line-height:1.5;margin:14px 0;color:var(--fg)}
- li{margin:7px 0}
+ .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}
+ .stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px}
+ .stat b{display:block;font-size:20px} .stat span{color:var(--muted);font-size:13px}
+ ul.tight{margin:0;padding-left:20px} ul.tight li{margin:5px 0}
+ .steps{list-style:none;padding:0;margin:10px 0;display:grid;gap:8px}
+ .steps li{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin:0}
+ .steps .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--fg);color:var(--bg);font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+ ul.friction{padding-left:20px} ul.friction li{margin:6px 0}
+ .morelink{font-size:17px;font-weight:600;margin:20px 0 6px}
 </style></head><body>
 <div class="topbar"><div>
-<h1 data-i18n="title">Leaving the pool — the full exit process</h1>
+<h1 data-i18n="title">Leaving the pool — exit at a glance</h1>
 <p class="muted"><a href="index.html" data-i18n="back">← Back to the pool page</a></p>
 </div><div class="topbtns"><button id="themeBtn" onclick="toggleTheme()">🌙</button><button id="langBtn" onclick="toggleLang()">中文</button></div></div>
 
-<div class="warnbar" data-i18n="closedBanner">⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so the operator has paused exits for now. The channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Until then the registry accepts no new exit intents and the exit form on the Overview tab is disabled. This page stays up so you can read exactly how an exit works before it reopens.</div>
+<div class="warnbar" data-i18n="closedBanner">⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so exits are paused for now. The channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Until then the registry accepts no new exit intents and the exit form on the Overview tab is disabled. This page stays up so you can read how an exit works before it reopens.</div>
 
-<h2 data-i18n="prinTitle">The principles</h2>
-<ul>
- <li data-i18n="prin1"><b>A right, not an approval.</b> If the ledger shows a position under your address, you may exit it — nobody approves or denies the request. Only an accounting anomaly (the books do not reconcile, or the amount exceeds your recorded position) stops a case for the operator to review.</li>
- <li data-i18n="prin2"><b>Full exits only.</b> Your principal plus your settled pending earnings, paid in a single payment. There are no partial exits.</li>
- <li data-i18n="prin3"><b>The payout can only go home.</b> Proceeds are paid only to the address that contributed — the one the ledger records for your position. No field in any request or form can name a different recipient, so a forged request can never redirect your money.</li>
- <li data-i18n="prin4"><b>The pool pays the transfer fee.</b> The fixed 0.03 TNK fee on the payout transfer is the pool's cost. You receive the full amount; nothing is deducted.</li>
- <li data-i18n="prin5"><b>The dissolution edge case.</b> If paying one exit would leave the pool's total deposit strictly below 0.1 RESET, that exit escalates to a full dissolution instead: the entire deposit is unlocked and every member is settled in full. Landing exactly on 0.1 does not dissolve the pool.</li>
-</ul>
+<h2 data-i18n="whatTitle">Exiting, in four lines</h2>
+<div class="card"><ul class="tight">
+ <li data-i18n="s1">A position on the ledger under your address can be exited — a right, not an approval.</li>
+ <li data-i18n="s2">Full exits only: principal + pending earnings, settled in one payment.</li>
+ <li data-i18n="s3">Paid only to the address you contributed from — no step can change the payee.</li>
+ <li data-i18n="s4">The pool pays the transfer fee; you receive the full amount.</li>
+</ul></div>
 
-<h2 data-i18n="stepsTitle">The process, step by step</h2>
-<ol>
- <li data-i18n="step1"><b>Check your position.</b> On the Overview tab (exit section) or the Ledger tab, enter your address to see your principal and pending earnings. That is the position an exit would settle.</li>
- <li data-i18n="step2"><b>File an exit intent.</b> The pool's registry issues a one-time statement with a single-use nonce (valid 30 minutes). Anyone can file the intent for you — including your own AI — because the intent alone proves nothing.</li>
- <li data-i18n="step3"><b>Sign the statement.</b> You sign the exact issued text with your own signer, in the official signed-message format. Signing is free and works at zero balance — your coins sit in the pool, so your wallet may be empty, and no proof transfer is ever asked for. Only your key can produce this signature.</li>
- <li data-i18n="step4"><b>Submit the signature.</b> The signed submission is filed with the registry; the nonce is burned by the first submission, so replays fail. The pool verifies the Ed25519 signature locally, and a case opens. A valid signature from an address with no position opens nothing.</li>
- <li data-i18n="step5"><b>Your amount is frozen.</b> At the moment the case opens, your payout is fixed from the ledger snapshot: principal + pending earnings at that moment. Rounds that settle later are not added to it; any earnings that land afterwards stay as pending under the normal payout rules.</li>
- <li data-i18n="step6"><b>The pool unlocks.</b> The contract only moves stake in single unlocks of at least 0.1, so even a small exit unlocks a full 0.1 (a dissolution unlocks everything). The part above your amount is not paid to anyone — after the wait it comes back to the pool and is re-locked.</li>
- <li data-i18n="step7"><b>Wait 144 Bitcoin blocks — about 24 hours.</b> This wait is the contract's, and it has a real cost, stated plainly: while unlocked, that part of the stake earns nothing, so the whole pool's earnings for those rounds are lower, shared pro-rata by everyone — including you. Your frozen amount itself does not change.</li>
- <li data-i18n="step8"><b>The pool withdraws.</b> Once the wait matures, the pool withdraws the unlocked amount back to its balance. One contract gate applies: a withdrawal is refused while one of the pool's round claims is still unsettled, so the withdrawal fires at the first executable window after maturity — normally right on time, occasionally a little later. The money never expires inside the exit entry.</li>
- <li data-i18n="step9"><b>You are paid in full.</b> The frozen amount is transferred to your original address — the only address it can go to. The 0.03 TNK transfer fee is paid by the pool. If a transfer ever failed on fees, the case would park safely with your RESET intact in the pool balance; the fee is never taken out of your amount.</li>
- <li data-i18n="step10"><b>The position is closed on the public ledger.</b> The close-out is recorded as hash-chained ledger events (verified → unlocked → paid), and the settled exit appears on the Ledger tab and on your address page, where anyone can recompute it.</li>
+<div class="grid">
+ <div class="stat"><b>≈ 24 h</b><span data-i18n="factWait">The wait — 144 Bitcoin blocks</span></div>
+ <div class="stat"><b>0.1</b><span data-i18n="factMin">Minimum per single unlock (RESET)</span></div>
+ <div class="stat"><b>0.03 TNK</b><span data-i18n="factFee">Transfer fee — paid by the pool</span></div>
+ <div class="stat"><b data-i18n="factFreezeV">At case opening</b><span data-i18n="factFreeze">When your payout is frozen</span></div>
+</div>
+
+<h2 data-i18n="stepsTitle">The ten steps</h2>
+<ol class="steps">
+ <li><span class="n">1</span><div data-i18n="step1"><b>Check your position.</b> Enter your address on the Overview or Ledger tab — that is what an exit settles.</div></li>
+ <li><span class="n">2</span><div data-i18n="step2"><b>File an intent.</b> The registry issues a one-time statement (nonce, 30 min). Your own AI can file it.</div></li>
+ <li><span class="n">3</span><div data-i18n="step3"><b>Sign it.</b> Sign the exact text with your own signer — no transfer, zero balance OK.</div></li>
+ <li><span class="n">4</span><div data-i18n="step4"><b>Submit.</b> The nonce burns on first use — replays fail. Verified signature = case opened.</div></li>
+ <li><span class="n">5</span><div data-i18n="step5"><b>Amount frozen.</b> Your payout is fixed from the ledger at the moment the case opens.</div></li>
+ <li><span class="n">6</span><div data-i18n="step6"><b>Pool unlocks.</b> Minimum 0.1 per unlock (contract); the excess returns after the wait and re-locks.</div></li>
+ <li><span class="n">7</span><div data-i18n="step7"><b>Wait.</b> 144 Bitcoin blocks — about 24 hours.</div></li>
+ <li><span class="n">8</span><div data-i18n="step8"><b>Pool withdraws.</b> At the first window after maturity, the amount returns to the pool balance.</div></li>
+ <li><span class="n">9</span><div data-i18n="step9"><b>You are paid.</b> The full frozen amount goes to your original address.</div></li>
+ <li><span class="n">10</span><div data-i18n="step10"><b>Closed on the ledger.</b> Hash-chained events record the exit — anyone can recompute it.</div></li>
 </ol>
 
-<h2 data-i18n="timeTitle">How long it takes</h2>
-<ul>
- <li data-i18n="time1"><b>Case opening:</b> immediate — as soon as your signature verifies.</li>
- <li data-i18n="time2"><b>Unlock:</b> immediate — in the same pass that opens the case.</li>
- <li data-i18n="time3"><b>The wait:</b> about 24 hours (144 Bitcoin blocks — block times vary, so treat this as approximate).</li>
- <li data-i18n="time4"><b>Payout:</b> at the first executable window after the wait matures — withdraw, then the transfer to your address.</li>
+<h2 data-i18n="fricTitle">The honest frictions</h2>
+<ul class="friction">
+ <li data-i18n="fric1">While unlocked, that part earns nothing — those rounds pay everyone less, pro-rata, including you.</li>
+ <li data-i18n="fric2">If a pool claim is still unsettled, the contract refuses the withdraw — pickup slips to the next window.</li>
+ <li data-i18n="fric3">If an exit leaves under 0.1 staked, the rest sits idle until the balance tops it up to 0.1 again.</li>
 </ul>
 
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 13:22:13 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="morelink"><a href="about.html#exit" data-i18n="moreLink">Full introduction — including the detailed exit walkthrough →</a></p>
+
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 13:27:42 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT_MS = 1792761733170;
+const SNAPSHOT_MS = 1792762062488;
 const T = {
-en: { title: "Leaving the pool — the full exit process", langBtn: "中文", back: "← Back to the pool page",
+en: { title: "Leaving the pool — exit at a glance", langBtn: "中文", back: "← Back to the pool page",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
- closedBanner: "⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so the operator has paused exits for now. The channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Until then the registry accepts no new exit intents and the exit form on the Overview tab is disabled. This page stays up so you can read exactly how an exit works before it reopens.",
- prinTitle: "The principles",
- prin1: "<b>A right, not an approval.</b> If the ledger shows a position under your address, you may exit it — nobody approves or denies the request. Only an accounting anomaly (the books do not reconcile, or the amount exceeds your recorded position) stops a case for the operator to review.",
- prin2: "<b>Full exits only.</b> Your principal plus your settled pending earnings, paid in a single payment. There are no partial exits.",
- prin3: "<b>The payout can only go home.</b> Proceeds are paid only to the address that contributed — the one the ledger records for your position. No field in any request or form can name a different recipient, so a forged request can never redirect your money.",
- prin4: "<b>The pool pays the transfer fee.</b> The fixed 0.03 TNK fee on the payout transfer is the pool's cost. You receive the full amount; nothing is deducted.",
- prin5: "<b>The dissolution edge case.</b> If paying one exit would leave the pool's total deposit strictly below 0.1 RESET, that exit escalates to a full dissolution instead: the entire deposit is unlocked and every member is settled in full. Landing exactly on 0.1 does not dissolve the pool.",
- stepsTitle: "The process, step by step",
- step1: "<b>Check your position.</b> On the Overview tab (exit section) or the Ledger tab, enter your address to see your principal and pending earnings. That is the position an exit would settle.",
- step2: "<b>File an exit intent.</b> The pool's registry issues a one-time statement with a single-use nonce (valid 30 minutes). Anyone can file the intent for you — including your own AI — because the intent alone proves nothing.",
- step3: "<b>Sign the statement.</b> You sign the exact issued text with your own signer, in the official signed-message format. Signing is free and works at zero balance — your coins sit in the pool, so your wallet may be empty, and no proof transfer is ever asked for. Only your key can produce this signature.",
- step4: "<b>Submit the signature.</b> The signed submission is filed with the registry; the nonce is burned by the first submission, so replays fail. The pool verifies the Ed25519 signature locally, and a case opens. A valid signature from an address with no position opens nothing.",
- step5: "<b>Your amount is frozen.</b> At the moment the case opens, your payout is fixed from the ledger snapshot: principal + pending earnings at that moment. Rounds that settle later are not added to it; any earnings that land afterwards stay as pending under the normal payout rules.",
- step6: "<b>The pool unlocks.</b> The contract only moves stake in single unlocks of at least 0.1, so even a small exit unlocks a full 0.1 (a dissolution unlocks everything). The part above your amount is not paid to anyone — after the wait it comes back to the pool and is re-locked.",
- step7: "<b>Wait 144 Bitcoin blocks — about 24 hours.</b> This wait is the contract's, and it has a real cost, stated plainly: while unlocked, that part of the stake earns nothing, so the whole pool's earnings for those rounds are lower, shared pro-rata by everyone — including you. Your frozen amount itself does not change.",
- step8: "<b>The pool withdraws.</b> Once the wait matures, the pool withdraws the unlocked amount back to its balance. One contract gate applies: a withdrawal is refused while one of the pool's round claims is still unsettled, so the withdrawal fires at the first executable window after maturity — normally right on time, occasionally a little later. The money never expires inside the exit entry.",
- step9: "<b>You are paid in full.</b> The frozen amount is transferred to your original address — the only address it can go to. The 0.03 TNK transfer fee is paid by the pool. If a transfer ever failed on fees, the case would park safely with your RESET intact in the pool balance; the fee is never taken out of your amount.",
- step10: "<b>The position is closed on the public ledger.</b> The close-out is recorded as hash-chained ledger events (verified → unlocked → paid), and the settled exit appears on the Ledger tab and on your address page, where anyone can recompute it.",
- timeTitle: "How long it takes",
- time1: "<b>Case opening:</b> immediate — as soon as your signature verifies.",
- time2: "<b>Unlock:</b> immediate — in the same pass that opens the case.",
- time3: "<b>The wait:</b> about 24 hours (144 Bitcoin blocks — block times vary, so treat this as approximate).",
- time4: "<b>Payout:</b> at the first executable window after the wait matures — withdraw, then the transfer to your address.",
+ closedBanner: "⏸ <b>Exit channel temporarily closed.</b> The pool is still small, so exits are paused for now. The channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. Until then the registry accepts no new exit intents and the exit form on the Overview tab is disabled. This page stays up so you can read how an exit works before it reopens.",
+ whatTitle: "Exiting, in four lines",
+ s1: "A position on the ledger under your address can be exited — a right, not an approval.",
+ s2: "Full exits only: principal + pending earnings, settled in one payment.",
+ s3: "Paid only to the address you contributed from — no step can change the payee.",
+ s4: "The pool pays the transfer fee; you receive the full amount.",
+ factWait: "The wait — 144 Bitcoin blocks", factMin: "Minimum per single unlock (RESET)",
+ factFee: "Transfer fee — paid by the pool", factFreezeV: "At case opening", factFreeze: "When your payout is frozen",
+ stepsTitle: "The ten steps",
+ step1: "<b>Check your position.</b> Enter your address on the Overview or Ledger tab — that is what an exit settles.",
+ step2: "<b>File an intent.</b> The registry issues a one-time statement (nonce, 30 min). Your own AI can file it.",
+ step3: "<b>Sign it.</b> Sign the exact text with your own signer — no transfer, zero balance OK.",
+ step4: "<b>Submit.</b> The nonce burns on first use — replays fail. Verified signature = case opened.",
+ step5: "<b>Amount frozen.</b> Your payout is fixed from the ledger at the moment the case opens.",
+ step6: "<b>Pool unlocks.</b> Minimum 0.1 per unlock (contract); the excess returns after the wait and re-locks.",
+ step7: "<b>Wait.</b> 144 Bitcoin blocks — about 24 hours.",
+ step8: "<b>Pool withdraws.</b> At the first window after maturity, the amount returns to the pool balance.",
+ step9: "<b>You are paid.</b> The full frozen amount goes to your original address.",
+ step10: "<b>Closed on the ledger.</b> Hash-chained events record the exit — anyone can recompute it.",
+ fricTitle: "The honest frictions",
+ fric1: "While unlocked, that part earns nothing — those rounds pay everyone less, pro-rata, including you.",
+ fric2: "If a pool claim is still unsettled, the contract refuses the withdraw — pickup slips to the next window.",
+ fric3: "If an exit leaves under 0.1 staked, the rest sits idle until the balance tops it up to 0.1 again.",
+ moreLink: "Full introduction — including the detailed exit walkthrough →",
  footerGen: "Snapshot time", dataSource: "Data source",
  footerNote: "It is a static snapshot — no live polling, no login, no tracking." },
-zh: { title: "退出拼池——完整流程", langBtn: "English", back: "← 返回拼池主页",
+zh: { title: "退出拼池——一眼看懂", langBtn: "English", back: "← 返回拼池主页",
  themeToDark: "🌙 夜晚", themeToLight: "☀️ 白天",
  closedBanner: "⏸ <b>退出通道暂时关闭。</b>池子规模尚小，运营者已暂停退出。待池子金额规模上来、且退出执行器完成整机端到端实测后，通道再开放。在此之前，登记后台不接受新的退出意向，概览页的退出表单也已停用。本页保留，是为了让你在通道重开之前就能把退出到底怎么走看清楚。",
- prinTitle: "先说原则",
- prin1: "<b>是权利，不是审批。</b>只要账本上有你地址名下的份额，你就可以退出——没有人能批准或驳回。唯一会让案件停下来交运营者复核的，是账目异常（账对不平、或金额超过账本记录的份额）。",
- prin2: "<b>只退全额。</b>本金加已结算的待分收益，一次性付清。没有部分退出。",
- prin3: "<b>款只能打回家。</b>退出款只打回当初入池的那个地址——账本上记着的你的地址。任何申请、表单、字段都改不了收款地址，所以冒名申请也偷不走你的钱。",
- prin4: "<b>转账费池子出。</b>打款那笔固定的 0.03 TNK 手续费由池子承担，你收到的是全额，一分不扣。",
- prin5: "<b>解散的边角情形。</b>若某一笔退出付完后，池子总质押会严格跌破 0.1 RESET，这笔退出就升级为全池解散：全部质押解锁，所有成员一并全额结清。恰好落在 0.1 不触发解散。",
- stepsTitle: "完整流程，一步一步",
- step1: "<b>查你的份额。</b>在概览页退出区或账本页输入你的地址，看到你的本金和待分收益——退出要结清的就是这份份额。",
- step2: "<b>登记退出意向。</b>池子的登记后台签发一份一次性声明，带单次有效的口令（nonce，30 分钟内有效）。意向可以由任何人代为登记——包括你自己的 AI——因为光有意向什么都证明不了。",
- step3: "<b>签名。</b>你用自己的签名器对签发的原文签名，走官方签名消息格式。签名零成本、零余额可办——你的币在池子里，钱包是空的也没关系，全程不会让你转任何币来证明身份。只有你的私钥能签出这个签名。",
- step4: "<b>提交签名。</b>签好的提交件交回登记后台；口令在第一次提交时即被烧毁，重放无效。池子在本地验证 Ed25519 签名，通过即建案。签名有效但名下没有份额的，不会建任何案。",
- step5: "<b>应退额冻结。</b>建案那一刻，你的应退金额按账本快照定死：那一刻的本金＋待分收益。之后再结算的轮次不计入这笔；之后落到你名下的收益仍按正常规则留作待分。",
- step6: "<b>池子执行 unlock。</b>合约挪动质押的粒度是单笔至少 0.1，所以哪怕退的份额很小，也要整笔解出 0.1（解散时则全部解出）。多出你应退额的那部分不会付给任何人——等待期满后回到池子、重新锁仓。",
- step7: "<b>等 144 个比特币块——约 24 小时。</b>这是合约的等待期，代价如实说：等待期内被解出的那部分质押不产生收益，这几轮全池收益会相应变低，由所有人按份额共同承担——也包括你。你冻结的应退额本身不变。",
- step8: "<b>池子 withdraw 取回。</b>等待期满后，池子把解出的金额取回余额。这里有一道合约门控：池子若有某一轮的 claim 还没结算完，withdraw 会被拒绝，所以取回动作落在到期后第一个可执行的窗口——通常正好到期就办，偶尔会顺延一阵。钱在退出条目里不会过期作废。",
- step9: "<b>全额打款到账。</b>冻结的应退额转账打回你的原地址——也只能是这个地址。0.03 TNK 手续费由池子付。万一某次转账因手续费失败，案件会安全停泊、你的 RESET 完好留在池子余额里；手续费永远不会从你的金额里扣。",
- step10: "<b>账本关账，公开可查。</b>结清全过程记为哈希链账本事件（验签→解锁→已付），结清记录出现在账本页和你的地址页上，任何人都能复算核对。",
- timeTitle: "时间线总览",
- time1: "<b>建案：</b>即时——验签一通过就建。",
- time2: "<b>unlock：</b>即时——与建案同一趟执行。",
- time3: "<b>等待：</b>约 24 小时（144 个比特币块——出块时长有浮动，按约数看）。",
- time4: "<b>打款：</b>等待期满后的第一个可执行窗口——先 withdraw，再转账到你的地址。",
+ whatTitle: "退出，四行说清",
+ s1: "只要账本上有你地址名下的份额，你就能退——是权利，不是审批。",
+ s2: "只退全额：本金＋待分收益，一次性结清。",
+ s3: "只打回你入池的原地址——任何环节都改不了收款地址。",
+ s4: "转账费池子承担，你收到的是全额。",
+ factWait: "等待期——144 个比特币块", factMin: "单笔 unlock 最低（RESET）",
+ factFee: "转账费——池子承担", factFreezeV: "建案那一刻", factFreeze: "应退额的冻结时点",
+ stepsTitle: "十步流程",
+ step1: "<b>查份额。</b>在概览页或账本页输入你的地址——退出结清的就是这份份额。",
+ step2: "<b>登记意向。</b>登记后台签发一次性声明（单次口令，30 分钟有效），可由你自己的 AI 代办。",
+ step3: "<b>签名。</b>用自己的签名器签原文；不用转币，钱包零余额也能签。",
+ step4: "<b>提交验签。</b>口令首次提交即烧毁，重放无效；验签通过即建案。",
+ step5: "<b>冻结金额。</b>应退额在建案那一刻按账本快照定死。",
+ step6: "<b>池子 unlock。</b>合约单笔最低 0.1；多出部分等待期满后回池复锁。",
+ step7: "<b>等待。</b>144 个比特币块——约 24 小时。",
+ step8: "<b>池子 withdraw。</b>到期后第一个可执行窗口，把金额取回池子余额。",
+ step9: "<b>打款。</b>冻结的全额转账打回你的原地址。",
+ step10: "<b>账本关账。</b>全过程记为哈希链事件，任何人可复算。",
+ fricTitle: "摩擦，实话实说",
+ fric1: "等待期内，解出的那部分质押不产收益——那几轮全池收益按份额一起变低，包括你。",
+ fric2: "若池子有某轮 claim 还没结算完，合约会拒绝 withdraw，取回会顺延到下一个可执行窗口。",
+ fric3: "某笔退出后池子剩下的质押若不足 0.1，要等余额攒够 0.1 才能复锁，期间不产收益。",
+ moreLink: "完整详细介绍（含退出全流程细节）→",
  footerGen: "快照时间", dataSource: "数据来源于",
  footerNote: "这是静态快照——不实时轮询、不登录、不追踪。" }
 };
