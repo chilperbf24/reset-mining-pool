@@ -43,8 +43,8 @@
  <div class="stat"><b>0.22366761</b><span data-i18n="stTotal">Total contributed (RESET)</span></div>
  <div class="stat"><b>6</b><span data-i18n="stContrib">Contributors</span></div>
  <div class="stat"><b>0.25573592</b><span data-i18n="stDeposit">Locked on-chain now (RESET)</span></div>
- <div class="stat"><b>45</b><span data-i18n="stRounds">Rounds settled</span></div>
- <div class="stat"><b>0.04370809</b><span data-i18n="stEarned">Cumulative earnings (RESET)</span></div>
+ <div class="stat"><b>46</b><span data-i18n="stRounds">Rounds settled</span></div>
+ <div class="stat"><b>0.04512367</b><span data-i18n="stEarned">Cumulative earnings (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="statsNote">Figures as of the snapshot time in the footer. Cumulative earnings = the sum of every settled round's claim, from the published round reports.</p>
 </section>
@@ -53,7 +53,7 @@
 <h2 data-i18n="whyTitle">Why it exists</h2>
 <p data-i18n="whyP1">The gate is in the contract itself: min_amount = 0.1 is the smallest single lock or unlock, and the smallest deposit that may claim. Below 0.1, coins cannot mine at all — they just sit idle.</p>
 <p data-i18n="whyP2">Pooling does not amplify anything. A round pays linearly: fair share = the round's guideline × your deposit ÷ the round's total claiming deposit. A solo stake of 0.3 and this pool's combined 0.3 earn exactly the same. What pooling changes is only who gets through the door.</p>
-<div class="card"><b data-i18n="fairExT">A real round, from the pool's own books</b><br><span data-i18n="fairEx">Round 516, from this pool's own settlement report: the pool claimed 0.00142052 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.22366761 (36.74%), and it was credited 0.00052184 — the same fraction of the payout as of the stake.</span></div>
+<div class="card"><b data-i18n="fairExT">A real round, from the pool's own books</b><br><span data-i18n="fairEx">Round 517, from this pool's own settlement report: the pool claimed 0.00141558 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.22366761 (36.74%), and it was credited 0.00052002 — the same fraction of the payout as of the stake.</span></div>
 </section>
 
 <section id="how">
@@ -71,7 +71,7 @@
 <ul>
  <li data-i18n="split1"><b>Pro-rata, always:</b> your credit for a round = the round's proceeds × your snapshot deposit ÷ the pool's snapshot total for that round. The snapshot is taken per round, so mid-round joins or exits never rewrite a settled round.</li>
  <li data-i18n="split2"><b>Fee: zero.</b> The ledger's fee setting is 0‰ — the operator takes nothing from contributions or proceeds.</li>
- <li data-i18n="split3"><b>Dust carries forward.</b> Integer division leaves a few units undistributed each round; they are not kept by anyone — they roll into the next round's distributable amount. The carry right now is 0.00000004.</li>
+ <li data-i18n="split3"><b>Dust carries forward.</b> Integer division leaves a few units undistributed each round; they are not kept by anyone — they roll into the next round's distributable amount. The carry right now is 0.00000002.</li>
  <li data-i18n="split4"><b>Payouts:</b> pending earnings are transferred automatically once they reach the 0.01 threshold. The fixed 0.03 TNK transfer fee is paid by the pool — never deducted from a member's amount.</li>
 </ul>
 <div class="warnbar" data-i18n="custody"><b>Accounting is provable; custody is trusted.</b> RESET has no multisig or pool primitive, so one operator key controls the pool address. Every contribution, claim and payout is published and hash-chained, so misuse would be visible and attributable — but it cannot be made technically impossible. That is the honest model; join only if you accept it.</div>
@@ -122,11 +122,11 @@
 </ul>
 </section>
 
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 17:37:38 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-23 17:49:16 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT_MS = 1792777058217;
+const SNAPSHOT_MS = 1792777756897;
 const T = {
 en: { title: "About this pool — the full introduction", langBtn: "中文", back: "← Back to the pool page",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
@@ -138,14 +138,14 @@ en: { title: "About this pool — the full introduction", langBtn: "中文", bac
  statsNote: "Figures as of the snapshot time in the footer. Cumulative earnings = the sum of every settled round's claim, from the published round reports.",
  whyP1: "The gate is in the contract itself: min_amount = 0.1 is the smallest single lock or unlock, and the smallest deposit that may claim. Below 0.1, coins cannot mine at all — they just sit idle.",
  whyP2: "Pooling does not amplify anything. A round pays linearly: fair share = the round's guideline × your deposit ÷ the round's total claiming deposit. A solo stake of 0.3 and this pool's combined 0.3 earn exactly the same. What pooling changes is only who gets through the door.",
- fairExT: "A real round, from the pool's own books", fairEx: "Round 516, from this pool's own settlement report: the pool claimed 0.00142052 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.22366761 (36.74%), and it was credited 0.00052184 — the same fraction of the payout as of the stake.",
+ fairExT: "A real round, from the pool's own books", fairEx: "Round 517, from this pool's own settlement report: the pool claimed 0.00141558 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.22366761 (36.74%), and it was credited 0.00052002 — the same fraction of the payout as of the stake.",
  how1: "<b>Join.</b> Use the calculator on the Overview tab: your planned amount plus your address's fingerprint tail gives your exact transfer amount, and the calculation is recorded in the pool's registry. Transfer exactly that amount; the pool checks the registry record first, then matches the amount's tail to your address, and credits the full amount — usually within about a minute. A wrong or rounded amount parks as unclaimed until it is claimed through the path described on the Overview tab.",
  how2: "<b>Stake.</b> Whenever the pool's idle balance reaches 0.1, the worker locks the whole amount in a single lock — the contract's per-operation minimum makes partial locks below 0.1 impossible, so nothing is ever locked piecemeal.",
  how3: "<b>Claim.</b> Every round, the pool files one claim at level 1000 — exactly its fair share, never more. Over-claiming would draw strikes and penalties; the pool never does it.",
  how4: "<b>Settle.</b> When a round settles, the proceeds are split by that round's deposit snapshot and credited as pending earnings on the public ledger. Pending earnings pay out automatically once they reach 0.01.",
  split1: "<b>Pro-rata, always:</b> your credit for a round = the round's proceeds × your snapshot deposit ÷ the pool's snapshot total for that round. The snapshot is taken per round, so mid-round joins or exits never rewrite a settled round.",
  split2: "<b>Fee: zero.</b> The ledger's fee setting is 0‰ — the operator takes nothing from contributions or proceeds.",
- split3: "<b>Dust carries forward.</b> Integer division leaves a few units undistributed each round; they are not kept by anyone — they roll into the next round's distributable amount. The carry right now is 0.00000004.",
+ split3: "<b>Dust carries forward.</b> Integer division leaves a few units undistributed each round; they are not kept by anyone — they roll into the next round's distributable amount. The carry right now is 0.00000002.",
  split4: "<b>Payouts:</b> pending earnings are transferred automatically once they reach the 0.01 threshold. The fixed 0.03 TNK transfer fee is paid by the pool — never deducted from a member's amount.",
  custody: "<b>Accounting is provable; custody is trusted.</b> RESET has no multisig or pool primitive, so one operator key controls the pool address. Every contribution, claim and payout is published and hash-chained, so misuse would be visible and attributable — but it cannot be made technically impossible. That is the honest model; join only if you accept it.",
  exitClosedNote: "⏸ <b>Exit channel temporarily closed.</b> The pool is still small; the channel reopens once the pool has grown and the exit executor has passed a full end-to-end live test. The registry accepts no new exit intents meanwhile. This chapter stays published so the process is fully documented before it reopens.",
@@ -188,14 +188,14 @@ zh: { title: "关于这个池子——完整介绍", langBtn: "English", back: "
  statsNote: "数字截至页脚的快照时间。累计总收益 = 全部已结算轮次 claim 之和，取自已发布的逐轮报告。",
  whyP1: "门槛写在合约里：min_amount = 0.1，既是单笔 lock/unlock 的最小金额，也是能 claim 的最小质押。不到 0.1，币根本挖不了——只能闲置。",
  whyP2: "拼池不放大任何东西。每轮按线性公式付：公平份额 = 本轮指南额 × 你的质押 ÷ 本轮参与 claim 的总质押。一个人单挖 0.3 和这个池子合并的 0.3，赚的一模一样。拼池改变的只是谁能进这道门。",
- fairExT: "真实一轮，取自池子自己的账", fairEx: "拿池子自己的结算报告举例——第 516 轮：池子这一轮领到 0.00142052。其中最大一份份额的快照质押是 0.08216449，占池子快照总额 0.22366761 的 36.74%，它分到了 0.00052184——和它占质押的比例分毫不差。",
+ fairExT: "真实一轮，取自池子自己的账", fairEx: "拿池子自己的结算报告举例——第 517 轮：池子这一轮领到 0.00141558。其中最大一份份额的快照质押是 0.08216449，占池子快照总额 0.22366761 的 36.74%，它分到了 0.00052002——和它占质押的比例分毫不差。",
  how1: "<b>入池。</b>用概览页的计算器：计划金额加上你地址的指纹尾数，就是你的精确转账金额，计算结果会记入池子的登记后台。从你的钱包精确转这个数；池子先查登记记录、再按金额尾数对上你的地址，全额计入你的出资——通常一分钟左右到账。金额转错或凑整的，会先落为待认领，按概览页的说明走认领路径。",
  how2: "<b>汇集质押。</b>池子闲置余额每攒够 0.1，worker 就整笔一锁——合约单笔最低 0.1 的限制决定了零碎金额锁不了，所以永远不拆开锁。",
  how3: "<b>逐轮 claim。</b>每一轮，池子只提交一笔 level 1000 的 claim——正好是它的公平份额，绝不多报。多报会招致 strikes 和罚没，池子从不这么干。",
  how4: "<b>结算记账。</b>每轮结算落地，收益按该轮的质押快照比例拆分，记为各成员的待分收益，写在公开账本上。待分攒够 0.01 自动打出。",
  split1: "<b>永远按比例：</b>你这一轮的入账 = 本轮收益 × 你的快照质押 ÷ 池子该轮快照总额。快照逐轮取，轮中入池或退出不会改写已结算的轮次。",
  split2: "<b>手续费：零。</b>账本的费率设置为 0‰——运营者不从出资和收益里抽一分。",
- split3: "<b>灰尘结转。</b>整数除法每轮会剩几个 units 分不出去；谁也不许拿——结转进下一轮的可分配额。当前结转额是 0.00000004。",
+ split3: "<b>灰尘结转。</b>整数除法每轮会剩几个 units 分不出去；谁也不许拿——结转进下一轮的可分配额。当前结转额是 0.00000002。",
  split4: "<b>分发：</b>待分收益攒够 0.01 门槛自动转账打出。固定的 0.03 TNK 转账费由池子承担——永不从成员的金额里扣。",
  custody: "<b>分账可证明，托管靠信任。</b>RESET 合约没有多签、没有池子原语，池子地址由运营者一把私钥控制。每一笔出资、claim 和分发都公开且哈希链记账，所以作恶一定会被看见、能追责——但技术上无法做到不可能。模型就是这么诚实；接受不了这一点，就不要入池。",
  exitClosedNote: "⏸ <b>退出通道暂时关闭。</b>池子规模尚小；待金额规模上来、且退出执行器完成整机端到端实测后，通道再开放。在此之前登记后台不接受新的退出意向。本章保留发布，是为了让流程在重开之前就完整有据可查。",
