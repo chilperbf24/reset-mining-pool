@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-23T21:22:38.238Z",
+  "fetched_at": "2026-10-23T21:33:27.563Z",
   "state": {
     "tip": {
-      "height": 972831,
-      "hash": "00000000000000000000a33844ccedcdff9152f84c928a6c0756b022f8fa7fca"
+      "height": 972832,
+      "hash": "00000000000000000000f68df613d366efc2e6cc0a41c8a182a8ca71ddbcc45e"
     },
-    "counted": 972826,
+    "counted": 972827,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -21,7 +21,7 @@
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 599
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 972831,
+        "last_beat": 972832,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 972829,
       "claim_end": 972831,
       "end": 972834,
-      "window_open": true,
-      "S": "1243047932",
+      "window_open": false,
+      "S": "1552422932",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 543,
-      "claim_deposit": "338449811535",
+      "claim_count": 544,
+      "claim_deposit": "338510398996",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 972831,
+    "source_height": 972832,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "93925",
+        "fair_share_estimate": "117281",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -1889,7 +1889,7 @@
       0,
       0,
       8,
-      0,
+      1,
       517,
       335372,
       0
