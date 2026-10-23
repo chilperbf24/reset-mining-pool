@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-23T11:02:55.027Z",
+  "fetched_at": "2026-10-23T11:17:50.598Z",
   "state": {
     "tip": {
-      "height": 972761,
-      "hash": "00000000000000000000bbafddf895ee0c9f97cb3e7362809ff07fc247dae7e4"
+      "height": 972762,
+      "hash": "00000000000000000001ae2a0794eac34020510984b7acfa0a6f5725c211dc63"
     },
-    "counted": 972756,
+    "counted": 972757,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,7 +17,7 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 575,
+      "lock": 597,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 972761,
+        "last_beat": 972762,
         "active": true
       }
     ],
@@ -906,7 +906,7 @@
       "claim_end": 972759,
       "end": 972762,
       "window_open": false,
-      "S": "4613512",
+      "S": "313988512",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 972761,
+    "source_height": 972762,
     "header_error": null
   },
   "accounts": {
@@ -951,7 +951,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "366",
+        "fair_share_estimate": "24968",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -2076,17 +2076,6 @@
       1,
       509,
       57675,
-      0
-    ],
-    [
-      "26b887d5b9a7fb648e4056b3dee5576d55975a6d457f3e449e867ec2ab6a30b3",
-      0,
-      10000000,
-      0,
-      8,
-      0,
-      486,
-      64969,
       0
     ],
     [
@@ -4433,17 +4422,6 @@
       0
     ],
     [
-      "6c60268c17b95b246bd2763ba972e4977749ddc2877dbe8a03c4a9b2345edfe4",
-      0,
-      10000000,
-      0,
-      9,
-      0,
-      486,
-      64969,
-      0
-    ],
-    [
       "6c6bea81cf93397d207674aa5c4c6838e80c08da8d8c87014ed2ec81e6c6d189",
       10000000,
       0,
@@ -5171,7 +5149,7 @@
     ],
     [
       "87c84de4b8c61126cb2e9c098af3244fc03ba8c4cc5d151ca59937e2c86b299c",
-      10000000,
+      31102338,
       0,
       0,
       18,
@@ -5852,17 +5830,6 @@
       0
     ],
     [
-      "a2feeba04231661b3c74689e7edd676c7c2eeedef72f4fbe9ee99a8cdeb64ca2",
-      0,
-      10000000,
-      0,
-      8,
-      0,
-      486,
-      64969,
-      0
-    ],
-    [
       "a39787a5f49f2294c950aaf1d62f030e61face8efd7d821276122a4de6ffd397",
       10000000,
       0,
@@ -6157,17 +6124,6 @@
       1,
       509,
       118573,
-      0
-    ],
-    [
-      "b00988384e19b7e20b48a8bd88257a0d4ac780db3f4db3a21cc118623535c96e",
-      0,
-      20000000,
-      0,
-      14,
-      0,
-      486,
-      129938,
       0
     ],
     [
@@ -6535,7 +6491,7 @@
     ],
     [
       "c432b9335c9bb52382a5b102d36dae4d12958796e2e51ec06455c7e868d3fb76",
-      20469406976,
+      20504693208,
       0,
       0,
       4,
@@ -7635,7 +7591,7 @@
     ],
     [
       "e44965b7dbe894cd25b015273c6a5e9423c625fe1dbbdcf443ffcab3292db7c1",
-      505274635,
+      537302145,
       0,
       0,
       5,
@@ -7888,7 +7844,7 @@
     ],
     [
       "ee9e7c683707910cd981dec127efade3fcf14e771e6c8f0d345f2af8e12f7677",
-      2591003498,
+      3091003498,
       0,
       0,
       7,
@@ -8016,6 +7972,17 @@
       1,
       509,
       57675,
+      0
+    ],
+    [
+      "f37de9ee5bee8c0f8ee7dc75c280190f22c0920d2846f45e1ed602b3134b5563",
+      10000000,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
       0
     ],
     [
@@ -8338,7 +8305,7 @@
       0
     ]
   ],
-  "miners_total": 670,
+  "miners_total": 667,
   "accounts_full": {
     "00622f1b4f40b4cf94dc7c0ad85adcc12affae23a8207127d2a93cc13d552be0": {
       "balance": "89229",
@@ -8348,7 +8315,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -8373,7 +8340,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -8395,7 +8362,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -8420,7 +8387,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -8445,7 +8412,7 @@
           "d": "30000000",
           "q": 990
         },
-        "fair_share_estimate": "430",
+        "fair_share_estimate": "29292",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -8460,7 +8427,7 @@
       }
     },
     "02f360dbe741afb4616c7a4e149e80b077193b8260256f8f8320aa12493d6a24": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -8470,7 +8437,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -8485,7 +8452,7 @@
       }
     },
     "0310a1cb75ed426d44711629085d6e07ff91639953efc69a285f916b321246ee": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -8495,7 +8462,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -8520,7 +8487,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -8545,7 +8512,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -8567,7 +8534,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -8592,7 +8559,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -8617,7 +8584,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -8639,7 +8606,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -8664,7 +8631,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -8686,7 +8653,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -8708,7 +8675,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -8733,7 +8700,7 @@
           "d": "71060513",
           "q": 1000
         },
-        "fair_share_estimate": "1019",
+        "fair_share_estimate": "69384",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -8782,7 +8749,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -8807,7 +8774,7 @@
           "d": "30209648",
           "q": 1000
         },
-        "fair_share_estimate": "433",
+        "fair_share_estimate": "29497",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -8832,7 +8799,7 @@
           "d": "177115851",
           "q": 1000
         },
-        "fair_share_estimate": "2541",
+        "fair_share_estimate": "172938",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -8854,7 +8821,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 0,
         "last_result": null
@@ -8871,7 +8838,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -8893,7 +8860,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "243",
+        "fair_share_estimate": "16598",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -8915,7 +8882,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -8940,7 +8907,7 @@
           "d": "437600186",
           "q": 1000
         },
-        "fair_share_estimate": "6278",
+        "fair_share_estimate": "427278",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -8962,7 +8929,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "359",
+        "fair_share_estimate": "24497",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -8984,7 +8951,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -9006,7 +8973,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -9031,7 +8998,7 @@
           "d": "27601310",
           "q": 1000
         },
-        "fair_share_estimate": "395",
+        "fair_share_estimate": "26950",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -9056,7 +9023,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -9081,7 +9048,7 @@
           "d": "13253811",
           "q": 1000
         },
-        "fair_share_estimate": "190",
+        "fair_share_estimate": "12941",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -9106,7 +9073,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -9131,7 +9098,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -9156,7 +9123,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -9181,7 +9148,7 @@
           "d": "40231499",
           "q": 1000
         },
-        "fair_share_estimate": "577",
+        "fair_share_estimate": "39282",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -9206,7 +9173,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -9224,14 +9191,14 @@
       "balance": "0",
       "deposit": "456850576",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "446526684",
           "q": 1000
         },
-        "fair_share_estimate": "6406",
+        "fair_share_estimate": "435994",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -9256,7 +9223,7 @@
           "d": "101231334",
           "q": 1000
         },
-        "fair_share_estimate": "1452",
+        "fair_share_estimate": "98843",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -9281,7 +9248,7 @@
           "d": "317554617",
           "q": 1000
         },
-        "fair_share_estimate": "4555",
+        "fair_share_estimate": "310064",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -9306,7 +9273,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -9331,7 +9298,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -9356,7 +9323,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -9381,7 +9348,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -9396,7 +9363,7 @@
       }
     },
     "1273ef6c227cf02c69b9f769b2b7cc6c5e254b4f6ee41ca9b750d1f9acb202fa": {
-      "balance": "1714211",
+      "balance": "0",
       "deposit": "20158785",
       "exits": [],
       "moves_this_height": 0,
@@ -9406,7 +9373,7 @@
           "d": "20158785",
           "q": 1000
         },
-        "fair_share_estimate": "289",
+        "fair_share_estimate": "19683",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -9428,7 +9395,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -9453,7 +9420,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -9478,7 +9445,7 @@
           "d": "42105889",
           "q": 1000
         },
-        "fair_share_estimate": "604",
+        "fair_share_estimate": "41112",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -9503,7 +9470,7 @@
           "d": "11000000",
           "q": 1000
         },
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -9528,7 +9495,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -9553,7 +9520,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -9575,7 +9542,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -9600,7 +9567,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -9625,7 +9592,7 @@
           "d": "38732519",
           "q": 1000
         },
-        "fair_share_estimate": "555",
+        "fair_share_estimate": "37818",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -9702,14 +9669,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "13687693400",
           "q": 1000
         },
-        "fair_share_estimate": "196372",
+        "fair_share_estimate": "13364828",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -9731,7 +9698,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -9753,7 +9720,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -9778,7 +9745,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -9800,7 +9767,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -9825,7 +9792,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -9850,7 +9817,7 @@
           "d": "399015086",
           "q": 1000
         },
-        "fair_share_estimate": "5724",
+        "fair_share_estimate": "389603",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -9875,7 +9842,7 @@
           "d": "30020296",
           "q": 1000
         },
-        "fair_share_estimate": "430",
+        "fair_share_estimate": "29312",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -9917,7 +9884,7 @@
       }
     },
     "17ed2b033bc4b2eb9dad50fe9389d09fe00b583394a49223af44545ac57e6c4e": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -9927,7 +9894,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -9950,14 +9917,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "16366612939",
           "q": 1000
         },
-        "fair_share_estimate": "234806",
+        "fair_share_estimate": "15980557",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -9972,7 +9939,7 @@
       }
     },
     "1a0bffb1c4b20fef860030ab5f2c5228a68802010c84bf9281bdef3bd953a6f5": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -9982,7 +9949,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -10004,7 +9971,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -10026,7 +9993,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -10048,7 +10015,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -10073,7 +10040,7 @@
           "d": "266110651",
           "q": 1000
         },
-        "fair_share_estimate": "3817",
+        "fair_share_estimate": "259833",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -10098,7 +10065,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -10123,7 +10090,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -10148,7 +10115,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -10170,7 +10137,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -10276,7 +10243,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -10301,7 +10268,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -10353,7 +10320,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -10378,7 +10345,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -10403,7 +10370,7 @@
           "d": "163916586",
           "q": 1000
         },
-        "fair_share_estimate": "2351",
+        "fair_share_estimate": "160050",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -10428,7 +10395,7 @@
           "d": "60587461",
           "q": 1000
         },
-        "fair_share_estimate": "869",
+        "fair_share_estimate": "59158",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -10453,7 +10420,7 @@
           "d": "162289096",
           "q": 1000
         },
-        "fair_share_estimate": "2328",
+        "fair_share_estimate": "158461",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -10478,7 +10445,7 @@
           "d": "122598796",
           "q": 1000
         },
-        "fair_share_estimate": "1758",
+        "fair_share_estimate": "119706",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -10503,7 +10470,7 @@
           "d": "116097748",
           "q": 1000
         },
-        "fair_share_estimate": "1665",
+        "fair_share_estimate": "113359",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -10528,7 +10495,7 @@
           "d": "11000000",
           "q": 1000
         },
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -10553,7 +10520,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -10575,7 +10542,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -10600,7 +10567,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -10625,7 +10592,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -10650,7 +10617,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -10675,7 +10642,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -10700,7 +10667,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -10725,7 +10692,7 @@
           "d": "51158732",
           "q": 1000
         },
-        "fair_share_estimate": "733",
+        "fair_share_estimate": "49951",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -10750,7 +10717,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -10775,7 +10742,7 @@
           "d": "50000000",
           "q": 1000
         },
-        "fair_share_estimate": "717",
+        "fair_share_estimate": "48820",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -10800,7 +10767,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -10814,33 +10781,6 @@
         }
       }
     },
-    "26b887d5b9a7fb648e4056b3dee5576d55975a6d457f3e449e867ec2ab6a30b3": {
-      "balance": "1471360",
-      "deposit": "0",
-      "exits": [
-        {
-          "amount": "10000000",
-          "release": 972753
-        }
-      ],
-      "moves_this_height": 0,
-      "mine": {
-        "r": 510,
-        "claim": null,
-        "fair_share_estimate": "0",
-        "strikes": 0,
-        "clean": 8,
-        "last_result": {
-          "r": 486,
-          "address": "26b887d5b9a7fb648e4056b3dee5576d55975a6d457f3e449e867ec2ab6a30b3",
-          "fair": "64969",
-          "amount": "64969",
-          "penalty": "0",
-          "strikes": 0,
-          "clean": 8
-        }
-      }
-    },
     "2780bed14df11241927470d4bcd3db1df7fb34fd3ace952b68f06466402f6beb": {
       "balance": "8841693",
       "deposit": "20000000",
@@ -10849,7 +10789,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -10874,7 +10814,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -10899,7 +10839,7 @@
           "d": "332377046",
           "q": 1000
         },
-        "fair_share_estimate": "4768",
+        "fair_share_estimate": "324536",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -10921,7 +10861,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "416",
+        "fair_share_estimate": "28313",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -10946,7 +10886,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -10968,7 +10908,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -10993,7 +10933,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -11018,7 +10958,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -11043,7 +10983,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -11065,7 +11005,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -11087,7 +11027,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -11109,7 +11049,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -11131,7 +11071,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -11149,14 +11089,14 @@
       "balance": "2100000000",
       "deposit": "20668662604",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "20610131718",
           "q": 1000
         },
-        "fair_share_estimate": "295686",
+        "fair_share_estimate": "20123979",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -11181,7 +11121,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -11203,7 +11143,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -11228,7 +11168,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -11253,7 +11193,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -11305,7 +11245,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -11323,14 +11263,14 @@
       "balance": "0",
       "deposit": "362033517",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "350098402",
           "q": 1000
         },
-        "fair_share_estimate": "5022",
+        "fair_share_estimate": "341840",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -11348,14 +11288,14 @@
       "balance": "900000001",
       "deposit": "36541711962",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "36333358343",
           "q": 1000
         },
-        "fair_share_estimate": "521262",
+        "fair_share_estimate": "35476326",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -11380,7 +11320,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -11405,7 +11345,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -11430,7 +11370,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -11452,7 +11392,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -11474,7 +11414,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -11499,7 +11439,7 @@
           "d": "32399759",
           "q": 1000
         },
-        "fair_share_estimate": "464",
+        "fair_share_estimate": "31635",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -11524,7 +11464,7 @@
           "d": "24289530",
           "q": 1000
         },
-        "fair_share_estimate": "348",
+        "fair_share_estimate": "23716",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -11539,7 +11479,7 @@
       }
     },
     "3286e9cf83206f7a8e0bb74fcf28ba427a3d52f19c301b480fd185f6ea4afbf3": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -11549,7 +11489,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -11574,7 +11514,7 @@
           "d": "472597349",
           "q": 1000
         },
-        "fair_share_estimate": "6780",
+        "fair_share_estimate": "461449",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -11599,7 +11539,7 @@
           "d": "10100000",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9861",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -11621,7 +11561,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -11643,7 +11583,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -11666,14 +11606,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "16055706759",
           "q": 1000
         },
-        "fair_share_estimate": "230345",
+        "fair_share_estimate": "15676984",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -11698,7 +11638,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -11723,7 +11663,7 @@
           "d": "10706847",
           "q": 1000
         },
-        "fair_share_estimate": "153",
+        "fair_share_estimate": "10454",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -11745,7 +11685,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -11770,7 +11710,7 @@
           "d": "208502151",
           "q": 1000
         },
-        "fair_share_estimate": "2991",
+        "fair_share_estimate": "203584",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -11795,7 +11735,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -11820,7 +11760,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -11845,7 +11785,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -11870,7 +11810,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -11919,7 +11859,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -11971,7 +11911,7 @@
           "d": "30120369",
           "q": 1000
         },
-        "fair_share_estimate": "432",
+        "fair_share_estimate": "29409",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -11996,7 +11936,7 @@
           "d": "30000000",
           "q": 1000
         },
-        "fair_share_estimate": "430",
+        "fair_share_estimate": "29292",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -12021,7 +11961,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -12046,7 +11986,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -12071,7 +12011,7 @@
           "d": "32473153",
           "q": 1000
         },
-        "fair_share_estimate": "465",
+        "fair_share_estimate": "31707",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -12096,7 +12036,7 @@
           "d": "456326497",
           "q": 1000
         },
-        "fair_share_estimate": "6546",
+        "fair_share_estimate": "445562",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -12148,7 +12088,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -12170,7 +12110,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -12192,7 +12132,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "473",
+        "fair_share_estimate": "32218",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -12217,7 +12157,7 @@
           "d": "60890690",
           "q": 1000
         },
-        "fair_share_estimate": "873",
+        "fair_share_estimate": "59454",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -12239,7 +12179,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "2260",
+        "fair_share_estimate": "153854",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -12264,7 +12204,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -12289,7 +12229,7 @@
           "d": "90872730",
           "q": 1000
         },
-        "fair_share_estimate": "1303",
+        "fair_share_estimate": "88729",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -12314,7 +12254,7 @@
           "d": "108687365",
           "q": 1000
         },
-        "fair_share_estimate": "1559",
+        "fair_share_estimate": "106123",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -12339,7 +12279,7 @@
           "d": "23547299",
           "q": 1000
         },
-        "fair_share_estimate": "337",
+        "fair_share_estimate": "22991",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -12364,7 +12304,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -12379,7 +12319,7 @@
       }
     },
     "3bcf21346d009903137186130d51939d87c51ad0f6a9d16e17c56f9785f7e725": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -12389,7 +12329,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -12414,7 +12354,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -12439,7 +12379,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -12464,7 +12404,7 @@
           "d": "63955890",
           "q": 1000
         },
-        "fair_share_estimate": "917",
+        "fair_share_estimate": "62447",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -12516,7 +12456,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -12538,7 +12478,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -12563,7 +12503,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -12615,7 +12555,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -12637,7 +12577,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -12662,7 +12602,7 @@
           "d": "96849724",
           "q": 1000
         },
-        "fair_share_estimate": "1389",
+        "fair_share_estimate": "94565",
         "strikes": 1,
         "clean": 12,
         "last_result": {
@@ -12687,7 +12627,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -12729,7 +12669,7 @@
       }
     },
     "40a565fcbbfd1f985a4af922cefa7d383f95a4f35d4faae1d68dc74d4cb3d816": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -12739,7 +12679,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -12761,7 +12701,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "366",
+        "fair_share_estimate": "24968",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -12786,7 +12726,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -12808,7 +12748,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -12830,7 +12770,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "301",
+        "fair_share_estimate": "20503",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -12855,7 +12795,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -12880,7 +12820,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -12905,7 +12845,7 @@
           "d": "443478311",
           "q": 1000
         },
-        "fair_share_estimate": "6362",
+        "fair_share_estimate": "433017",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -12930,7 +12870,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -12955,7 +12895,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -12977,7 +12917,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -12999,7 +12939,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -13024,7 +12964,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -13049,7 +12989,7 @@
           "d": "25682499",
           "q": 1000
         },
-        "fair_share_estimate": "368",
+        "fair_share_estimate": "25076",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -13074,7 +13014,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -13097,14 +13037,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "14783392644",
           "q": 1000
         },
-        "fair_share_estimate": "212092",
+        "fair_share_estimate": "14434681",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -13129,7 +13069,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -13154,7 +13094,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -13179,7 +13119,7 @@
           "d": "74178894",
           "q": 1000
         },
-        "fair_share_estimate": "1064",
+        "fair_share_estimate": "72429",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -13201,7 +13141,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -13226,7 +13166,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -13251,7 +13191,7 @@
           "d": "83702927",
           "q": 1000
         },
-        "fair_share_estimate": "1200",
+        "fair_share_estimate": "81728",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -13276,7 +13216,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -13301,7 +13241,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -13326,7 +13266,7 @@
           "d": "29316702192",
           "q": 1000
         },
-        "fair_share_estimate": "420596",
+        "fair_share_estimate": "28625179",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -13351,7 +13291,7 @@
           "d": "120634402",
           "q": 1000
         },
-        "fair_share_estimate": "1730",
+        "fair_share_estimate": "117788",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -13376,7 +13316,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -13398,7 +13338,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -13423,7 +13363,7 @@
           "d": "100000000",
           "q": 1000
         },
-        "fair_share_estimate": "1434",
+        "fair_share_estimate": "97641",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -13445,7 +13385,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -13470,7 +13410,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -13485,7 +13425,7 @@
       }
     },
     "48f83f708f8b7e60515fa3e663489dda6a3d7d721751c6aa7816f6c907fb83a1": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -13495,7 +13435,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -13547,7 +13487,7 @@
           "d": "81075929",
           "q": 1000
         },
-        "fair_share_estimate": "1163",
+        "fair_share_estimate": "79163",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -13569,7 +13509,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -13594,7 +13534,7 @@
           "d": "249182827",
           "q": 1000
         },
-        "fair_share_estimate": "3574",
+        "fair_share_estimate": "243305",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -13619,7 +13559,7 @@
           "d": "14000000",
           "q": 1000
         },
-        "fair_share_estimate": "200",
+        "fair_share_estimate": "13669",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -13668,7 +13608,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -13693,7 +13633,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -13718,7 +13658,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -13743,7 +13683,7 @@
           "d": "132405524",
           "q": 1000
         },
-        "fair_share_estimate": "1899",
+        "fair_share_estimate": "129282",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -13768,7 +13708,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -13793,7 +13733,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -13818,7 +13758,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -13843,7 +13783,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -13868,7 +13808,7 @@
           "d": "76838099",
           "q": 1000
         },
-        "fair_share_estimate": "1102",
+        "fair_share_estimate": "75025",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -13893,7 +13833,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -13918,7 +13858,7 @@
           "d": "26807097",
           "q": 1000
         },
-        "fair_share_estimate": "384",
+        "fair_share_estimate": "26174",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -13943,7 +13883,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -13968,7 +13908,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -13993,7 +13933,7 @@
           "d": "57332273",
           "q": 1000
         },
-        "fair_share_estimate": "822",
+        "fair_share_estimate": "55979",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -14018,7 +13958,7 @@
           "d": "30065381",
           "q": 1000
         },
-        "fair_share_estimate": "431",
+        "fair_share_estimate": "29356",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -14040,7 +13980,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -14065,7 +14005,7 @@
           "d": "112524580",
           "q": 1000
         },
-        "fair_share_estimate": "1614",
+        "fair_share_estimate": "109870",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -14090,7 +14030,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -14112,7 +14052,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -14137,7 +14077,7 @@
           "d": "12854360",
           "q": 1000
         },
-        "fair_share_estimate": "184",
+        "fair_share_estimate": "12551",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -14159,7 +14099,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -14184,7 +14124,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -14209,7 +14149,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -14234,7 +14174,7 @@
           "d": "50137774",
           "q": 1000
         },
-        "fair_share_estimate": "719",
+        "fair_share_estimate": "48955",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -14256,7 +14196,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -14281,7 +14221,7 @@
           "d": "30104232",
           "q": 1000
         },
-        "fair_share_estimate": "431",
+        "fair_share_estimate": "29394",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -14306,7 +14246,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -14333,14 +14273,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "14343493826",
           "q": 1000
         },
-        "fair_share_estimate": "205781",
+        "fair_share_estimate": "14005159",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -14365,7 +14305,7 @@
           "d": "379776686",
           "q": 1000
         },
-        "fair_share_estimate": "5448",
+        "fair_share_estimate": "370818",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -14387,7 +14327,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "334",
+        "fair_share_estimate": "22788",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -14409,7 +14349,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "284",
+        "fair_share_estimate": "19363",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -14461,7 +14401,7 @@
           "d": "99791607",
           "q": 1000
         },
-        "fair_share_estimate": "1431",
+        "fair_share_estimate": "97437",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -14486,7 +14426,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -14511,7 +14451,7 @@
           "d": "100000000",
           "q": 1000
         },
-        "fair_share_estimate": "1434",
+        "fair_share_estimate": "97641",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -14536,7 +14476,7 @@
           "d": "110508890",
           "q": 1000
         },
-        "fair_share_estimate": "1585",
+        "fair_share_estimate": "107902",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -14561,7 +14501,7 @@
           "d": "264240824",
           "q": 1000
         },
-        "fair_share_estimate": "3790",
+        "fair_share_estimate": "258007",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -14583,7 +14523,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "558",
+        "fair_share_estimate": "37989",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -14605,7 +14545,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -14630,7 +14570,7 @@
           "d": "21000000",
           "q": 1000
         },
-        "fair_share_estimate": "301",
+        "fair_share_estimate": "20504",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -14655,7 +14595,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -14680,7 +14620,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -14705,7 +14645,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -14727,7 +14667,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -14752,7 +14692,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -14777,7 +14717,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -14802,7 +14742,7 @@
           "d": "32000000",
           "q": 1000
         },
-        "fair_share_estimate": "459",
+        "fair_share_estimate": "31245",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -14817,7 +14757,7 @@
       }
     },
     "5787f1bfed38cd08b0ed2159ab157c19cdcf7b3fff4309b453f6fd360c279b94": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -14827,7 +14767,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -14842,7 +14782,7 @@
       }
     },
     "592caae56b6f1b91fb86edea7c149df7c9685589432856e71b6737d043a8090d": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -14852,7 +14792,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -14877,7 +14817,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -14899,7 +14839,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -14921,7 +14861,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "295",
+        "fair_share_estimate": "20141",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -14943,7 +14883,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "18792",
+        "fair_share_estimate": "1278963",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -14968,7 +14908,7 @@
           "d": "334678333",
           "q": 1000
         },
-        "fair_share_estimate": "4801",
+        "fair_share_estimate": "326783",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -14993,7 +14933,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -15018,7 +14958,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -15040,7 +14980,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -15065,7 +15005,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -15087,7 +15027,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -15102,7 +15042,7 @@
       }
     },
     "5bdbe84d1765c43b29e3fdb57c75f2086f5ea68ce3d113a94b399d2e6c361979": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -15112,7 +15052,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -15134,7 +15074,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -15159,7 +15099,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -15184,7 +15124,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -15209,7 +15149,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -15234,7 +15174,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -15283,7 +15223,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -15308,7 +15248,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -15333,7 +15273,7 @@
           "d": "224337581",
           "q": 1000
         },
-        "fair_share_estimate": "3218",
+        "fair_share_estimate": "219045",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -15358,7 +15298,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -15383,7 +15323,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -15408,7 +15348,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -15423,7 +15363,7 @@
       }
     },
     "62dcf0a434d5af5db7716687c1105cbad704fb088a6b7c54f9f339920d346951": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -15433,7 +15373,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -15458,7 +15398,7 @@
           "d": "76469826",
           "q": 1000
         },
-        "fair_share_estimate": "1097",
+        "fair_share_estimate": "74666",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -15483,7 +15423,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -15508,7 +15448,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -15533,7 +15473,7 @@
           "d": "89000000",
           "q": 1000
         },
-        "fair_share_estimate": "1276",
+        "fair_share_estimate": "86900",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -15558,7 +15498,7 @@
           "d": "40632595",
           "q": 1000
         },
-        "fair_share_estimate": "582",
+        "fair_share_estimate": "39674",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -15583,7 +15523,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -15608,7 +15548,7 @@
           "d": "143323313",
           "q": 1000
         },
-        "fair_share_estimate": "2056",
+        "fair_share_estimate": "139942",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -15633,7 +15573,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -15685,7 +15625,7 @@
           "d": "577228895",
           "q": 1000
         },
-        "fair_share_estimate": "8281",
+        "fair_share_estimate": "563613",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -15707,7 +15647,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -15732,7 +15672,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -15754,7 +15694,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -15776,7 +15716,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -15798,7 +15738,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -15816,14 +15756,14 @@
       "balance": "10000000",
       "deposit": "158871881",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "148298361",
           "q": 1000
         },
-        "fair_share_estimate": "2127",
+        "fair_share_estimate": "144800",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -15848,7 +15788,7 @@
           "d": "12000000",
           "q": 1000
         },
-        "fair_share_estimate": "172",
+        "fair_share_estimate": "11716",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -15870,7 +15810,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -15895,7 +15835,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -15947,7 +15887,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -15972,7 +15912,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -15987,7 +15927,7 @@
       }
     },
     "6bd5f58722e58bbec02c1bb6d7897c5b8342da2768aeb494c817bf3ce3edd4d0": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -15997,7 +15937,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -16049,7 +15989,7 @@
           "d": "162471570",
           "q": 1000
         },
-        "fair_share_estimate": "2330",
+        "fair_share_estimate": "158639",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -16063,30 +16003,8 @@
         }
       }
     },
-    "6c60268c17b95b246bd2763ba972e4977749ddc2877dbe8a03c4a9b2345edfe4": {
-      "balance": "11554884",
-      "deposit": "0",
-      "exits": [],
-      "moves_this_height": 1,
-      "mine": {
-        "r": 510,
-        "claim": null,
-        "fair_share_estimate": "0",
-        "strikes": 0,
-        "clean": 9,
-        "last_result": {
-          "r": 486,
-          "address": "6c60268c17b95b246bd2763ba972e4977749ddc2877dbe8a03c4a9b2345edfe4",
-          "fair": "64969",
-          "amount": "64969",
-          "penalty": "0",
-          "strikes": 0,
-          "clean": 9
-        }
-      }
-    },
     "6c6bea81cf93397d207674aa5c4c6838e80c08da8d8c87014ed2ec81e6c6d189": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -16096,7 +16014,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -16121,7 +16039,7 @@
           "d": "21000000",
           "q": 1000
         },
-        "fair_share_estimate": "301",
+        "fair_share_estimate": "20504",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -16173,7 +16091,7 @@
           "d": "11000000",
           "q": 1000
         },
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -16198,7 +16116,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -16223,7 +16141,7 @@
           "d": "11000000",
           "q": 1000
         },
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -16248,7 +16166,7 @@
           "d": "130155870",
           "q": 1000
         },
-        "fair_share_estimate": "1867",
+        "fair_share_estimate": "127085",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -16273,7 +16191,7 @@
           "d": "90080944",
           "q": 1000
         },
-        "fair_share_estimate": "1292",
+        "fair_share_estimate": "87956",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -16295,7 +16213,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -16310,7 +16228,7 @@
       }
     },
     "6f4838e617bb634ee52d367ba2054fcece6d7afbae2eda7578b5e0f6559825b9": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -16320,7 +16238,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -16345,7 +16263,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -16370,7 +16288,7 @@
           "d": "30068502",
           "q": 1000
         },
-        "fair_share_estimate": "431",
+        "fair_share_estimate": "29359",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -16395,7 +16313,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -16420,7 +16338,7 @@
           "d": "100000000",
           "q": 1000
         },
-        "fair_share_estimate": "1434",
+        "fair_share_estimate": "97641",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -16445,7 +16363,7 @@
           "d": "50337244",
           "q": 1000
         },
-        "fair_share_estimate": "722",
+        "fair_share_estimate": "49149",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -16470,7 +16388,7 @@
           "d": "320820745",
           "q": 1000
         },
-        "fair_share_estimate": "4602",
+        "fair_share_estimate": "313253",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -16495,7 +16413,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -16520,7 +16438,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -16545,7 +16463,7 @@
           "d": "70000000",
           "q": 1000
         },
-        "fair_share_estimate": "1004",
+        "fair_share_estimate": "68348",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -16575,7 +16493,7 @@
           "d": "50397027",
           "q": 1000
         },
-        "fair_share_estimate": "723",
+        "fair_share_estimate": "49208",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -16600,7 +16518,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -16625,7 +16543,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -16650,7 +16568,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -16675,7 +16593,7 @@
           "d": "53148569",
           "q": 1000
         },
-        "fair_share_estimate": "762",
+        "fair_share_estimate": "51894",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -16700,7 +16618,7 @@
           "d": "21443668",
           "q": 1000
         },
-        "fair_share_estimate": "307",
+        "fair_share_estimate": "20937",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -16752,7 +16670,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -16777,7 +16695,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -16802,7 +16720,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -16827,7 +16745,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -16852,7 +16770,7 @@
           "d": "23418190",
           "q": 1000
         },
-        "fair_share_estimate": "335",
+        "fair_share_estimate": "22865",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -16882,7 +16800,7 @@
           "d": "10000271",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -16907,7 +16825,7 @@
           "d": "13819831",
           "q": 1000
         },
-        "fair_share_estimate": "198",
+        "fair_share_estimate": "13493",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -16937,7 +16855,7 @@
           "d": "60110680",
           "q": 1000
         },
-        "fair_share_estimate": "862",
+        "fair_share_estimate": "58692",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -16962,7 +16880,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -16987,7 +16905,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -17012,7 +16930,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -17034,7 +16952,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -17059,7 +16977,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -17081,7 +16999,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -17106,7 +17024,7 @@
           "d": "21141517",
           "q": 1000
         },
-        "fair_share_estimate": "303",
+        "fair_share_estimate": "20642",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -17131,7 +17049,7 @@
           "d": "1352122434",
           "q": 1000
         },
-        "fair_share_estimate": "19398",
+        "fair_share_estimate": "1320228",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -17156,7 +17074,7 @@
           "d": "26214483",
           "q": 1000
         },
-        "fair_share_estimate": "376",
+        "fair_share_estimate": "25596",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -17208,7 +17126,7 @@
           "d": "14510000",
           "q": 1000
         },
-        "fair_share_estimate": "208",
+        "fair_share_estimate": "14167",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -17233,7 +17151,7 @@
           "d": "177363342",
           "q": 1000
         },
-        "fair_share_estimate": "2544",
+        "fair_share_estimate": "173179",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -17258,7 +17176,7 @@
           "d": "21000000",
           "q": 1000
         },
-        "fair_share_estimate": "301",
+        "fair_share_estimate": "20504",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -17307,7 +17225,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -17359,7 +17277,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -17411,7 +17329,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -17436,7 +17354,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -17458,7 +17376,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -17483,7 +17401,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -17508,7 +17426,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -17533,7 +17451,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -17558,7 +17476,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -17583,7 +17501,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -17605,7 +17523,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -17647,7 +17565,7 @@
       }
     },
     "86de52f0ab7dfb2ca537785d71a927ae164f6c7499df1f661d4d26186e7ad275": {
-      "balance": "5218171",
+      "balance": "0",
       "deposit": "61364562",
       "exits": [],
       "moves_this_height": 0,
@@ -17657,7 +17575,7 @@
           "d": "61364562",
           "q": 1000
         },
-        "fair_share_estimate": "880",
+        "fair_share_estimate": "59917",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -17675,14 +17593,14 @@
       "balance": "0",
       "deposit": "3523071163",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "3502983308",
           "q": 1000
         },
-        "fair_share_estimate": "50256",
+        "fair_share_estimate": "3420354",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -17734,7 +17652,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -17749,17 +17667,17 @@
       }
     },
     "87c84de4b8c61126cb2e9c098af3244fc03ba8c4cc5d151ca59937e2c86b299c": {
-      "balance": "21102338",
-      "deposit": "10000000",
+      "balance": "0",
+      "deposit": "31102338",
       "exits": [],
-      "moves_this_height": 0,
+      "moves_this_height": 1,
       "mine": {
         "r": 510,
         "claim": {
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -17784,7 +17702,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -17806,7 +17724,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -17831,7 +17749,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -17856,7 +17774,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -17908,7 +17826,7 @@
           "d": "173580324",
           "q": 1000
         },
-        "fair_share_estimate": "2490",
+        "fair_share_estimate": "169485",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -17933,7 +17851,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -17955,7 +17873,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -17980,7 +17898,7 @@
           "d": "30125440",
           "q": 1000
         },
-        "fair_share_estimate": "432",
+        "fair_share_estimate": "29414",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -17995,7 +17913,7 @@
       }
     },
     "8bfe92cd611a541ec9b35bdb888445a9106112af49de0b9e291439982e657697": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -18005,7 +17923,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -18027,7 +17945,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -18049,7 +17967,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -18074,7 +17992,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -18099,7 +18017,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -18124,7 +18042,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -18149,7 +18067,7 @@
           "d": "10000000",
           "q": 0
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -18174,7 +18092,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -18226,7 +18144,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -18251,7 +18169,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -18276,7 +18194,7 @@
           "d": "25270228",
           "q": 1000
         },
-        "fair_share_estimate": "362",
+        "fair_share_estimate": "24674",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -18301,7 +18219,7 @@
           "d": "51403463",
           "q": 1000
         },
-        "fair_share_estimate": "737",
+        "fair_share_estimate": "50190",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -18326,7 +18244,7 @@
           "d": "30109861",
           "q": 1000
         },
-        "fair_share_estimate": "431",
+        "fair_share_estimate": "29399",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -18348,7 +18266,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -18400,7 +18318,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -18452,7 +18370,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -18558,7 +18476,7 @@
           "d": "41943514",
           "q": 1000
         },
-        "fair_share_estimate": "601",
+        "fair_share_estimate": "40954",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -18583,7 +18501,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -18608,7 +18526,7 @@
           "d": "104517780",
           "q": 1000
         },
-        "fair_share_estimate": "1499",
+        "fair_share_estimate": "102052",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -18633,7 +18551,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -18648,7 +18566,7 @@
       }
     },
     "973fc8c46cf1381a5050789a850c5c26dd6809dee3a872849ac197f2e5b981a9": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -18658,7 +18576,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -18680,7 +18598,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -18705,7 +18623,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -18730,7 +18648,7 @@
           "d": "40384515",
           "q": 1000
         },
-        "fair_share_estimate": "579",
+        "fair_share_estimate": "39431",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -18755,7 +18673,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -18807,7 +18725,7 @@
           "d": "100000000",
           "q": 1000
         },
-        "fair_share_estimate": "1434",
+        "fair_share_estimate": "97641",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -18829,7 +18747,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "577",
+        "fair_share_estimate": "39300",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -18878,7 +18796,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -18903,7 +18821,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -18955,7 +18873,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -18973,14 +18891,14 @@
       "balance": "0",
       "deposit": "193624479",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "182836034",
           "q": 1000
         },
-        "fair_share_estimate": "2623",
+        "fair_share_estimate": "178523",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -19005,7 +18923,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -19030,7 +18948,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -19052,7 +18970,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "1579",
+        "fair_share_estimate": "107525",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -19077,7 +18995,7 @@
           "d": "41257290",
           "q": 1000
         },
-        "fair_share_estimate": "591",
+        "fair_share_estimate": "40284",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -19095,14 +19013,14 @@
       "balance": "0",
       "deposit": "331195836",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "320026460",
           "q": 1000
         },
-        "fair_share_estimate": "4591",
+        "fair_share_estimate": "312477",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -19127,7 +19045,7 @@
           "d": "441589387",
           "q": 1000
         },
-        "fair_share_estimate": "6335",
+        "fair_share_estimate": "431173",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -19152,7 +19070,7 @@
           "d": "38039534",
           "q": 1000
         },
-        "fair_share_estimate": "545",
+        "fair_share_estimate": "37142",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -19204,7 +19122,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -19229,7 +19147,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -19254,7 +19172,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -19295,28 +19213,6 @@
         }
       }
     },
-    "a2feeba04231661b3c74689e7edd676c7c2eeedef72f4fbe9ee99a8cdeb64ca2": {
-      "balance": "11349026",
-      "deposit": "0",
-      "exits": [],
-      "moves_this_height": 1,
-      "mine": {
-        "r": 510,
-        "claim": null,
-        "fair_share_estimate": "0",
-        "strikes": 0,
-        "clean": 8,
-        "last_result": {
-          "r": 486,
-          "address": "a2feeba04231661b3c74689e7edd676c7c2eeedef72f4fbe9ee99a8cdeb64ca2",
-          "fair": "64969",
-          "amount": "64969",
-          "penalty": "0",
-          "strikes": 0,
-          "clean": 8
-        }
-      }
-    },
     "a39787a5f49f2294c950aaf1d62f030e61face8efd7d821276122a4de6ffd397": {
       "balance": "0",
       "deposit": "10000000",
@@ -19325,7 +19221,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 0,
         "last_result": null
@@ -19342,7 +19238,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -19365,14 +19261,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "15667468857",
           "q": 1000
         },
-        "fair_share_estimate": "224775",
+        "fair_share_estimate": "15297904",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -19397,7 +19293,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -19419,7 +19315,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -19444,7 +19340,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -19496,7 +19392,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -19548,7 +19444,7 @@
           "d": "189431600",
           "q": 1000
         },
-        "fair_share_estimate": "2717",
+        "fair_share_estimate": "184963",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -19570,7 +19466,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -19592,7 +19488,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -19617,7 +19513,7 @@
           "d": "22340880",
           "q": 1000
         },
-        "fair_share_estimate": "320",
+        "fair_share_estimate": "21813",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -19635,14 +19531,14 @@
       "balance": "0",
       "deposit": "502599248",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "462774646",
           "q": 1000
         },
-        "fair_share_estimate": "6639",
+        "fair_share_estimate": "451858",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -19667,7 +19563,7 @@
           "d": "10010000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9773",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -19692,7 +19588,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -19714,7 +19610,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -19739,7 +19635,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -19761,7 +19657,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 0,
         "last_result": null
@@ -19778,7 +19674,7 @@
           "d": "10797890",
           "q": 1000
         },
-        "fair_share_estimate": "154",
+        "fair_share_estimate": "10543",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -19803,7 +19699,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -19826,14 +19722,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "15435872930",
           "q": 1000
         },
-        "fair_share_estimate": "221453",
+        "fair_share_estimate": "15071771",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -19858,7 +19754,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -19880,7 +19776,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -19898,14 +19794,14 @@
       "balance": "0",
       "deposit": "2277158488",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "2264174581",
           "q": 1000
         },
-        "fair_share_estimate": "32483",
+        "fair_share_estimate": "2210767",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -19930,7 +19826,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -19955,7 +19851,7 @@
           "d": "20558855",
           "q": 1000
         },
-        "fair_share_estimate": "294",
+        "fair_share_estimate": "20073",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -19966,28 +19862,6 @@
           "penalty": "0",
           "strikes": 0,
           "clean": 0
-        }
-      }
-    },
-    "b00988384e19b7e20b48a8bd88257a0d4ac780db3f4db3a21cc118623535c96e": {
-      "balance": "22492072",
-      "deposit": "0",
-      "exits": [],
-      "moves_this_height": 1,
-      "mine": {
-        "r": 510,
-        "claim": null,
-        "fair_share_estimate": "0",
-        "strikes": 0,
-        "clean": 14,
-        "last_result": {
-          "r": 486,
-          "address": "b00988384e19b7e20b48a8bd88257a0d4ac780db3f4db3a21cc118623535c96e",
-          "fair": "129938",
-          "amount": "129938",
-          "penalty": "0",
-          "strikes": 0,
-          "clean": 14
         }
       }
     },
@@ -20002,7 +19876,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -20024,7 +19898,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "1579",
+        "fair_share_estimate": "107524",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -20046,7 +19920,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "20096",
+        "fair_share_estimate": "1367767",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -20071,7 +19945,7 @@
           "d": "35459820",
           "q": 1000
         },
-        "fair_share_estimate": "508",
+        "fair_share_estimate": "34623",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -20086,7 +19960,7 @@
       }
     },
     "b20d0857b3bf02bcfeee92e88c3278be4b0b8c5fc34f450d8ab0623a9ba96371": {
-      "balance": "1714211",
+      "balance": "0",
       "deposit": "20158785",
       "exits": [],
       "moves_this_height": 0,
@@ -20096,7 +19970,7 @@
           "d": "20158785",
           "q": 1000
         },
-        "fair_share_estimate": "289",
+        "fair_share_estimate": "19683",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -20121,7 +19995,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -20146,7 +20020,7 @@
           "d": "21000000",
           "q": 1000
         },
-        "fair_share_estimate": "301",
+        "fair_share_estimate": "20504",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -20171,7 +20045,7 @@
           "d": "40000000",
           "q": 1000
         },
-        "fair_share_estimate": "573",
+        "fair_share_estimate": "39056",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -20196,7 +20070,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -20221,7 +20095,7 @@
           "d": "14250000",
           "q": 1000
         },
-        "fair_share_estimate": "204",
+        "fair_share_estimate": "13913",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -20246,7 +20120,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -20271,7 +20145,7 @@
           "d": "16525000",
           "q": 1000
         },
-        "fair_share_estimate": "237",
+        "fair_share_estimate": "16135",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -20296,7 +20170,7 @@
           "d": "30066183",
           "q": 1000
         },
-        "fair_share_estimate": "431",
+        "fair_share_estimate": "29356",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -20345,7 +20219,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -20397,7 +20271,7 @@
           "d": "58358278",
           "q": 1000
         },
-        "fair_share_estimate": "837",
+        "fair_share_estimate": "56981",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -20412,7 +20286,7 @@
       }
     },
     "bbbf2583aa6aca9aba11becd15e238297a8c152ac756113f4670ba2a8cc207ff": {
-      "balance": "1714211",
+      "balance": "0",
       "deposit": "20158785",
       "exits": [],
       "moves_this_height": 0,
@@ -20422,7 +20296,7 @@
           "d": "20158785",
           "q": 1000
         },
-        "fair_share_estimate": "289",
+        "fair_share_estimate": "19683",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -20444,7 +20318,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "489",
+        "fair_share_estimate": "33303",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -20467,14 +20341,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "14459230236",
           "q": 1000
         },
-        "fair_share_estimate": "207441",
+        "fair_share_estimate": "14118165",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -20499,7 +20373,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -20521,7 +20395,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -20546,7 +20420,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -20571,7 +20445,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -20596,7 +20470,7 @@
           "d": "100000000",
           "q": 1000
         },
-        "fair_share_estimate": "1434",
+        "fair_share_estimate": "97641",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -20611,7 +20485,7 @@
       }
     },
     "bf4365b793e8b4c8e713e0ac239638a3ba9e390940330f4d9244d8a9c87a9207": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -20621,7 +20495,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -20646,7 +20520,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -20668,7 +20542,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -20693,7 +20567,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -20715,7 +20589,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -20737,7 +20611,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -20755,14 +20629,14 @@
       "balance": "192395655",
       "deposit": "5387832859",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "5357112501",
           "q": 1000
         },
-        "fair_share_estimate": "76856",
+        "fair_share_estimate": "5230748",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -20787,7 +20661,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -20805,14 +20679,14 @@
       "balance": "100000000",
       "deposit": "20504693208",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "20469406976",
           "q": 1000
         },
-        "fair_share_estimate": "293667",
+        "fair_share_estimate": "19986574",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -20837,7 +20711,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -20855,14 +20729,14 @@
       "balance": "0",
       "deposit": "578480253",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "565407778",
           "q": 1000
         },
-        "fair_share_estimate": "8111",
+        "fair_share_estimate": "552070",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -20884,7 +20758,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -20906,7 +20780,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -20931,7 +20805,7 @@
           "d": "162590836",
           "q": 1000
         },
-        "fair_share_estimate": "2332",
+        "fair_share_estimate": "158755",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -20956,7 +20830,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -20981,7 +20855,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -21006,7 +20880,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -21021,7 +20895,7 @@
       }
     },
     "c8b74b7012987dc07a05afa41acd8a8fa1d81d29506c4122a9899798f8254970": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -21031,7 +20905,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -21056,7 +20930,7 @@
           "d": "122879018",
           "q": 1000
         },
-        "fair_share_estimate": "1762",
+        "fair_share_estimate": "119980",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -21108,7 +20982,7 @@
           "d": "40000000",
           "q": 1000
         },
-        "fair_share_estimate": "573",
+        "fair_share_estimate": "39056",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -21133,7 +21007,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -21158,7 +21032,7 @@
           "d": "21980233",
           "q": 1000
         },
-        "fair_share_estimate": "315",
+        "fair_share_estimate": "21461",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -21183,7 +21057,7 @@
           "d": "75319830",
           "q": 1000
         },
-        "fair_share_estimate": "1080",
+        "fair_share_estimate": "73543",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -21208,7 +21082,7 @@
           "d": "381650990",
           "q": 1000
         },
-        "fair_share_estimate": "5475",
+        "fair_share_estimate": "372648",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -21230,7 +21104,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -21252,7 +21126,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -21277,7 +21151,7 @@
           "d": "30000000",
           "q": 1000
         },
-        "fair_share_estimate": "430",
+        "fair_share_estimate": "29292",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -21302,7 +21176,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -21327,7 +21201,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -21349,7 +21223,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -21371,7 +21245,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -21398,7 +21272,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "367",
+        "fair_share_estimate": "25004",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -21423,7 +21297,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -21445,7 +21319,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -21470,7 +21344,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -21492,7 +21366,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -21515,14 +21389,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "14332764763",
           "q": 1000
         },
-        "fair_share_estimate": "205627",
+        "fair_share_estimate": "13994683",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -21547,7 +21421,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -21572,7 +21446,7 @@
           "d": "11000000",
           "q": 1000
         },
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -21597,7 +21471,7 @@
           "d": "23305198",
           "q": 1000
         },
-        "fair_share_estimate": "334",
+        "fair_share_estimate": "22755",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -21649,7 +21523,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -21671,7 +21545,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -21696,7 +21570,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -21718,7 +21592,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -21743,7 +21617,7 @@
           "d": "26158715",
           "q": 1000
         },
-        "fair_share_estimate": "375",
+        "fair_share_estimate": "25541",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -21765,7 +21639,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -21790,7 +21664,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -21842,7 +21716,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -21867,7 +21741,7 @@
           "d": "10000000",
           "q": 196
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -21892,7 +21766,7 @@
           "d": "20017171",
           "q": 1000
         },
-        "fair_share_estimate": "287",
+        "fair_share_estimate": "19545",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -21917,7 +21791,7 @@
           "d": "110239853",
           "q": 1000
         },
-        "fair_share_estimate": "1581",
+        "fair_share_estimate": "107639",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -21942,7 +21816,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -21964,7 +21838,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -21989,7 +21863,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -22041,7 +21915,7 @@
           "d": "91675436",
           "q": 1000
         },
-        "fair_share_estimate": "1315",
+        "fair_share_estimate": "89512",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -22063,7 +21937,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -22088,7 +21962,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -22106,14 +21980,14 @@
       "balance": "0",
       "deposit": "1345169614",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "1329882977",
           "q": 1000
         },
-        "fair_share_estimate": "19079",
+        "fair_share_estimate": "1298513",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -22135,7 +22009,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -22160,7 +22034,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -22185,7 +22059,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -22207,7 +22081,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -22232,7 +22106,7 @@
           "d": "29976553",
           "q": 1000
         },
-        "fair_share_estimate": "430",
+        "fair_share_estimate": "29269",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -22257,7 +22131,7 @@
           "d": "19990360",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19518",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -22282,7 +22156,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -22307,7 +22181,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -22332,7 +22206,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -22357,7 +22231,7 @@
           "d": "10000000",
           "q": 75
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -22382,7 +22256,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -22404,7 +22278,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -22429,7 +22303,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -22454,7 +22328,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -22476,7 +22350,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -22501,7 +22375,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -22526,7 +22400,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -22544,14 +22418,14 @@
       "balance": "0",
       "deposit": "180358855",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "170309537",
           "q": 1000
         },
-        "fair_share_estimate": "2443",
+        "fair_share_estimate": "166292",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -22600,7 +22474,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "430",
+        "fair_share_estimate": "29291",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -22625,7 +22499,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -22650,7 +22524,7 @@
           "d": "250000000",
           "q": 1000
         },
-        "fair_share_estimate": "3586",
+        "fair_share_estimate": "244102",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -22675,7 +22549,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -22700,7 +22574,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -22725,7 +22599,7 @@
           "d": "53238977",
           "q": 1000
         },
-        "fair_share_estimate": "763",
+        "fair_share_estimate": "51983",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -22755,7 +22629,7 @@
           "d": "393646513",
           "q": 1000
         },
-        "fair_share_estimate": "5647",
+        "fair_share_estimate": "384361",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -22804,7 +22678,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -22829,7 +22703,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -22854,7 +22728,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -22879,7 +22753,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -22901,7 +22775,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -22926,7 +22800,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -22951,7 +22825,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -23003,7 +22877,7 @@
           "d": "15000000",
           "q": 1000
         },
-        "fair_share_estimate": "215",
+        "fair_share_estimate": "14646",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -23018,7 +22892,7 @@
       }
     },
     "e2867c48498531d88ea4d075379d89b3cde10de6f52d27332ef611d78d09fd6f": {
-      "balance": "797422",
+      "balance": "0",
       "deposit": "10079392",
       "exits": [],
       "moves_this_height": 0,
@@ -23028,7 +22902,7 @@
           "d": "10079392",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9841",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -23053,7 +22927,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -23078,7 +22952,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -23103,7 +22977,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -23155,7 +23029,7 @@
           "d": "21000000",
           "q": 1000
         },
-        "fair_share_estimate": "301",
+        "fair_share_estimate": "20504",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -23180,7 +23054,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -23205,7 +23079,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -23230,7 +23104,7 @@
           "d": "129481738",
           "q": 1000
         },
-        "fair_share_estimate": "1857",
+        "fair_share_estimate": "126427",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -23255,7 +23129,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -23270,17 +23144,17 @@
       }
     },
     "e44965b7dbe894cd25b015273c6a5e9423c625fe1dbbdcf443ffcab3292db7c1": {
-      "balance": "5774795",
-      "deposit": "505274635",
+      "balance": "6329128",
+      "deposit": "537302145",
       "exits": [],
-      "moves_this_height": 0,
+      "moves_this_height": 1,
       "mine": {
         "r": 510,
         "claim": {
           "d": "505274635",
           "q": 1000
         },
-        "fair_share_estimate": "7249",
+        "fair_share_estimate": "493356",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -23305,7 +23179,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -23320,7 +23194,7 @@
       }
     },
     "e4fba07691b373697e8d22fb7609aab01c2a6f4d384d84605ccb0c8838d4a462": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -23330,7 +23204,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -23355,7 +23229,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -23377,7 +23251,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "157",
+        "fair_share_estimate": "10740",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -23399,7 +23273,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -23421,7 +23295,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -23444,14 +23318,14 @@
           "release": 972744
         }
       ],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "15305367324",
           "q": 1000
         },
-        "fair_share_estimate": "219581",
+        "fair_share_estimate": "14944344",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -23473,7 +23347,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "314",
+        "fair_share_estimate": "21377",
         "strikes": 0,
         "clean": 0,
         "last_result": null
@@ -23490,7 +23364,7 @@
           "d": "30880040",
           "q": 1000
         },
-        "fair_share_estimate": "443",
+        "fair_share_estimate": "30151",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -23505,7 +23379,7 @@
       }
     },
     "e931ba05218d8ff8a0c78c22ad442f32e688fdf88b80a5ac36a8587c0f357d34": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -23515,7 +23389,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -23540,7 +23414,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -23555,7 +23429,7 @@
       }
     },
     "ea470204daa04777e0bd580619b17f39cde755407565695956584f8fbe8799f7": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -23565,7 +23439,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -23590,7 +23464,7 @@
           "d": "33897513",
           "q": 1000
         },
-        "fair_share_estimate": "486",
+        "fair_share_estimate": "33097",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -23642,7 +23516,7 @@
           "d": "232665057",
           "q": 1000
         },
-        "fair_share_estimate": "3337",
+        "fair_share_estimate": "227176",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -23667,7 +23541,7 @@
           "d": "111016411",
           "q": 1000
         },
-        "fair_share_estimate": "1592",
+        "fair_share_estimate": "108397",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -23682,17 +23556,17 @@
       }
     },
     "edbea4e89a26f5a479ec2d7082ab7faaa2e1ca429aa28022e0629c18b4ceff3b": {
-      "balance": "2000000000",
+      "balance": "1990000000",
       "deposit": "26866958380",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 510,
         "claim": {
           "d": "26713768293",
           "q": 1000
         },
-        "fair_share_estimate": "383253",
+        "fair_share_estimate": "26083643",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -23717,7 +23591,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 22,
         "last_result": {
@@ -23739,7 +23613,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 6,
         "last_result": {
@@ -23791,7 +23665,7 @@
           "d": "24813859",
           "q": 1000
         },
-        "fair_share_estimate": "355",
+        "fair_share_estimate": "24228",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -23816,7 +23690,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -23831,8 +23705,8 @@
       }
     },
     "ee9e7c683707910cd981dec127efade3fcf14e771e6c8f0d345f2af8e12f7677": {
-      "balance": "748109905",
-      "deposit": "2591003498",
+      "balance": "248109905",
+      "deposit": "3091003498",
       "exits": [],
       "moves_this_height": 0,
       "mine": {
@@ -23841,7 +23715,7 @@
           "d": "2591003498",
           "q": 1000
         },
-        "fair_share_estimate": "37172",
+        "fair_share_estimate": "2529886",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -23863,7 +23737,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19527",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -23888,7 +23762,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -23913,7 +23787,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -23935,7 +23809,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "351",
+        "fair_share_estimate": "23897",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -23960,7 +23834,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 18,
         "last_result": {
@@ -23985,7 +23859,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -24007,7 +23881,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -24059,7 +23933,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -24084,7 +23958,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -24109,7 +23983,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -24123,6 +23997,20 @@
         }
       }
     },
+    "f37de9ee5bee8c0f8ee7dc75c280190f22c0920d2846f45e1ed602b3134b5563": {
+      "balance": "0",
+      "deposit": "10000000",
+      "exits": [],
+      "moves_this_height": 1,
+      "mine": {
+        "r": 510,
+        "claim": null,
+        "fair_share_estimate": "9763",
+        "strikes": 0,
+        "clean": 0,
+        "last_result": null
+      }
+    },
     "f3ca96eeb437b8dd289dd4305ca9bd099ca8456b9819542d2288777bd0517601": {
       "balance": "842468",
       "deposit": "10000000",
@@ -24134,7 +24022,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -24149,7 +24037,7 @@
       }
     },
     "f427e3db773fd02931e92948d0c2b062e3eeaaf4e05a4e9770c4b7c0f1a3df3b": {
-      "balance": "791141",
+      "balance": "0",
       "deposit": "10000000",
       "exits": [],
       "moves_this_height": 0,
@@ -24159,7 +24047,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -24216,7 +24104,7 @@
           "d": "12310116",
           "q": 1000
         },
-        "fair_share_estimate": "176",
+        "fair_share_estimate": "12019",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -24241,7 +24129,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -24263,7 +24151,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -24307,7 +24195,7 @@
           "d": "10100001",
           "q": 1000
         },
-        "fair_share_estimate": "144",
+        "fair_share_estimate": "9861",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -24359,7 +24247,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -24384,7 +24272,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 4,
         "last_result": {
@@ -24409,7 +24297,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 16,
         "last_result": {
@@ -24434,7 +24322,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -24459,7 +24347,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 14,
         "last_result": {
@@ -24511,7 +24399,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -24533,7 +24421,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 10,
         "last_result": {
@@ -24558,7 +24446,7 @@
           "d": "20000000",
           "q": 1000
         },
-        "fair_share_estimate": "286",
+        "fair_share_estimate": "19528",
         "strikes": 0,
         "clean": 11,
         "last_result": {
@@ -24583,7 +24471,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -24608,7 +24496,7 @@
           "d": "20194456",
           "q": 1000
         },
-        "fair_share_estimate": "289",
+        "fair_share_estimate": "19718",
         "strikes": 0,
         "clean": 3,
         "last_result": {
@@ -24660,7 +24548,7 @@
           "d": "134275422",
           "q": 1000
         },
-        "fair_share_estimate": "1926",
+        "fair_share_estimate": "131108",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -24685,7 +24573,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 21,
         "last_result": {
@@ -24710,7 +24598,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -24732,7 +24620,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 9,
         "last_result": {
@@ -24784,7 +24672,7 @@
           "d": "10000000",
           "q": 1000
         },
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9764",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -24806,7 +24694,7 @@
       "mine": {
         "r": 510,
         "claim": null,
-        "fair_share_estimate": "143",
+        "fair_share_estimate": "9763",
         "strikes": 0,
         "clean": 13,
         "last_result": {
@@ -24831,7 +24719,7 @@
           "d": "34270900",
           "q": 1000
         },
-        "fair_share_estimate": "491",
+        "fair_share_estimate": "33462",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -24846,5 +24734,5 @@
       }
     }
   },
-  "accounts_fetched_at": "2026-10-23T11:02:55.027Z"
+  "accounts_fetched_at": "2026-10-23T11:17:50.598Z"
 }
