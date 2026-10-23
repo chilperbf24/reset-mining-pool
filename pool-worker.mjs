@@ -123,13 +123,13 @@ async function doClaim(s) {
   // the signer refuses to build a claim when a fresh snapshot shows one,
   // and the gateway rejects duplicates without penalty.
   let cur = s, lastRec = null;
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  for (let attempt = 1; attempt <= 10; attempt++) {
     const cr = await call('mine_claim', { level: 1000 }, 1);
     const outcome = cr.outcome || (cr.ok ? 'ok' : 'unknown');
     let s2 = null;
-    const until = Date.now() + (outcome === 'rejected' ? 40000 : 150000);
+    const until = Date.now() + (outcome === 'rejected' ? 20000 : 60000);
     while (Date.now() < until) {
-      await sleep(20000);
+      await sleep(15000);
       try { s2 = await call('status', {}); } catch { continue; }
       if (s2.claim || s2.mine.round !== cur.mine.round || !s2.mine.window_open) break;
     }
@@ -332,4 +332,12 @@ try {
   if (mode === '--claim') await claimOnce();
   else if (mode === '--loop') await loopWatch(loopSecs || 420);
   else await singlePass();
+} catch (e) {
+  // Gateway flaps (e.g. non-JSON "Gateway state changed between reads" during
+  // a block transition) must not kill the process with a stack trace: log it
+  // and emit a structured failure so the cron agent can count and retry.
+  const msg = String((e && e.message) || e).slice(0, 200);
+  log({ event: 'worker_error', error: msg });
+  console.log(JSON.stringify({ ok: false, error: msg }));
+  process.exit(1);
 } finally { try { await client.close(); } catch {} }
