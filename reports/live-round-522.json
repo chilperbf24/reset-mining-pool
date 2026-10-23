@@ -1,0 +1,82 @@
+{
+  "v": 1,
+  "kind": "reset-pool-round-audit",
+  "pool_address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+  "round": 522,
+  "claim": {
+    "amount_units": "140234",
+    "fair_units": null,
+    "level": 1000
+  },
+  "fee_per_mille": 0,
+  "fee_units": "0",
+  "carry_in_units": "2",
+  "distributable_units": "140236",
+  "dust_units": "3",
+  "snapshot": {
+    "round": 522,
+    "pool_address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+    "rows": [
+      {
+        "address": "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7",
+        "deposit_units": "3657260"
+      },
+      {
+        "address": "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d",
+        "deposit_units": "5000000"
+      },
+      {
+        "address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+        "deposit_units": "2661039"
+      },
+      {
+        "address": "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d",
+        "deposit_units": "8216449"
+      },
+      {
+        "address": "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3",
+        "deposit_units": "1173155"
+      },
+      {
+        "address": "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d",
+        "deposit_units": "1658858"
+      }
+    ],
+    "total_units": "22366761",
+    "hash": "93c511753c9c894c69f88ef1b555485cfaa2beeab31b467390142069bbc8df00"
+  },
+  "shares": [
+    {
+      "address": "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7",
+      "deposit_units": "3657260",
+      "share_units": "22930"
+    },
+    {
+      "address": "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d",
+      "deposit_units": "5000000",
+      "share_units": "31349"
+    },
+    {
+      "address": "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6",
+      "deposit_units": "2661039",
+      "share_units": "16684"
+    },
+    {
+      "address": "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d",
+      "deposit_units": "8216449",
+      "share_units": "51515"
+    },
+    {
+      "address": "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3",
+      "deposit_units": "1173155",
+      "share_units": "7355"
+    },
+    {
+      "address": "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d",
+      "deposit_units": "1658858",
+      "share_units": "10400"
+    }
+  ],
+  "event_hash": "cee8d07a9d1d4e99cafaa5c3746811653732dcf60fa01a467850171ef8d9d25c",
+  "report_hash": "f55c306df3828f74bc9b679309689d8bdb7bfeb5dd8ed025a4140ae1f88f1156"
+}
