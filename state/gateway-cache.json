@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-24T01:26:19.380Z",
+  "fetched_at": "2026-10-24T01:37:40.529Z",
   "state": {
     "tip": {
       "height": 972856,
@@ -17,7 +17,7 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 598,
+      "lock": 597,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
@@ -6625,6 +6625,17 @@
       0
     ],
     [
+      "ce41812b306535e279c06fe2993f83fc6731a633b4277e0f95ffe0926aaa6d6a",
+      10000000,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
       "cece7bb52083e0573d4872c7fba75569c13a472dc5fee9d5ba7b31a2e6a760d9",
       10000000,
       0,
@@ -8066,7 +8077,7 @@
       0
     ]
   ],
-  "miners_total": 645,
+  "miners_total": 646,
   "accounts_full": {
     "00622f1b4f40b4cf94dc7c0ad85adcc12affae23a8207127d2a93cc13d552be0": {
       "balance": "89229",
@@ -20843,6 +20854,20 @@
         }
       }
     },
+    "ce41812b306535e279c06fe2993f83fc6731a633b4277e0f95ffe0926aaa6d6a": {
+      "balance": "1000000",
+      "deposit": "10000000",
+      "exits": [],
+      "moves_this_height": 1,
+      "mine": {
+        "r": 526,
+        "claim": null,
+        "fair_share_estimate": "45012",
+        "strikes": 0,
+        "clean": 0,
+        "last_result": null
+      }
+    },
     "cece7bb52083e0573d4872c7fba75569c13a472dc5fee9d5ba7b31a2e6a760d9": {
       "balance": "64393",
       "deposit": "10000000",
@@ -24122,5 +24147,5 @@
       }
     }
   },
-  "accounts_fetched_at": "2026-10-24T01:26:19.380Z"
+  "accounts_fetched_at": "2026-10-24T01:37:40.529Z"
 }
