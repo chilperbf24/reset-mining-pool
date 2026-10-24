@@ -562,6 +562,7 @@ ${marketsHtml}
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const REGISTRY_ENDPOINT = ${JSON.stringify(REGISTRY_ENDPOINT)};
 const REGISTRY_EXIT_ENDPOINT = ${JSON.stringify(REGISTRY_EXIT_ENDPOINT)};
