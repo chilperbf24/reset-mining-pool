@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { emptyState, parseCoin } from './lib/pool.mjs';
 import { fingerprint, fingerprintUnits, sendAmountFor, splitTail,
   processObservation, claimEntry, claimEntryAs, emptyMatcher, emptyUnclaimed,
-  emptyFpCache, decideRegistryAttribution, registryNoteSuffix,
+  emptyFpCache, decideRegistryAttribution, decideJoinAttribution, registryNoteSuffix,
   previewInflowCandidate } from './lib/fpmatch.mjs';
 
 const POOL = '4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6';
@@ -206,6 +206,85 @@ const amtXY = plannedXY + fingerprintUnits(X); // == planned + fp(Y)
   ok('claimEntryAs: retro registry claim books source/method/resolution; claimEntry defaults unchanged');
 }
 
+// ------------------------------------------------ decideJoinAttribution
+{
+  const amt = sendAmountFor(NEW, parseCoin('0.08'));
+  const claim = { address_hex: NEW, exact_units: amt.toString(), nonce: '0123456789abcdef' };
+  const d = decideJoinAttribution([claim], amt);
+  assert.equal(d.type, 'credit'); assert.equal(d.address, NEW); assert.equal(d.claim.nonce, '0123456789abcdef');
+  ok('decideJoin: unique pending claim with the exact amount -> credit');
+  const d2 = decideJoinAttribution([{ ...claim }, { address_hex: A, exact_units: amt.toString(), nonce: 'fedcba9876543210' }], amt);
+  assert.equal(d2.type, 'conflict'); assert.deepEqual(new Set(d2.addresses), new Set([NEW, A]));
+  ok('decideJoin: two addresses claiming one exact amount -> conflict');
+  assert.equal(decideJoinAttribution([claim], amt + 1n).type, 'none');
+  assert.equal(decideJoinAttribution([], amt).type, 'none');
+  ok('decideJoin: different amount / no claims -> none');
+}
+{
+  // Fresh inflow with a pending join claim: credited via ai-join, and the
+  // claim nonce lands in the ledger event for the paper trail.
+  const amt = sendAmountFor(NEW, parseCoin('0.08'));
+  const ctx = mkCtx([A, B], { joinDecision: { amount_units: amt.toString(), mode: 'credit', address: NEW, claim_nonce: '0123456789abcdef' } });
+  processObservation({ totalUnits: 0n, lastResult: null }, ctx);
+  const acts = processObservation({ totalUnits: amt, lastResult: null }, ctx);
+  const credit = acts.find(a => a.type === 'credited');
+  assert(credit && credit.via === 'ai-join' && credit.address === NEW && credit.join_claim_nonce === '0123456789abcdef');
+  assert.equal(ctx.ledger.contributors[NEW].contributed, amt.toString());
+  assert.equal(ctx.ledger.events.at(-1).data.source, 'ai-join');
+  assert.equal(ctx.ledger.events.at(-1).data.join_claim_nonce, '0123456789abcdef');
+  ok('joinDecision credit -> credited via ai-join with the claim nonce in the event');
+}
+{
+  // Join conflict parks the inflow (never guesses), flagged join_conflict.
+  const amt = sendAmountFor(NEW, parseCoin('0.08'));
+  const ctx = mkCtx([A, B], { joinDecision: { amount_units: amt.toString(), mode: 'park',
+    note: 'join conflict: 2 addresses filed a signed receipt for an identical amount — parked for manual review' } });
+  processObservation({ totalUnits: 0n, lastResult: null }, ctx);
+  const acts = processObservation({ totalUnits: amt, lastResult: null }, ctx);
+  assert(acts.some(a => a.type === 'unclaimed' && a.join_conflict === true));
+  assert.equal(ctx.unclaimed.entries.length, 1);
+  assert.equal(Object.keys(ctx.ledger.contributors).length, 0);
+  ok('joinDecision park (conflict) -> parked with join_conflict flag, nothing credited');
+}
+{
+  // Priority #0: a join claim beats a registry calc naming someone else.
+  const amt = sendAmountFor(NEW, parseCoin('0.08'));
+  const ctx = mkCtx([A, B], {
+    joinDecision: { amount_units: amt.toString(), mode: 'credit', address: NEW, claim_nonce: '0123456789abcdef' },
+    registryDecision: { amount_units: amt.toString(), mode: 'credit', address: A },
+  });
+  processObservation({ totalUnits: 0n, lastResult: null }, ctx);
+  const acts = processObservation({ totalUnits: amt, lastResult: null }, ctx);
+  assert(acts.some(a => a.type === 'credited' && a.via === 'ai-join' && a.address === NEW));
+  assert.equal(ctx.ledger.contributors[A], undefined);
+  ok('priority: join claim beats a registry calc naming a different address');
+}
+{
+  // A join decision for another amount never leaks into this inflow.
+  const amt = sendAmountFor(NEW, parseCoin('0.08'));
+  const ctx = mkCtx([A, B], { joinDecision: { amount_units: '123456789', mode: 'credit', address: NEW, claim_nonce: 'x' } });
+  processObservation({ totalUnits: 0n, lastResult: null }, ctx);
+  const acts = processObservation({ totalUnits: amt, lastResult: null }, ctx);
+  assert(acts.some(a => a.type === 'unclaimed'));
+  assert.equal(ctx.ledger.contributors[NEW], undefined);
+  ok('a join decision for another amount never leaks into this inflow');
+}
+{
+  // Retro: an inflow parked BEFORE its receipt arrived credits once the
+  // claim exists — the tail check passes by construction (exact includes fp).
+  const ctx = mkCtx([A, B]);
+  processObservation({ totalUnits: 0n, lastResult: null }, ctx);
+  const D = sendAmountFor(NEW, parseCoin('0.05'));
+  processObservation({ totalUnits: D, lastResult: null }, ctx);
+  assert.equal(ctx.unclaimed.entries.length, 1);
+  const entry = claimEntryAs(ctx, 1, NEW, { source: 'ai-join', method: 'join',
+    resolution: 'auto-credited on re-check: a signature-verified join receipt names this address' });
+  assert.equal(entry.status, 'claimed'); assert.equal(entry.method, 'join');
+  assert.equal(ctx.ledger.contributors[NEW].contributed, D.toString());
+  assert.equal(ctx.ledger.events.at(-1).data.source, 'ai-join');
+  ok('retro: parked entry + later join receipt -> claimed via ai-join (out-of-order covered)');
+}
+
 // --------------------------------------- registry client (lib/fprun.mjs)
 // Driven in child processes so each scenario gets a fresh module +
 // environment (the config is resolved once per process, like production).
@@ -228,6 +307,9 @@ const amtXY = plannedXY + fingerprintUnits(X); // == planned + fp(Y)
           else if (req.url === '/hold') res.end(JSON.stringify({ ok: true, updated: 1 }));
           else if (req.url === '/fulfill') res.end(JSON.stringify({ ok: true, updated: 1 }));
           else if (req.url === '/sweep') res.end(JSON.stringify({ ok: true, deleted: 0 }));
+          else if (req.url === '/join/claims') res.end(JSON.stringify({ ok: true, claims: [
+            { id: 7, code_nonce: '0123456789abcdef', address_hex: 'ee'.repeat(32), exact_units: '8216449', nonce: '0123456789abcdef' } ] }));
+          else if (req.url === '/join/fulfill') res.end(JSON.stringify({ ok: true, updated: 1 }));
           else res.end('{}');
         });
       });
@@ -239,7 +321,10 @@ const amtXY = plannedXY + fingerprintUnits(X); // == planned + fp(Y)
       const held = await m.registryHold({ tail: '216449', exact_units: '8216449' });
       const ful = await m.registryFulfill({ tail: '216449' });
       const swp = await m.registrySweep();
-      console.log(JSON.stringify({ lookOk: look.ok, n: look.records?.length, kinds: look.records?.map(r => r.kind), held, ful, swp, seen }));
+      const jc = await m.registryJoinClaims();
+      const jful = await m.registryJoinFulfill({ nonce: '0123456789abcdef' });
+      console.log(JSON.stringify({ lookOk: look.ok, n: look.records?.length, kinds: look.records?.map(r => r.kind), held, ful, swp, seen,
+        joinClaims: jc.claims, joinFulfilled: jful }));
       srv.close();
     } else {
       const m = await import(${JSON.stringify(fprunUrl)});
@@ -262,7 +347,10 @@ const amtXY = plannedXY + fingerprintUnits(X); // == planned + fp(Y)
   assert.equal(stub.lookOk, true); assert.equal(stub.n, 1); assert.deepEqual(stub.kinds, ['calc']);
   assert.equal(stub.held, true); assert.equal(stub.ful, true); assert.equal(stub.swp, true);
   assert(stub.seen.some(u => u.startsWith('/lookup?tail=216449')) && stub.seen.includes('/hold'));
-  ok('client: lookup filters to calc kinds; hold/fulfill/sweep round-trip a stub registry');
+  assert.equal(stub.joinClaims.length, 1); assert.equal(stub.joinClaims[0].address_hex, 'ee'.repeat(32));
+  assert.equal(stub.joinClaims[0].exact_units, '8216449'); assert.equal(stub.joinFulfilled, true);
+  assert(stub.seen.includes('/join/claims') && stub.seen.includes('/join/fulfill'));
+  ok('client: lookup filters to calc kinds; hold/fulfill/sweep round-trip a stub registry; join claims + fulfill round-trip too');
 }
 
 console.log(`\ntest-registry: all ${n} checks passed`);

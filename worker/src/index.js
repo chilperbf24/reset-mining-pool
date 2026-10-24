@@ -65,6 +65,34 @@
 //   POST /exit/resolve operator only: record the pool-side verdict
 //                 ('verified' = a case was opened; 'rejected' + reason).
 //
+// JOIN CHANNEL (AI-signed join, operator plan 2026-10-24 — branch ai-join,
+// NOT deployed: the Worker below is the sandbox implementation; production
+// deploy and any real-money test wait for the operator's explicit go-ahead).
+//   POST /join/code  public: file {address, planned_units} and receive a
+//                 join CODE — a copy-paste block for the member's own AI
+//                 (pool address + exact amount = planned + this address's
+//                 fingerprint + one-time nonce, 60-minute validity). The
+//                 code is an execution instruction, NOT an authorization:
+//                 only the member's own signer can move their money.
+//   POST /join/claim public: submit the AI's signed receipt
+//                 {prepared, signature, nonce} after the transfer. Unlike
+//                 the exit channel (verified pool-side later), a join
+//                 receipt is verified HERE, in the Worker, before it can
+//                 influence attribution at all — a pending join claim is a
+//                 credit instruction to the matcher, so it must be
+//                 cryptographically valid first. The nonce is burned by
+//                 the first submission whether the signature verifies or
+//                 not; a valid receipt registers a PENDING claim (24-hour
+//                 wait for its inflow), an invalid one is filed 'rejected'
+//                 as evidence. Crediting still needs the chain fact: the
+//                 matcher credits a pending claim only when an inflow of
+//                 exactly its amount actually lands.
+//   GET  /join/claims operator only: pending claims awaiting an inflow.
+//   POST /join/fulfill operator only: mark a claim 'fulfilled' once the
+//                 matcher has credited it (never credits twice).
+//   GET  /lookup also returns matching join rows under `join` (by
+//                 address / amount) so one query shows both channels.
+//
 // Calc-record TTL: a kind='calc' row is a visitor's stated INTENT to
 // transfer. While it sits at status='ok' and no matching inflow
 // fulfils it within 30 minutes it is deleted (POST /sweep, plus
@@ -212,7 +240,21 @@ async function sweepExpiredCalcs(env) {
   const x = await env.REGISTRY_DB.prepare(
     `DELETE FROM records WHERE kind = 'exit_request' AND status = 'pending' AND ts < ?`)
     .bind(calcCutoff()).run();
-  return (r?.meta?.changes ?? 0) + (x?.meta?.changes ?? 0);
+  // Join channel: unclaimed codes die (the member re-issues); pending
+  // claims EXPIRE to a visible terminal state (never silently deleted —
+  // an expired claim is evidence the money never arrived in 24 h).
+  let j = 0;
+  try {
+    const d = await env.REGISTRY_DB.prepare(
+      `DELETE FROM join_codes WHERE status = 'issued' AND ts < ?`)
+      .bind(new Date(Date.now() - JOIN_CODE_TTL_MS).toISOString()).run();
+    j += d?.meta?.changes ?? 0;
+    const e = await env.REGISTRY_DB.prepare(
+      `UPDATE join_claims SET status = 'expired' WHERE status = 'pending' AND ts < ?`)
+      .bind(new Date(Date.now() - JOIN_CLAIM_TTL_MS).toISOString()).run();
+    j += e?.meta?.changes ?? 0;
+  } catch { /* join tables predate the migration on old deployments: sweep must not fail calc TTL */ }
+  return (r?.meta?.changes ?? 0) + (x?.meta?.changes ?? 0) + j;
 }
 
 async function insertRecord(env, rec) {
@@ -357,7 +399,19 @@ async function getLookup(request, env, url) {
     collect((await db.prepare('SELECT * FROM records WHERE planned_units = ? ORDER BY ts, id').bind(query.amount).all()).results);
   }
   const records = [...byId.values()].sort((a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : a.id - b.id));
-  return json({ ok: true, query, count: records.length, records });
+  // Join channel rows, same filters (pre-migration deployments have no
+  // join tables — a missing table must not break the lookup itself).
+  const join = [];
+  try {
+    if (query.address !== undefined) {
+      join.push(...((await db.prepare('SELECT * FROM join_codes WHERE address_hex = ? ORDER BY ts, id').bind(query.address).all()).results ?? []));
+      join.push(...((await db.prepare('SELECT * FROM join_claims WHERE address_hex = ? ORDER BY ts, id').bind(query.address).all()).results ?? []));
+    }
+    if (query.amount !== undefined) {
+      join.push(...((await db.prepare('SELECT * FROM join_claims WHERE exact_units = ? ORDER BY ts, id').bind(query.amount).all()).results ?? []));
+    }
+  } catch {}
+  return json({ ok: true, query, count: records.length, records, join });
 }
 
 // POST /fulfill {tail?, address?} — operator only. The matcher calls
@@ -595,6 +649,199 @@ async function postExitResolve(request, env) {
   return json({ ok: true, updated: r?.meta?.changes ?? 0 });
 }
 
+// ------------------------------------------------------------ join channel
+// Mirror of lib/join.mjs (this file stays self-contained). The receipt
+// the member's AI signs is the SAME official agent construction as an
+// exit intent — only the text differs (it names the exact join amount
+// and the code nonce). Verification here uses WebCrypto Ed25519, the
+// same primitive trac-wallet uses; the pool-side lib/join.mjs verifier
+// is the node:crypto twin (same bytes, same key, same result).
+const JOIN_CODE_TTL_MS = 60 * 60 * 1000;       // code usable 60 min
+const JOIN_CLAIM_TTL_MS = 24 * 60 * 60 * 1000; // pending claim waits 24 h
+const JOIN_NONCE_RE = /^[0-9a-f]{16}$/;
+const JOIN_SIG_RE = /^[0-9a-f]{128}$/;
+const hexToBytes = h => {
+  const out = new Uint8Array(h.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(h.slice(2 * i, 2 * i + 2), 16);
+  return out;
+};
+const joinTextFor = (pool, address, exactUnits, nonce) =>
+  `JOIN pool. Pool ${pool} member ${address} amount ${BigInt(exactUnits)} code ${nonce}`;
+const joinSigningText = p => 'reset-chat/v1\n' + stableJSON(
+  { v: p.v, kind: p.kind, addr: p.addr, text: p.text, ts: p.ts, nonce: p.nonce });
+const joinCodeBlock = ({ pool, address, planned, fp, exact, nonce, expiresAt }) => {
+  const fmt = u => `${(BigInt(u) / 100000000n).toString()}.${(BigInt(u) % 100000000n).toString().padStart(8, '0')}`;
+  return [
+    `RESET pool join code — give this whole block to your own AI.`,
+    `Pool: ${pool}`,
+    `Member: ${address}`,
+    `Planned: ${fmt(planned)} RESET, fingerprint tail: ${fp} units`,
+    `Transfer EXACTLY: ${fmt(exact)} RESET (${exact} units) to the pool address above.`,
+    `Code nonce: ${nonce} — valid until ${expiresAt}.`,
+    `--- AI INSTRUCTIONS (hard rules, not suggestions) ---`,
+    `1. Read the pool address and the exact amount back to your owner and WAIT for their confirmation before transferring.`,
+    `2. Transfer exactly ${exact} units — digit for digit. Never round, never split, never substitute another amount.`,
+    `3. The transfer fee is 0.03 TNK paid by the member wallet. If the wallet holds no TNK, STOP and report — do not improvise.`,
+    `4. After the gateway accepts the transfer, sign the receipt statement (same official agent format as an exit intent) and return the signed receipt block to your owner for submission.`,
+    `{"pool":"${pool}","address":"${address}","planned_units":"${planned}","fp_units":"${fp}","exact_units":"${exact}","nonce":"${nonce}"}`,
+  ].join('\n');
+};
+async function verifyEd25519(messageUtf8, signatureHex, publicKeyHex) {
+  try {
+    const key = await crypto.subtle.importKey('raw', hexToBytes(publicKeyHex),
+      { name: 'Ed25519' }, false, ['verify']);
+    return await crypto.subtle.verify('Ed25519', key, hexToBytes(signatureHex),
+      new TextEncoder().encode(messageUtf8));
+  } catch { return false; }
+}
+const joinCodeView = (row, pool) => {
+  let code = null;
+  try { code = JSON.parse(row.payload ?? 'null'); } catch {}
+  return { id: row.id, address_hex: row.address_hex, nonce: row.nonce, status: row.status,
+    planned_units: row.planned_units, fp_units: row.fp_units, exact_units: row.exact_units,
+    issued_at: row.ts, expires_at: new Date(Date.parse(row.ts) + JOIN_CODE_TTL_MS).toISOString(),
+    pool_address: pool, text: code?.text ?? null };
+};
+async function joinCodeByNonce(env, nonce) {
+  const row = await env.REGISTRY_DB.prepare(
+    `SELECT * FROM join_codes WHERE nonce = ? ORDER BY ts, id`).bind(nonce).first();
+  return row ?? null;
+}
+
+// POST /join/code — issue a join code for {address, planned_units}.
+// The Worker recomputes the fingerprint server-side (its word, not the
+// client's) and refuses the pool's own address: the pool cannot join
+// itself, same guard as the matcher. One code per request; re-issuing
+// after expiry is always allowed (old codes die in the sweep).
+async function postJoinCode(request, env) {
+  try { await sweepExpiredCalcs(env); } catch {}
+  let body;
+  try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ ok: false, error: 'body must be a JSON object' }, 400);
+  const addressHex = typeof body.address === 'string' ? normalizeAddress(body.address) : null;
+  if (!addressHex) return json({ ok: false, error: 'address is not a valid RESET (64-hex) or trac1 address' }, 400);
+  const pool = poolAddressOf(env);
+  if (addressHex === pool) return json({ ok: false, error: 'the pool address itself cannot join the pool' }, 400);
+  const planned = unitsField(body.planned_units);
+  if (planned === undefined || planned === null || planned <= 0n || planned > MAX_PLANNED) {
+    return json({ ok: false, error: 'planned_units must be a positive unit integer' }, 400);
+  }
+  if (planned % PLANNED_STEP !== 0n) {
+    return json({ ok: false, error: 'planned_units must be a multiple of 0.01 RESET (1000000 units)' }, 400);
+  }
+  const ipHash = await ipHashOf(request);
+  if (await rateLimited(env, ipHash)) return json({ ok: false, error: 'rate limit: too many requests from this network, retry shortly' }, 429);
+  const fp = BigInt(await fingerprint(addressHex));
+  const exact = planned + fp;
+  const nonce = newNonce();
+  const issuedAt = new Date();
+  const expiresAt = new Date(issuedAt.getTime() + JOIN_CODE_TTL_MS).toISOString();
+  const text = joinCodeBlock({ pool, address: addressHex, planned: planned.toString(),
+    fp: fp.toString(), exact: exact.toString(), nonce, expiresAt });
+  const r = await env.REGISTRY_DB.prepare(
+    `INSERT INTO join_codes (ts, address_hex, planned_units, fp_units, exact_units, nonce, status, payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .bind(issuedAt.toISOString(), addressHex, planned.toString(), fp.toString(), exact.toString(),
+      nonce, 'issued', JSON.stringify({ text })).run();
+  const id = r?.meta?.last_row_id ?? null;
+  return json({ ok: true, code: { id, address_hex: addressHex, nonce, status: 'issued',
+    planned_units: planned.toString(), fp_units: fp.toString(), exact_units: exact.toString(),
+    pool_address: pool, issued_at: issuedAt.toISOString(), expires_at: expiresAt, text } }, 201);
+}
+
+// POST /join/claim — submit the AI's signed receipt {prepared, signature,
+// nonce} for a live join code. Binding + burn + verification, in order:
+//   1. the code must exist, be 'issued', and be inside its 60 minutes;
+//   2. the code is burned FIRST (status -> 'consumed') so no submission
+//      — valid or not — can ever be replayed;
+//   3. the receipt must match the code exactly (address, exact amount
+//      inside the text, nonce) and its Ed25519 signature must verify
+//      over the official signing text under the member's key.
+// A verified receipt registers a PENDING claim (24 h for its inflow);
+// a failed one is filed 'rejected' as evidence and the member re-issues.
+async function postJoinClaim(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ ok: false, error: 'body must be a JSON object' }, 400);
+  const { prepared, signature, nonce } = body;
+  if (typeof nonce !== 'string' || !JOIN_NONCE_RE.test(nonce)) return json({ ok: false, error: 'nonce must be 16 lowercase hex chars' }, 400);
+  if (typeof signature !== 'string' || !JOIN_SIG_RE.test(signature)) return json({ ok: false, error: 'signature must be 128 lowercase hex chars (Ed25519)' }, 400);
+  if (!prepared || typeof prepared !== 'object' || Array.isArray(prepared)) return json({ ok: false, error: 'prepared must be the receipt message object' }, 400);
+  if (prepared.nonce !== nonce) return json({ ok: false, error: 'prepared.nonce does not match nonce' }, 400);
+  const code = await joinCodeByNonce(env, nonce);
+  if (!code) return json({ ok: false, error: 'unknown code nonce — issue a code with POST /join/code first' }, 404);
+  if (code.status !== 'issued') return json({ ok: false, error: `code already consumed (status: ${code.status})` }, 409);
+  if (Date.now() - Date.parse(code.ts) > JOIN_CODE_TTL_MS) return json({ ok: false, error: 'code expired — issue a fresh POST /join/code' }, 410);
+  // Burn first: exactly one submission ever consumes this nonce.
+  const burned = await env.REGISTRY_DB.prepare(
+    `UPDATE join_codes SET status = ? WHERE id = ? AND status = 'issued'`)
+    .bind('consumed', code.id).run();
+  if ((burned?.meta?.changes ?? 0) !== 1) return json({ ok: false, error: 'code already consumed' }, 409);
+  const pool = poolAddressOf(env);
+  const fail = async reason => {
+    await env.REGISTRY_DB.prepare(
+      `INSERT INTO join_claims (ts, code_nonce, address_hex, exact_units, nonce, status, payload) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+      .bind(new Date().toISOString(), nonce, code.address_hex, code.exact_units, nonce, 'rejected',
+        JSON.stringify({ prepared, reason })).run();
+    return json({ ok: false, error: reason }, 400);
+  };
+  if (prepared.v !== 1 || prepared.kind !== 'agent' || prepared.addr !== code.address_hex) {
+    return fail('receipt does not match the issued code (version, kind, or address)');
+  }
+  if (prepared.text !== joinTextFor(pool, code.address_hex, code.exact_units, nonce)) {
+    return fail('receipt text does not match the issued code (pool, amount, or nonce)');
+  }
+  if (!await verifyEd25519(joinSigningText(prepared), signature, prepared.addr)) {
+    return fail('signature verification failed — the receipt was not signed by the member key');
+  }
+  const r = await env.REGISTRY_DB.prepare(
+    `INSERT INTO join_claims (ts, code_nonce, address_hex, exact_units, nonce, status, payload) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+    .bind(new Date().toISOString(), nonce, code.address_hex, code.exact_units, nonce, 'pending',
+      JSON.stringify({ prepared, signature, submitted_at: new Date().toISOString() })).run();
+  return json({ ok: true, claim: { id: r?.meta?.last_row_id ?? null, code_nonce: nonce,
+    address_hex: code.address_hex, exact_units: code.exact_units, status: 'pending',
+    expires_at: new Date(Date.now() + JOIN_CLAIM_TTL_MS).toISOString() } }, 201);
+}
+
+// GET /join/claims — operator only: pending claims awaiting an inflow.
+async function getJoinClaims(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  const { results } = await env.REGISTRY_DB.prepare(
+    `SELECT * FROM join_claims WHERE status = ? ORDER BY ts, id`).bind('pending').all();
+  const claims = (results ?? []).map(r => {
+    let p = {};
+    try { p = JSON.parse(r.payload ?? '{}'); } catch {}
+    return { id: r.id, code_nonce: r.code_nonce, address_hex: r.address_hex,
+      exact_units: r.exact_units, nonce: r.nonce, ts: r.ts, prepared: p.prepared ?? null };
+  });
+  return json({ ok: true, claims });
+}
+
+// POST /join/fulfill — operator only: mark a claim 'fulfilled' once the
+// matcher credited its inflow. Only a 'pending' claim transitions, so a
+// claim can never credit twice through this endpoint.
+async function postJoinFulfill(request, env) {
+  if (!keyMatches(request.headers.get('x-registry-key'), env.REGISTRY_KEY)) {
+    return json({ ok: false, error: 'operator key required' }, 401);
+  }
+  let body;
+  try { body = await request.json(); } catch { return json({ ok: false, error: 'body must be JSON' }, 400); }
+  const id = Number(body?.id);
+  const nonce = typeof body?.nonce === 'string' ? body.nonce : null;
+  if ((!Number.isSafeInteger(id) || id <= 0) && !nonce) {
+    return json({ ok: false, error: 'give claim id or nonce' }, 400);
+  }
+  const r = id
+    ? await env.REGISTRY_DB.prepare(
+        `UPDATE join_claims SET status = ? WHERE id = ? AND status = 'pending'`)
+        .bind('fulfilled', id).run()
+    : await env.REGISTRY_DB.prepare(
+        `UPDATE join_claims SET status = ? WHERE nonce = ? AND status = 'pending'`)
+        .bind('fulfilled', nonce).run();
+  return json({ ok: true, updated: r?.meta?.changes ?? 0 });
+}
+
 async function getHealth(env) {
   const row = await env.REGISTRY_DB.prepare('SELECT COUNT(*) AS n FROM records').first();
   return json({ ok: true, records: Number(row?.n ?? 0) });
@@ -615,6 +862,10 @@ export default {
       if (url.pathname === '/exit/verify' && request.method === 'POST') return await postExitVerify(request, env);
       if (url.pathname === '/exit/pending' && request.method === 'GET') return await getExitPending(request, env);
       if (url.pathname === '/exit/resolve' && request.method === 'POST') return await postExitResolve(request, env);
+      if (url.pathname === '/join/code' && request.method === 'POST') return await postJoinCode(request, env);
+      if (url.pathname === '/join/claim' && request.method === 'POST') return await postJoinClaim(request, env);
+      if (url.pathname === '/join/claims' && request.method === 'GET') return await getJoinClaims(request, env);
+      if (url.pathname === '/join/fulfill' && request.method === 'POST') return await postJoinFulfill(request, env);
       if (url.pathname === '/health' && request.method === 'GET') return await getHealth(env);
       return json({ ok: false, error: 'not found' }, 404);
     } catch (e) {

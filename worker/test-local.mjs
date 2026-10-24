@@ -6,8 +6,11 @@
 //   node worker/test-local.mjs
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
+import { generateKeyPairSync, sign as cryptoSign } from 'node:crypto';
 import worker from './src/index.js';
 import { encodeTracAddress, fingerprint } from '../lib/fpmatch.mjs';
+import { buildJoinPrepared } from '../lib/join.mjs';
+import { agentSigningText } from '../lib/exit.mjs';
 
 // ------------------------------------------------------------- mock D1
 // Supports exactly the SQL shapes the Worker issues: INSERT INTO
@@ -51,39 +54,58 @@ function condPredicate(where, params, piStart = 0) {
 class MockStmt {
   constructor(db, sql) { this.db = db; this.sql = sql; this.params = []; }
   bind(...p) { this.params = p; return this; }
+  // Table routing: records (the historical table) plus the join-channel
+  // tables added by migration 0002. Unknown tables fail loudly.
+  tableRows(name) {
+    if (name === 'records') return this.db.rows;
+    if (name === 'join_codes') return this.db.joinCodes;
+    if (name === 'join_claims') return this.db.joinClaims;
+    assert.fail(`mock: unknown table ${name}`);
+  }
+  setTableRows(name, rows) {
+    if (name === 'records') this.db.rows = rows;
+    else if (name === 'join_codes') this.db.joinCodes = rows;
+    else if (name === 'join_claims') this.db.joinClaims = rows;
+    else assert.fail(`mock: unknown table ${name}`);
+  }
   async run() {
     let m;
-    if ((m = this.sql.match(/INSERT INTO records \(([^)]+)\)\s+VALUES \(([^)]+)\)/))) {
-      const cols = m[1].split(',').map(s => s.trim());
+    if ((m = this.sql.match(/INSERT INTO (\w+) \(([^)]+)\)\s+VALUES \(([^)]+)\)/))) {
+      const cols = m[2].split(',').map(s => s.trim());
       const row = { id: this.db.nextId++ };
       cols.forEach((c, i) => { row[c] = this.params[i] ?? null; });
-      this.db.rows.push(row);
+      this.tableRows(m[1]).push(row);
       return { meta: { last_row_id: row.id } };
     }
-    if ((m = this.sql.match(/^DELETE FROM records WHERE (.+)$/s))) {
-      const pred = condPredicate(m[1], this.params);
-      const before = this.db.rows.length;
-      this.db.rows = this.db.rows.filter(r => !pred(r));
-      return { meta: { changes: before - this.db.rows.length } };
+    if ((m = this.sql.match(/^DELETE FROM (\w+) WHERE (.+)$/s))) {
+      const pred = condPredicate(m[2], this.params);
+      const rows = this.tableRows(m[1]);
+      const before = rows.length;
+      this.setTableRows(m[1], rows.filter(r => !pred(r)));
+      return { meta: { changes: before - this.tableRows(m[1]).length } };
     }
-    if ((m = this.sql.match(/^UPDATE records SET (.+?) WHERE (.+)$/s))) {
+    if ((m = this.sql.match(/^UPDATE (\w+) SET (.+?) WHERE (.+)$/s))) {
       // Assignments are `col = 'lit'` or `col = ?`, comma-separated, no
       // commas inside values; '?' params are consumed in textual order —
       // SET assignments first, then the WHERE clause.
       let pi = 0;
-      const assigns = m[1].split(',').map(part => {
+      const assigns = m[2].split(',').map(part => {
         const am = part.trim().match(/^(\w+) = (?:'([^']*)'|\?)$/);
         assert(am, `mock: unsupported assignment: ${part}`);
         return [am[1], am[2] !== undefined ? am[2] : this.params[pi++]];
       });
-      const pred = condPredicate(m[2], this.params, pi);
+      const pred = condPredicate(m[3], this.params, pi);
       let changes = 0;
-      for (const r of this.db.rows) if (pred(r)) { for (const [c, v] of assigns) r[c] = v; changes++; }
+      for (const r of this.tableRows(m[1])) if (pred(r)) { for (const [c, v] of assigns) r[c] = v; changes++; }
       return { meta: { changes } };
     }
     assert.fail(`mock: unsupported run SQL: ${this.sql}`);
   }
   async first() {
+    // Single-row lookup by one column (join channel: SELECT * ... WHERE
+    // col = ? ORDER BY ts, id) — oldest match, or null.
+    const sm = this.sql.match(/SELECT \* FROM (\w+) WHERE (\w+) = \? ORDER BY ts, id/);
+    if (sm) return (await this.all()).results[0] ?? null;
     const m = this.sql.match(/SELECT COUNT\(\*\) AS n FROM records(?: WHERE (.+))?$/s);
     assert(m, `mock: unsupported first SQL: ${this.sql}`);
     let rows = this.db.rows;
@@ -91,16 +113,17 @@ class MockStmt {
     return { n: rows.length };
   }
   async all() {
-    const m = this.sql.match(/SELECT \* FROM records WHERE (\w+) = \? ORDER BY ts, id/);
+    const m = this.sql.match(/SELECT \* FROM (\w+) WHERE (\w+) = \? ORDER BY ts, id/);
     assert(m, `mock: unsupported all SQL: ${this.sql}`);
-    const col = m[1], val = this.params[0];
-    const results = this.db.rows.filter(r => r[col] === val)
+    const rows = this.tableRows(m[1]);
+    const col = m[2], val = this.params[0];
+    const results = rows.filter(r => r[col] === val)
       .sort((a, b) => (a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : a.id - b.id));
     return { results };
   }
 }
 class MockD1 {
-  constructor() { this.rows = []; this.nextId = 1; }
+  constructor() { this.rows = []; this.joinCodes = []; this.joinClaims = []; this.nextId = 1; }
   prepare(sql) { return new MockStmt(this, sql); }
   seed(rows) { for (const r of rows) this.rows.push({ id: this.nextId++, note: null, ip_hash: null, ...r }); }
 }
@@ -405,5 +428,110 @@ r = await j(await callE(closedEnv, 'POST', '/exit/verify', { body: { prepared: i
 assert.equal(r.status, 403); assert.equal(r.body.closed, true); ok('POST /exit/verify while the channel is closed -> 403 closed');
 r = await j(await callE(closedEnv, 'GET', '/exit/pending', { key: KEY }));
 assert.equal(r.status, 200); ok('GET /exit/pending (operator) still works while closed');
+
+// --- POST /join/code + /join/claim: AI-signed join (branch ai-join) ---
+// Keys are throwaway sandbox keypairs: the address IS the raw Ed25519
+// public key, exactly like a real RESET wallet address.
+const keypair = () => {
+  const { publicKey, privateKey } = generateKeyPairSync('ed25519');
+  const addr = Buffer.from(publicKey.export({ format: 'jwk' }).x, 'base64url').toString('hex');
+  return { addr, sign: msg => cryptoSign(null, Buffer.from(msg, 'utf8'), privateKey).toString('hex') };
+};
+const M1 = keypair(), M2 = keypair();
+const joinCode = async (address, planned) =>
+  j(await call('POST', '/join/code', { body: { address, planned_units: planned } }));
+r = await joinCode('not-an-address', '5000000');
+assert.equal(r.status, 400); ok('POST /join/code with garbage address -> 400');
+r = await joinCode(POOL, '5000000');
+assert.equal(r.status, 400); ok('POST /join/code with the pool address itself -> 400 (pool cannot join itself)');
+r = await joinCode(M1.addr, '5000001');
+assert.equal(r.status, 400); ok('POST /join/code with non-0.01-multiple planned -> 400');
+r = await joinCode(M1.addr, '5000000');
+assert.equal(r.status, 201, JSON.stringify(r.body));
+const code1 = r.body.code;
+const fpM1 = fingerprint(M1.addr);
+assert.equal(code1.address_hex, M1.addr);
+assert.equal(code1.planned_units, '5000000');
+assert.equal(code1.fp_units, String(fpM1));
+assert.equal(code1.exact_units, String(5000000 + fpM1));
+assert.match(code1.nonce, /^[0-9a-f]{16}$/);
+assert(code1.text.includes(POOL) && code1.text.includes(M1.addr) && code1.text.includes(code1.exact_units));
+assert(code1.text.includes('WAIT for their confirmation') && code1.text.includes('0.03 TNK'));
+assert.equal(Date.parse(code1.expires_at) - Date.parse(code1.issued_at), 60 * 60 * 1000);
+ok('POST /join/code issues a code: server-side fp, exact = planned + fp, 60-min validity, discipline lines in the block');
+// tampered receipt text -> 400, rejected row filed, nonce burned
+const tamperedReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: code1.exact_units, nonce: code1.nonce, ts: Date.now() });
+tamperedReceipt.text += '!';
+r = await j(await call('POST', '/join/claim', { body: { prepared: tamperedReceipt,
+  signature: M1.sign(agentSigningText(tamperedReceipt)), nonce: code1.nonce } }));
+assert.equal(r.status, 400); ok('POST /join/claim with altered receipt text -> 400');
+assert(db.joinClaims.some(c => c.code_nonce === code1.nonce && c.status === 'rejected'));
+assert.equal(db.joinCodes.find(c => c.nonce === code1.nonce).status, 'consumed');
+ok('a failed receipt is filed rejected and the code nonce is burned');
+r = await j(await call('POST', '/join/claim', { body: { prepared: tamperedReceipt,
+  signature: M1.sign(agentSigningText(tamperedReceipt)), nonce: code1.nonce } }));
+assert.equal(r.status, 409); ok('POST /join/claim replaying a consumed code nonce -> 409');
+// wrong-key signature -> 400 rejected (a stranger cannot claim M1's code)
+r = await joinCode(M1.addr, '5000000');
+const code2 = r.body.code;
+const wrongKeyReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: code2.exact_units, nonce: code2.nonce, ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: wrongKeyReceipt,
+  signature: M2.sign(agentSigningText(wrongKeyReceipt)), nonce: code2.nonce } }));
+assert.equal(r.status, 400); assert.match(r.body.error, /signature/);
+ok('POST /join/claim signed by a different key -> 400 signature failure');
+// happy path: correct receipt -> pending claim; operator queue lists it
+r = await joinCode(M1.addr, '5000000');
+const code3 = r.body.code;
+const receipt3 = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: code3.exact_units, nonce: code3.nonce, ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: receipt3,
+  signature: M1.sign(agentSigningText(receipt3)), nonce: code3.nonce } }));
+assert.equal(r.status, 201, JSON.stringify(r.body)); assert.equal(r.body.claim.status, 'pending');
+const claim3 = r.body.claim;
+assert.equal(claim3.address_hex, M1.addr); assert.equal(claim3.exact_units, code3.exact_units);
+assert.equal(Date.parse(claim3.expires_at) - Date.now() > 23 * 60 * 60 * 1000, true);
+ok('POST /join/claim with a valid signed receipt -> pending claim (24-h wait for its inflow)');
+r = await j(await call('POST', '/join/claim', { body: { prepared: receipt3,
+  signature: M1.sign(agentSigningText(receipt3)), nonce: code3.nonce } }));
+assert.equal(r.status, 409); ok('POST /join/claim replaying a fulfilled code nonce -> 409');
+r = await j(await call('GET', '/join/claims'));
+assert.equal(r.status, 401); ok('GET /join/claims without operator key -> 401');
+r = await j(await call('GET', '/join/claims', { key: KEY }));
+assert.equal(r.status, 200);
+assert(r.body.claims.some(c => c.id === claim3.id && c.address_hex === M1.addr && c.exact_units === code3.exact_units));
+ok('GET /join/claims (operator) lists the pending claim for the matcher');
+r = await j(await call('GET', `/lookup?address=${M1.addr}`, { key: KEY }));
+assert(r.body.join.some(x => x.nonce === code3.nonce));
+ok('GET /lookup by address also returns join rows under `join`');
+const unknownReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: '1123456', nonce: '0123456789abcdef', ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: unknownReceipt,
+  signature: M1.sign(agentSigningText(unknownReceipt)), nonce: '0123456789abcdef' } }));
+assert.equal(r.status, 404); ok('POST /join/claim with an unknown code nonce -> 404');
+// fulfill: only pending transitions; a second fulfill is a no-op
+r = await j(await call('POST', '/join/fulfill', { key: KEY, body: { id: claim3.id } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 1);
+assert.equal(db.joinClaims.find(c => c.id === claim3.id).status, 'fulfilled');
+r = await j(await call('POST', '/join/fulfill', { key: KEY, body: { id: claim3.id } }));
+assert.equal(r.status, 200); assert.equal(r.body.updated, 0);
+ok('POST /join/fulfill marks pending -> fulfilled exactly once (never credits twice)');
+// expired code -> 410; sweep deletes stale issued codes, expires stale pending claims
+const oldJoinTs = new Date(Date.now() - 61 * 60 * 1000).toISOString();
+const oldClaimTs = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+db.joinCodes.push({ id: db.nextId++, ts: oldJoinTs, address_hex: M1.addr, planned_units: '1000000',
+  fp_units: '123456', exact_units: '1123456', nonce: 'eeeeeeeeffffffff', status: 'issued', payload: '{}' });
+db.joinClaims.push({ id: db.nextId++, ts: oldClaimTs, code_nonce: 'ddddddddcccccccc', address_hex: M1.addr,
+  exact_units: '2123456', nonce: 'ddddddddcccccccc', status: 'pending', payload: '{}' });
+const expReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: '1123456', nonce: 'eeeeeeeeffffffff', ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: expReceipt,
+  signature: M1.sign(agentSigningText(expReceipt)), nonce: 'eeeeeeeeffffffff' } }));
+assert.equal(r.status, 410); ok('POST /join/claim against an expired code -> 410');
+r = await j(await call('POST', '/sweep', { key: KEY }));
+assert(!db.joinCodes.some(c => c.nonce === 'eeeeeeeeffffffff'));
+assert.equal(db.joinClaims.find(c => c.nonce === 'ddddddddcccccccc').status, 'expired');
+ok('sweep deletes stale issued codes and expires stale pending claims (visible, not silent)');
 
 console.log(`\nworker/test-local: all ${n} checks passed`);

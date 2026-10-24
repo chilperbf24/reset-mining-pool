@@ -73,7 +73,71 @@ function verify(path) {
       contributors: rows.length, total_deposit: snap.total_units, dust: r.dust_units } };
 }
 
-const files = process.argv.slice(2);
+// --- Ledger-event audit mode: node verify.mjs --ledger state.json
+// Recomputes the append-only event chain from scratch and checks every
+// contribution event against the contributor balances. Deliberately
+// independent of lib/pool.mjs (same discipline as the report verifier).
+// Known contribution sources include 'ai-join' (AI-signed join claims):
+// an ai-join event must carry the claim nonce that authorized it.
+function verifyLedger(path) {
+  const problems = [];
+  const bad = m => problems.push(m);
+  let s;
+  try { s = JSON.parse(readFileSync(path, 'utf8')); }
+  catch (e) { return { file: path, ok: false, problems: [`unreadable: ${e.message}`] }; }
+  if (!Array.isArray(s.events)) bad('no events array');
+  let prev = 'GENESIS';
+  const sums = new Map();
+  const KNOWN_SOURCES = new Set(['registry-calc', 'fingerprint-auto', 'fingerprint-claim', 'ai-join']);
+  for (const [idx, ev] of (s.events ?? []).entries()) {
+    if (ev.i !== idx || ev.prev !== prev) { bad(`chain link broken at event ${idx}`); break; }
+    const { hash, ...rest } = ev;
+    if (hashOf(rest) !== hash) { bad(`event hash mismatch at event ${idx}`); break; }
+    prev = hash;
+    if (ev.type === 'contribution') {
+      const d = ev.data ?? {};
+      if (!KNOWN_SOURCES.has(d.source)) bad(`event ${idx}: unknown contribution source ${JSON.stringify(d.source)}`);
+      if (d.source === 'ai-join' && !d.join_claim_nonce) bad(`event ${idx}: ai-join contribution without join_claim_nonce`);
+      sums.set(d.address, (sums.get(d.address) ?? 0n) + BigInt(d.amount_units ?? '0'));
+    }
+  }
+  for (const [addr, c] of Object.entries(s.contributors ?? {})) {
+    // contributed = sum of contribution events minus exited principal.
+    const exited = BigInt(c.exited_principal_total ?? '0');
+    const expect = (sums.get(addr) ?? 0n) - exited;
+    if (expect.toString() !== c.contributed) {
+      bad(`contributor ${addr}: events sum ${expect} != contributed ${c.contributed}`);
+    }
+  }
+  for (const addr of sums.keys()) {
+    if (!(addr in (s.contributors ?? {}))) bad(`contribution events name ${addr}, missing from contributors`);
+  }
+  const claimed = (s.rounds ?? []).reduce((t, r) => t + BigInt(r.claim_amount_units), 0n);
+  const pending = Object.values(s.contributors ?? {}).reduce((t, c) => t + BigInt(c.pending), 0n);
+  const paid = Object.values(s.contributors ?? {}).reduce((t, c) => t + BigInt(c.paid_total), 0n);
+  const fees = BigInt(s.fee_total_units ?? '0'), carry = BigInt(s.carry_units ?? '0');
+  if (claimed !== pending + paid + fees + carry) {
+    bad(`conservation broken: claimed ${claimed} != pending ${pending} + paid ${paid} + fees ${fees} + carry ${carry}`);
+  }
+  return { file: path, ok: problems.length === 0, problems,
+    summary: problems.length ? undefined : {
+      events: (s.events ?? []).length, contributors: Object.keys(s.contributors ?? {}).length,
+      head: prev, total_contributed: [...sums.values()].reduce((t, v) => t + v, 0n).toString() } };
+}
+
+const args = process.argv.slice(2);
+if (args[0] === '--ledger') {
+  const files = args.slice(1);
+  if (!files.length) { console.error('usage: node verify.mjs --ledger <state.json> [...]'); process.exit(2); }
+  let allOk = true;
+  for (const f of files) {
+    const v = verifyLedger(f);
+    allOk &&= v.ok;
+    console.log(JSON.stringify(v));
+  }
+  process.exit(allOk ? 0 : 1);
+}
+const files = args;
 if (!files.length) { console.error('usage: node verify.mjs <report.json> [...]'); process.exit(2); }
 let allOk = true;
 for (const f of files) {
