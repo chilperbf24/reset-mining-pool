@@ -67,7 +67,8 @@ const mkCtx = candidates => ({ matcher: emptyMatcher(POOL), unclaimed: emptyUncl
 // fingerprint roundtrip: address -> exact send amount -> credited back in full
 const sendA = sendAmountFor(A, parseCoin('0.05'));
 assert.equal(splitTail(sendA).tail, fingerprintUnits(A));
-assert.throws(() => sendAmountFor(A, 1_500_000n)); // planned must be a 0.01 multiple
+assert.throws(() => sendAmountFor(A, 1_500_001n)); // planned must be a 0.001 multiple
+assert.equal(sendAmountFor(A, 1_500_000n), 1_500_000n + fingerprintUnits(A)); // 0.015 is valid under v2
 {
   const ctx = mkCtx([A, B, C]);
   processObservation({ totalUnits: 0n, lastResult: null }, ctx); // baseline

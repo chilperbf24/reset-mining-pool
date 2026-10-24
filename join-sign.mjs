@@ -33,7 +33,7 @@
 //   - the code's exact amount is not planned + this address's fingerprint
 //     (recomputed locally — a tampered code that names a different amount
 //     is refused on the spot);
-//   - the code's planned amount is not a positive multiple of 0.01.
+//   - the code's planned amount is not a positive multiple of 0.001.
 import { readFileSync } from 'node:fs';
 import { unlock, wipeWallet, publicAddress } from '../reset/signer/lib/keystore.mjs';
 import { buildJoinPrepared, joinExactFor } from './lib/join.mjs';

@@ -22,7 +22,8 @@ import worker from './worker/src/index.js';
 import { init as initKeystore } from '../reset/signer/lib/keystore.mjs';
 import { emptyState, checkEventChain, totalContributed } from './lib/pool.mjs';
 import { emptyMatcher, emptyUnclaimed, emptyFpCache, processObservation,
-  decideJoinAttribution, claimEntryAs, fingerprint } from './lib/fpmatch.mjs';
+  decideJoinAttribution, claimEntryAs, fingerprint, legacyFingerprint,
+  splitTail, splitTailLegacy } from './lib/fpmatch.mjs';
 
 const POOL = '4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6';
 const KEY = 'e2e-operator-key';
@@ -286,7 +287,18 @@ try {
   assert(hit && hit.address_hex === member);
   assert.equal(findJoinRetroClaim([pendingL], { ...entryL, amount_units: (amtL + 1n).toString() }, POOL), null);
   assert.equal(findJoinRetroClaim([{ address_hex: POOL, exact_units: amtL.toString(), nonce: 'ffffffffffffffff' }], entryL, POOL), null);
-  assert.equal(findJoinRetroClaim([pendingL], { ...entryL, tail_units: String(BigInt(entryL.tail_units) + 1n) }, POOL), null);
+  // v2: the gate derives tails from the AMOUNT (dual-scheme), so the
+  // stored tail field is display material, not the gate — the
+  // fingerprint negative is a claim from an address whose fingerprint
+  // explains NEITHER decomposition of the amount.
+  {
+    const tails = new Set([splitTail(amtL).tail.toString(), splitTailLegacy(amtL).tail.toString()]);
+    let other = 'dd'.repeat(32);
+    for (let i = 0; other === member || tails.has(String(fingerprint(other))) || tails.has(String(legacyFingerprint(other))); i++) {
+      other = i.toString(16).padStart(64, '0');
+    }
+    assert.equal(findJoinRetroClaim([{ ...pendingL, address_hex: other }], entryL, POOL), null);
+  }
   const entry2 = claimEntryAs({ unclaimed: uL, ledger: ledgerL, now: new Date().toISOString() }, entryL.id, member,
     { source: 'ai-join', method: 'join', joinClaimNonce: codeL.nonce, resolution: 'late receipt within 30 min credits parked inflow on re-check' });
   assert.equal(entry2.status, 'claimed');

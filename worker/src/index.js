@@ -19,9 +19,12 @@
 //   address credits that address (source 'registry-calc'); fingerprint
 //   reverse lookup over the network miner list is only the fallback
 //   for amounts with no exact registry record. Rationale: the tail
-//   space has only 999999 values, so network-wide fingerprint
+//   spaces are small (99999 values in the v2 scheme since 2026-10-24,
+//   999999 in the legacy v1 scheme), so network-wide fingerprint
 //   collisions are inevitable as the address count grows — a filed
 //   calculation is the tie-breaker that says whose amount it was.
+//   v1 records already filed keep their stored fp_units untouched;
+//   the pool-side matcher honors both schemes (lib/fpmatch.mjs).
 //   POST /calc performs NO identity authentication (the calculator is
 //   public, that openness is its purpose) — but the Worker revalidates
 //   every filing server-side: the stored fingerprint is THIS code's
@@ -105,7 +108,8 @@
 //
 // This file is self-contained on purpose (no repo imports): the address
 // normalize + fingerprint code below MIRRORS lib/fpmatch.mjs exactly —
-// fp = (sha256(normalized hex string)[0..4] as uint32 BE) mod 999999 + 1.
+// fp = (sha256(normalized hex string)[0..4] as uint32 BE) mod 99999 + 1
+// (v2 scheme; v1's mod 999999 is honored pool-side, not recomputed here).
 
 // ---------------------------------------------------------------- helpers
 const json = (obj, status = 200) => new Response(JSON.stringify(obj), {
@@ -184,10 +188,14 @@ function normalizeAddress(input) {
   return null;
 }
 
-// fp = (sha256(hex)[0..4] BE mod 999999) + 1 — identical to the matcher.
+// fp = (sha256(hex)[0..4] BE mod 99999) + 1 — identical to the matcher.
+// v2 scheme (2026-10-24): planned step 0.001, tail 1..99999. The v1
+// scheme (step 0.01, tail mod 999999 + 1) is NOT recomputed here —
+// v1 records already filed keep their stored fp_units, and the
+// pool-side matcher still honors them (see lib/fpmatch.mjs).
 async function fingerprint(addressHex) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(addressHex));
-  return (new DataView(buf).getUint32(0, false) % 999999) + 1;
+  return (new DataView(buf).getUint32(0, false) % 99999) + 1;
 }
 
 async function sha256Hex(text) {
@@ -198,7 +206,7 @@ async function sha256Hex(text) {
 // ------------------------------------------------------------ validation
 const MAX_FIELD = 256;                    // any single string field
 const MAX_PLANNED = 10n ** 14n;           // 1,000,000 RESET — generous ceiling
-const PLANNED_STEP = 1_000_000n;          // planned amounts are 0.01 multiples
+const PLANNED_STEP = 100_000n;            // planned amounts are 0.001 multiples (v2, 2026-10-24)
 const RATE_LIMIT = 30;                    // POSTs per IP per minute
 const CALC_TTL_MS = 30 * 60 * 1000;       // calc records expire 30 min after filing
 
@@ -310,8 +318,8 @@ async function postCalc(request, env) {
   if (planned !== null && (planned <= 0n || planned > MAX_PLANNED)) {
     return json({ ok: false, error: 'planned_units out of range' }, 400);
   }
-  if (fpGiven !== null && (fpGiven < 0n || fpGiven > 999999n)) {
-    return json({ ok: false, error: 'fp_units out of range (0..999999)' }, 400);
+  if (fpGiven !== null && (fpGiven < 0n || fpGiven > 99999n)) {
+    return json({ ok: false, error: 'fp_units out of range (0..99999)' }, 400);
   }
   // Recompute the fingerprint server-side — the server's word, not the
   // client's, is what gets filed. For a complete ok-report the client's
@@ -324,7 +332,7 @@ async function postCalc(request, env) {
       return json({ ok: false, error: 'status ok requires planned_units, fp_units and exact_units' }, 400);
     }
     if (planned % PLANNED_STEP !== 0n) {
-      return json({ ok: false, error: 'planned_units must be a multiple of 0.01 RESET (1000000 units)' }, 400);
+      return json({ ok: false, error: 'planned_units must be a multiple of 0.001 RESET (100000 units)' }, 400);
     }
     if (fpGiven !== fp) {
       return json({ ok: false, error: `fingerprint mismatch: fp for this address is ${fp}` }, 400);
@@ -733,7 +741,7 @@ async function postJoinCode(request, env) {
     return json({ ok: false, error: 'planned_units must be a positive unit integer' }, 400);
   }
   if (planned % PLANNED_STEP !== 0n) {
-    return json({ ok: false, error: 'planned_units must be a multiple of 0.01 RESET (1000000 units)' }, 400);
+    return json({ ok: false, error: 'planned_units must be a multiple of 0.001 RESET (100000 units)' }, 400);
   }
   const ipHash = await ipHashOf(request);
   if (await rateLimited(env, ipHash)) return json({ ok: false, error: 'rate limit: too many requests from this network, retry shortly' }, 429);

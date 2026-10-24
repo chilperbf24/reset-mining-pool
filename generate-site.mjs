@@ -418,7 +418,7 @@ const html = `<!doctype html>
 <div id="join">
 <h2 data-i18n="joinTitle">How to join</h2>
 <ol>
- <li data-i18n="join1">Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account. Your calculation is recorded in the pool's registry for reconciliation.</li>
+ <li data-i18n="join1">Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.001</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account. Your calculation is recorded in the pool's registry for reconciliation.</li>
  <li data-i18n="join2">From your own RESET wallet, <b>transfer exactly that amount</b> to the pool address — every digit matters; do not round it and do not improvise a different amount. You pay your own TNK transfer fee.</li>
  <li data-i18n="join3">Wait about a minute. The pool watches its balance and matches the amount's tail to your address automatically — the tail <i>is</i> your address's fingerprint. The <b>full amount</b> is credited as your contribution.</li>
  <li data-i18n="join4">Check the <b>Ledger</b> tab (or look your address up on the Overview tab). Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.</li>
@@ -426,9 +426,9 @@ const html = `<!doctype html>
 
 <div class="card">
  <h3 data-i18n="fpTitle" style="margin-top:0">Your exact transfer amount — self-service calculator</h3>
- <p class="muted" data-i18n="fpIntro">Your address has a deterministic fingerprint: a tail of 1–999999 units derived from the address itself (sha256). planned (a 0.01 multiple) + tail = an amount that is uniquely yours — that is how the pool credits you automatically.</p>
+ <p class="muted" data-i18n="fpIntro">Your address has a deterministic fingerprint: a tail of 1–99999 units derived from the address itself (sha256). planned (a 0.001 multiple) + tail = an amount that is uniquely yours — that is how the pool credits you automatically.</p>
  <p><input id="fpAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"></p>
- <p><input id="fpAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.01, e.g. 0.05"> <button onclick="fpCalc()" data-i18n="fpBtn">Calculate my amount</button></p>
+ <p><input id="fpAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.001, e.g. 0.05"> <button onclick="fpCalc()" data-i18n="fpBtn">Calculate my amount</button></p>
  <div id="fpResult" style="margin-top:10px"></div>
 </div>
 
@@ -436,7 +436,7 @@ const html = `<!doctype html>
  <h3 data-i18n="aiJoinTitle" style="margin-top:0">AI-signed join — let your AI do the transfer</h3>
  <p class="muted" data-i18n="aiJoinIntro">Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands.</p>
  <p><input id="aiAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"></p>
- <p><input id="aiAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.01, e.g. 0.05"> <button onclick="aiJoinCode()" data-i18n="aiJoinBtn">Generate join code</button></p>
+ <p><input id="aiAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.001, e.g. 0.05"> <button onclick="aiJoinCode()" data-i18n="aiJoinBtn">Generate join code</button></p>
  <div id="aiCodeResult" style="margin-top:10px"></div>
  <div style="margin-top:14px">
   <p class="muted" data-i18n="aiClaimIntro">After your AI has transferred and signed the receipt, paste the signed receipt block (prepared + signature + nonce) here:</p>
@@ -596,22 +596,22 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  qFound: "Found in the pool ledger:", qShare: "Share of pool", qContributed: "Contributed", qPending: "Pending payout",
  qPaid: "Already paid out", qProgress: "Progress to the 0.01 payout threshold", qReady: "Threshold reached — this payout is due in the next payout batch.",
  joinTitle: "How to join",
- join1: "Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.01</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account. Your calculation is recorded in the pool's registry for reconciliation.",
+ join1: "Use the calculator below: enter <b>your own RESET address</b> and a planned amount (a multiple of <b>0.001</b>). Your exact transfer amount is computed locally in your browser — no registration, no GitHub account. Your calculation is recorded in the pool's registry for reconciliation.",
  join2: "From your own RESET wallet, <b>transfer exactly that amount</b> to the pool address — every digit matters; do not round it and do not improvise a different amount. You pay your own TNK transfer fee.",
  join3: "Wait about a minute. The pool watches its balance and matches the amount's tail to your address automatically — the tail <i>is</i> your address's fingerprint. The <b>full amount</b> is credited as your contribution.",
  join4: "Check the <b>Ledger</b> tab (or look your address up on the Overview tab). Your share of every round = your contribution ÷ pool total, snapshotted per round. Earnings accumulate and are paid out once they reach <b>0.01</b>.",
  joinWarnTitle: "⚠ Before you transfer",
  joinWarn: "Only ever transfer the exact amount the calculator gives you. A transfer with a wrong or rounded tail cannot be matched automatically and is parked as <b>unclaimed</b>. Claiming it needs no GitHub account and no signature: the amount's tail is checked against the address it belongs to — if they match, it is credited (ask the operator to run the claim, or see the README). A brand-new address that appears nowhere on the network yet may also land in unclaimed first — same claim path.",
  fpTitle: "Your exact transfer amount — self-service calculator",
- fpIntro: "Your address has a deterministic fingerprint: a tail of 1–999999 units derived from the address itself (sha256). planned (a 0.01 multiple) + tail = an amount that is uniquely yours — that is how the pool credits you automatically.",
- fpAmtPh: "Planned amount — a multiple of 0.01, e.g. 0.05",
+ fpIntro: "Your address has a deterministic fingerprint: a tail of 1–99999 units derived from the address itself (sha256). planned (a 0.001 multiple) + tail = an amount that is uniquely yours — that is how the pool credits you automatically.",
+ fpAmtPh: "Planned amount — a multiple of 0.001, e.g. 0.05",
  fpBtn: "Calculate my amount",
  fpSendLabel: "Transfer EXACTLY this amount to the pool address:",
  fpTailNote: "planned amount + your fingerprint tail — credited in full",
  fpErrAddr: "That does not look like a valid address — enter the 64-hex RESET address or the trac1 address (the same key in two encodings).",
  fpErrPool: "That is the pool's OWN address — the pool cannot join itself. Enter YOUR OWN contributing address.",
  fpConverted: "Recognized a TNK-format (trac1) address — automatically converted to its RESET address:",
- fpErrAmt: "The planned amount must be a positive multiple of 0.01 RESET (e.g. 0.01, 0.05, 0.12).",
+ fpErrAmt: "The planned amount must be a positive multiple of 0.001 RESET (e.g. 0.001, 0.005, 0.012).",
  fpErrCrypto: "The calculator needs a secure context — open this page over HTTPS.",
  fpConfirmBtn: "Confirm & Transfer",
  copyBtn: "Copy", copiedOk: "Copied ✓",
@@ -719,22 +719,22 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  qFound: "在池账本中找到：", qShare: "占池份额", qContributed: "已出资", qPending: "待分收益",
  qPaid: "已分发", qProgress: "距 0.01 分发门槛的进度", qReady: "已达门槛——这笔收益会进入下一批分发。",
  joinTitle: "怎么入池",
- join1: "用下方计算器：填入<b>你自己的 RESET 地址</b>和计划金额（必须是 <b>0.01</b> 的整数倍）。专属应转金额完全在你浏览器本地算出——不用登记、不用 GitHub 账号。计算结果会登记到池子后台用于对账。",
+ join1: "用下方计算器：填入<b>你自己的 RESET 地址</b>和计划金额（必须是 <b>0.001</b> 的整数倍）。专属应转金额完全在你浏览器本地算出——不用登记、不用 GitHub 账号。计算结果会登记到池子后台用于对账。",
  join2: "用你自己的 RESET 钱包，把<b>这个金额一分不差</b>地转到池地址——每一位都不能错，不要四舍五入、不要自作主张换金额。TNK 转账费自理。",
  join3: "等约 1 分钟。池子会盯着余额进账，按金额尾数自动对号到你的地址——尾数<b>就是</b>你地址的指纹。到账金额<b>全额</b>计入你的出资。",
  join4: "到<b>账本</b>页查看（或在概览页用地址查询）。每轮你的份额 = 你的出资 ÷ 池子总额，按轮快照定格；收益累积到 <b>0.01</b> 后分发。",
  joinWarnTitle: "⚠ 转账前必读",
  joinWarn: "只准转计算器给出的那个金额。尾数错误或被四舍五入的转账无法自动匹配，会被停放为<b>待认领</b>。认领不需要 GitHub 账号、不需要签名：拿金额尾数和它所属的地址一验，对上就入账（联系池主运行认领，或看 README）。全新地址（网络名单里还没有的）也可能先落入待认领——同一条认领路。",
  fpTitle: "算你的专属应转金额——自助计算器",
- fpIntro: "你的地址有一个确定性指纹：由地址本身（sha256）算出的 1–999999 units 尾数。计划金额（0.01 的倍数）+ 尾数 = 独一无二属于你的金额——池子就是这样自动把钱记到你名下的。",
- fpAmtPh: "计划金额——0.01 的倍数，如 0.05",
+ fpIntro: "你的地址有一个确定性指纹：由地址本身（sha256）算出的 1–99999 units 尾数。计划金额（0.001 的倍数）+ 尾数 = 独一无二属于你的金额——池子就是这样自动把钱记到你名下的。",
+ fpAmtPh: "计划金额——0.001 的倍数，如 0.05",
  fpBtn: "算出我的金额",
  fpSendLabel: "请把下面这个金额一分不差地转到池地址：",
  fpTailNote: "计划金额 + 你的指纹尾数——全额计入出资",
  fpErrAddr: "这不像一个有效地址——请填 64 位十六进制 RESET 地址或 trac1 地址（两者是同一把钥匙的两种写法）。",
  fpErrPool: "这是池子自己的地址——池子不能给自己入池。请填你自己的出资地址。",
  fpConverted: "已识别 TNK 格式（trac1）地址，已自动换算为 RESET 地址：",
- fpErrAmt: "计划金额必须是 0.01 RESET 的正整数倍（如 0.01、0.05、0.12）。",
+ fpErrAmt: "计划金额必须是 0.001 RESET 的正整数倍（如 0.001、0.005、0.012）。",
  fpErrCrypto: "计算器需要安全上下文——请用 HTTPS 打开本页。",
  fpConfirmBtn: "确认无误并转账",
  copyBtn: "复制", copiedOk: "复制成功 ✓",
@@ -908,7 +908,7 @@ function lookup() {
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') lookup(); });
 // --- Join section (on the Overview tab): self-service fingerprint calculator. Runs entirely in the
 // visitor's browser (WebCrypto sha256); must agree exactly with the pool's
-// matcher (lib/fpmatch.mjs): fp = (sha256(address)[0..4] BE mod 999999) + 1.
+// matcher (lib/fpmatch.mjs): fp = (sha256(address)[0..4] BE mod 99999) + 1.
 // Every outcome is ALSO filed to the calculation registry (reportCalc
 // below) so the operator keeps a backend record for reconciling inflows —
 // a pure fire-and-forget report: any failure is silent and never affects
@@ -965,10 +965,10 @@ async function fpCalc() {
   if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$/.test(amtStr)) { reportCalc({ address: rawAddr, normalized: addr, status: 'invalid' }); err(t.fpErrAmt); return; }
   const parts = amtStr.split('.');
   const planned = BigInt(parts[0]) * 100000000n + BigInt(((parts[1] || '') + '00000000').slice(0, 8));
-  if (planned <= 0n || planned % 1000000n !== 0n) { reportCalc({ address: rawAddr, normalized: addr, status: 'invalid' }); err(t.fpErrAmt); return; }
+  if (planned <= 0n || planned % 100000n !== 0n) { reportCalc({ address: rawAddr, normalized: addr, status: 'invalid' }); err(t.fpErrAmt); return; }
   if (!window.crypto || !crypto.subtle) { err(t.fpErrCrypto); return; }
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(addr));
-  const fp = BigInt(new DataView(buf).getUint32(0, false) % 999999 + 1);
+  const fp = BigInt(new DataView(buf).getUint32(0, false) % 99999 + 1);
   const send = planned + fp;
   reportCalc({ address: rawAddr, normalized: addr, planned_units: planned.toString(),
     fp_units: fp.toString(), exact_units: send.toString(), status: 'ok' });
@@ -1040,7 +1040,7 @@ async function aiJoinCode() {
   if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$/.test(amtStr)) { err(t.fpErrAmt); return; }
   const parts = amtStr.split('.');
   const planned = BigInt(parts[0]) * 100000000n + BigInt(((parts[1] || '') + '00000000').slice(0, 8));
-  if (planned <= 0n || planned % 1000000n !== 0n) { err(t.fpErrAmt); return; }
+  if (planned <= 0n || planned % 100000n !== 0n) { err(t.fpErrAmt); return; }
   let r, j;
   try {
     r = await fetch(REGISTRY_JOIN_ENDPOINT + '/code', { method: 'POST',
