@@ -219,6 +219,13 @@ const amtXY = plannedXY + fingerprintUnits(X); // == planned + fp(Y)
   assert.equal(decideJoinAttribution([claim], amt + 1n).type, 'none');
   assert.equal(decideJoinAttribution([], amt).type, 'none');
   ok('decideJoin: different amount / no claims -> none');
+  // Address binding (user rule 2026-10-24): attribution is never amount
+  // alone. A claim with no address, or one naming the pool itself, can
+  // never credit — even when its amount matches exactly.
+  assert.equal(decideJoinAttribution([{ address_hex: '', exact_units: amt.toString(), nonce: '1111111111111111' }], amt).type, 'none');
+  assert.equal(decideJoinAttribution([{ address_hex: null, exact_units: amt.toString(), nonce: '2222222222222222' }], amt).type, 'none');
+  assert.equal(decideJoinAttribution([{ address_hex: POOL, exact_units: amt.toString(), nonce: '3333333333333333' }], amt, POOL).type, 'none');
+  ok('decideJoin: amount match with no address, or with the pool address, -> none (never amount alone)');
 }
 {
   // Fresh inflow with a pending join claim: credited via ai-join, and the

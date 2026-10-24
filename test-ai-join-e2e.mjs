@@ -168,8 +168,9 @@ try {
   assert(credit && credit.via === 'ai-join' && credit.address === member);
   assert.equal(ledger.contributors[member].contributed, exact.toString());
   assert.equal(ledger.events.at(-1).data.source, 'ai-join');
+  assert.equal(ledger.events.at(-1).data.address, member);
   assert.equal(ledger.events.at(-1).data.join_claim_nonce, code.nonce);
-  ok(`simulated arrival of exactly ${exact} units -> credited via ai-join, full amount booked`);
+  ok(`simulated arrival of exactly ${exact} units -> credited via ai-join, full amount booked; event carries address + claim nonce`);
 
   // --- 6. conservation (sandbox world: obligations == simulated assets) + chain + independent verifier
   const obligations = totalContributed(ledger);
@@ -252,6 +253,80 @@ try {
   assert.equal(ledger4.contributors[member].contributed, amt4.toString());
   assert.equal(ledger4.events.at(-1).data.source, 'ai-join');
   ok('adversarial 4 (out-of-order): arrival parked first, late receipt retro-credits via ai-join');
+
+  // --- late receipt within 30 min: arrival parks FIRST, receipt follows,
+  // retro gate (the real fprun predicate) finds it, event carries address + nonce
+  r = await j(await call('POST', '/join/code', { body: { address: member, planned_units: '6000000' } }));
+  const codeL = r.body.code;
+  const amtL = BigInt(codeL.exact_units);
+  const ledgerL = emptyState(POOL);
+  const mL = emptyMatcher(POOL), uL = emptyUnclaimed(), fL = emptyFpCache();
+  processObservation({ totalUnits: 0n, lastResult: null }, { matcher: mL, unclaimed: uL, ledger: ledgerL, fpCache: fL, candidates: [] });
+  const actsL = processObservation({ totalUnits: amtL, lastResult: null },
+    { matcher: mL, unclaimed: uL, ledger: ledgerL, fpCache: fL, candidates: [] });
+  assert(actsL.some(a => a.type === 'unclaimed'));
+  assert.equal(uL.entries.length, 1);
+  const entryL = uL.entries[0];
+  assert.equal(entryL.tail_units, String(fingerprint(member)), 'parked entry tail must be the member fingerprint');
+  writeFileSync(codeFile, JSON.stringify(codeL, null, 2));
+  const subL = JSON.parse(execFileSync(process.execPath, ['join-sign.mjs', codeFile], {
+    cwd: new URL('.', import.meta.url).pathname,
+    env: { ...process.env, RESET_SIGNER_DIRECTORY: tmp, RESET_SIGNER_PASSWORD: password, PATH: process.env.PATH },
+    encoding: 'utf8',
+  }));
+  r = await j(await call('POST', '/join/claim', { body: subL }));
+  assert.equal(r.status, 201, JSON.stringify(r.body));
+  r = await j(await call('GET', '/join/claims', { key: KEY }));
+  // NOTE: the operator endpoint returns pending claims only, by construction —
+  // its rows carry no `status` field, so match on code_nonce + address + amount.
+  const pendingL = r.body.claims.find(c => c.code_nonce === codeL.nonce && c.address_hex === member && c.exact_units === codeL.exact_units);
+  assert(pendingL && pendingL.address_hex === member && pendingL.exact_units === codeL.exact_units);
+  const { findJoinRetroClaim } = await import('./lib/fprun.mjs');
+  const hit = findJoinRetroClaim([pendingL], entryL, POOL);
+  assert(hit && hit.address_hex === member);
+  assert.equal(findJoinRetroClaim([pendingL], { ...entryL, amount_units: (amtL + 1n).toString() }, POOL), null);
+  assert.equal(findJoinRetroClaim([{ address_hex: POOL, exact_units: amtL.toString(), nonce: 'ffffffffffffffff' }], entryL, POOL), null);
+  assert.equal(findJoinRetroClaim([pendingL], { ...entryL, tail_units: String(BigInt(entryL.tail_units) + 1n) }, POOL), null);
+  const entry2 = claimEntryAs({ unclaimed: uL, ledger: ledgerL, now: new Date().toISOString() }, entryL.id, member,
+    { source: 'ai-join', method: 'join', joinClaimNonce: codeL.nonce, resolution: 'late receipt within 30 min credits parked inflow on re-check' });
+  assert.equal(entry2.status, 'claimed');
+  assert.equal(ledgerL.contributors[member].contributed, amtL.toString());
+  assert.equal(ledgerL.events.at(-1).data.source, 'ai-join');
+  assert.equal(ledgerL.events.at(-1).data.address, member);
+  assert.equal(ledgerL.events.at(-1).data.join_claim_nonce, codeL.nonce);
+  ok('late receipt within 30 min: arrival parked, receipt filed, retro gate finds it, event carries address + claim nonce');
+
+  // --- amount alone: arrival equals a FULFILLED claim's exact, no pending
+  // claim at all -> parked unclaimed, nothing booked (never amount alone)
+  assert.equal(decideJoinAttribution([{ address_hex: POOL, exact_units: exact.toString(), nonce: 'ffffffffffffffff' }], exact, POOL).type, 'none');
+  const ledgerA = emptyState(POOL);
+  const mA = emptyMatcher(POOL), uA = emptyUnclaimed(), fA = emptyFpCache();
+  processObservation({ totalUnits: 0n, lastResult: null }, { matcher: mA, unclaimed: uA, ledger: ledgerA, fpCache: fA, candidates: [] });
+  assert.equal(decideJoinAttribution([], exact).type, 'none');
+  const actsA = processObservation({ totalUnits: exact, lastResult: null },
+    { matcher: mA, unclaimed: uA, ledger: ledgerA, fpCache: fA, candidates: [], joinDecision: null });
+  assert(actsA.some(a => a.type === 'unclaimed'));
+  assert.equal(ledgerA.contributors[member], undefined);
+  ok('amount alone (fulfilled-claim amount, no pending claim) -> parked unclaimed, nothing booked');
+
+  // --- 31-minute receipt -> 410; sweep truly deletes the expired code row
+  r = await j(await call('POST', '/join/code', { body: { address: member, planned_units: '7000000' } }));
+  const code31 = r.body.code;
+  db.t.join_codes.find(c => c.nonce === code31.nonce).ts = new Date(Date.now() - 31 * 60 * 1000).toISOString();
+  writeFileSync(codeFile, JSON.stringify(code31, null, 2));
+  const sub31 = JSON.parse(execFileSync(process.execPath, ['join-sign.mjs', codeFile], {
+    cwd: new URL('.', import.meta.url).pathname,
+    env: { ...process.env, RESET_SIGNER_DIRECTORY: tmp, RESET_SIGNER_PASSWORD: password, PATH: process.env.PATH },
+    encoding: 'utf8',
+  }));
+  r = await j(await call('POST', '/join/claim', { body: sub31 }));
+  assert.equal(r.status, 410, JSON.stringify(r.body));
+  r = await j(await call('POST', '/sweep', { key: KEY }));
+  assert.equal(r.status, 200);
+  assert(!db.t.join_codes.some(c => c.nonce === code31.nonce), 'expired issued code row must be truly deleted by sweep');
+  assert(db.t.join_claims.some(c => c.nonce === codeL.nonce && c.status === 'pending'),
+    'a filed receipt record survives sweep (not in the deletion category)');
+  ok('31-minute receipt -> 410; sweep truly deletes the expired code row; filed receipt records survive');
 
   // --- production wallets untouched (hash-only evidence)
   const prodAfter = { pool: shaFile(prodPoolKs), self: shaFile(prodSelfKs) };

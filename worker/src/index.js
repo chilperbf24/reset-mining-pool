@@ -240,9 +240,13 @@ async function sweepExpiredCalcs(env) {
   const x = await env.REGISTRY_DB.prepare(
     `DELETE FROM records WHERE kind = 'exit_request' AND status = 'pending' AND ts < ?`)
     .bind(calcCutoff()).run();
-  // Join channel: unclaimed codes die (the member re-issues); pending
-  // claims EXPIRE to a visible terminal state (never silently deleted —
-  // an expired claim is evidence the money never arrived in 24 h).
+  // Join channel: TRUE DELETE for codes that never got a receipt
+  // within their 30 minutes (the member re-issues). Only status =
+  // 'issued' rows are deleted — a code already consumed into a
+  // receipt is kept via its join_claims record and is never in this
+  // category. Pending claims EXPIRE to a visible terminal state
+  // (never silently deleted — an expired claim is evidence the money
+  // never arrived in 24 h).
   let j = 0;
   try {
     const d = await env.REGISTRY_DB.prepare(
@@ -656,8 +660,8 @@ async function postExitResolve(request, env) {
 // and the code nonce). Verification here uses WebCrypto Ed25519, the
 // same primitive trac-wallet uses; the pool-side lib/join.mjs verifier
 // is the node:crypto twin (same bytes, same key, same result).
-const JOIN_CODE_TTL_MS = 60 * 60 * 1000;       // code usable 60 min
-const JOIN_CLAIM_TTL_MS = 24 * 60 * 60 * 1000; // pending claim waits 24 h
+const JOIN_CODE_TTL_MS = 30 * 60 * 1000;       // code window 30 min: execution AND receipt submission
+const JOIN_CLAIM_TTL_MS = 24 * 60 * 60 * 1000; // pending claim waits 24 h for its inflow (separate clock: the address is already filed, so the code-deletion rule does not apply)
 const JOIN_NONCE_RE = /^[0-9a-f]{16}$/;
 const JOIN_SIG_RE = /^[0-9a-f]{128}$/;
 const hexToBytes = h => {
@@ -677,12 +681,14 @@ const joinCodeBlock = ({ pool, address, planned, fp, exact, nonce, expiresAt }) 
     `Member: ${address}`,
     `Planned: ${fmt(planned)} RESET, fingerprint tail: ${fp} units`,
     `Transfer EXACTLY: ${fmt(exact)} RESET (${exact} units) to the pool address above.`,
-    `Code nonce: ${nonce} — valid until ${expiresAt}.`,
+    `Code nonce: ${nonce} — execute AND submit the receipt within 30 minutes (until ${expiresAt}); after 30 minutes without a receipt this code is automatically deleted.`,
     `--- AI INSTRUCTIONS (hard rules, not suggestions) ---`,
     `1. Read the pool address and the exact amount back to your owner and WAIT for their confirmation before transferring.`,
     `2. Transfer exactly ${exact} units — digit for digit. Never round, never split, never substitute another amount.`,
     `3. The transfer fee is 0.03 TNK paid by the member wallet. If the wallet holds no TNK, STOP and report — do not improvise.`,
     `4. After the gateway accepts the transfer, sign the receipt statement (same official agent format as an exit intent) and return the signed receipt block to your owner for submission.`,
+    `5. MANDATORY — use ONLY the platform-provided atomic pay script (join-pay.mjs) for this code: it transfers and signs the receipt as ONE command and outputs them together. NEVER split the steps — do not transfer manually and sign later. The signed receipt is the ONLY proof that the transfer is complete: you MUST return the full receipt block to your owner.`,
+    `6. LATE RECEIPT — if the transfer already landed, submit the receipt anyway WITHIN the 30-minute window and it credits on re-check — NEVER re-transfer. After 30 minutes the code is deleted and you must issue a fresh code.`,
     `{"pool":"${pool}","address":"${address}","planned_units":"${planned}","fp_units":"${fp}","exact_units":"${exact}","nonce":"${nonce}"}`,
   ].join('\n');
 };
@@ -750,7 +756,12 @@ async function postJoinCode(request, env) {
 
 // POST /join/claim — submit the AI's signed receipt {prepared, signature,
 // nonce} for a live join code. Binding + burn + verification, in order:
-//   1. the code must exist, be 'issued', and be inside its 60 minutes;
+//   1. the code must exist, be 'issued', and be inside its 30-minute
+//      window: the receipt must arrive within 30 minutes of issuance,
+//      or the code is auto-deleted and the member must issue a fresh
+//      one. (Two clocks, do not conflate: 30 min governs code-waiting-
+//      for-receipt; once a receipt is filed, the pending claim waits
+//      24 h for its inflow.)
 //   2. the code is burned FIRST (status -> 'consumed') so no submission
 //      — valid or not — can ever be replayed;
 //   3. the receipt must match the code exactly (address, exact amount

@@ -457,8 +457,13 @@ assert.equal(code1.exact_units, String(5000000 + fpM1));
 assert.match(code1.nonce, /^[0-9a-f]{16}$/);
 assert(code1.text.includes(POOL) && code1.text.includes(M1.addr) && code1.text.includes(code1.exact_units));
 assert(code1.text.includes('WAIT for their confirmation') && code1.text.includes('0.03 TNK'));
-assert.equal(Date.parse(code1.expires_at) - Date.parse(code1.issued_at), 60 * 60 * 1000);
-ok('POST /join/code issues a code: server-side fp, exact = planned + fp, 60-min validity, discipline lines in the block');
+assert(code1.text.includes('join-pay.mjs') && code1.text.includes('NEVER split the steps'));
+assert.equal(Date.parse(code1.expires_at) - Date.parse(code1.issued_at), 30 * 60 * 1000);
+// Rule 1 (user rule 2026-10-24): issuance writes a full row — address, amount, nonce, time.
+const code1Row = db.joinCodes.find(c => c.nonce === code1.nonce);
+assert(code1Row && code1Row.address_hex === M1.addr && code1Row.exact_units === code1.exact_units &&
+  code1Row.ts && code1Row.status === 'issued');
+ok('POST /join/code issues a code: server-side fp, exact = planned + fp, 30-min validity, discipline lines in the block; issuance writes a full row (address, amount, nonce, time)');
 // tampered receipt text -> 400, rejected row filed, nonce burned
 const tamperedReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
   exactUnits: code1.exact_units, nonce: code1.nonce, ts: Date.now() });
@@ -517,6 +522,65 @@ assert.equal(db.joinClaims.find(c => c.id === claim3.id).status, 'fulfilled');
 r = await j(await call('POST', '/join/fulfill', { key: KEY, body: { id: claim3.id } }));
 assert.equal(r.status, 200); assert.equal(r.body.updated, 0);
 ok('POST /join/fulfill marks pending -> fulfilled exactly once (never credits twice)');
+// Rule 2 (dual match): address mismatch -> 400, rejected row, NO pending claim
+r = await joinCode(M1.addr, '5000000');
+const codeAddr = r.body.code;
+const mismatchReceipt = buildJoinPrepared({ poolAddress: POOL, address: M2.addr,
+  exactUnits: codeAddr.exact_units, nonce: codeAddr.nonce, ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: mismatchReceipt,
+  signature: M1.sign(agentSigningText(mismatchReceipt)), nonce: codeAddr.nonce } }));
+assert.equal(r.status, 400);
+assert(db.joinClaims.some(c => c.code_nonce === codeAddr.nonce && c.status === 'rejected'));
+assert(!db.joinClaims.some(c => c.code_nonce === codeAddr.nonce && c.status === 'pending'));
+ok('POST /join/claim with receipt address != code address -> 400, rejected, NO pending claim (dual match: code address must equal receipt address)');
+// Rule 2: address missing from the receipt -> 400, rejected row, NO pending claim
+r = await joinCode(M1.addr, '5000000');
+const codeNoAddr = r.body.code;
+const noAddrReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: codeNoAddr.exact_units, nonce: codeNoAddr.nonce, ts: Date.now() });
+delete noAddrReceipt.addr;
+r = await j(await call('POST', '/join/claim', { body: { prepared: noAddrReceipt,
+  signature: M1.sign(agentSigningText(noAddrReceipt)), nonce: codeNoAddr.nonce } }));
+assert.equal(r.status, 400);
+assert(db.joinClaims.some(c => c.code_nonce === codeNoAddr.nonce && c.status === 'rejected'));
+assert(!db.joinClaims.some(c => c.code_nonce === codeNoAddr.nonce && c.status === 'pending'));
+ok('POST /join/claim with receipt address missing -> 400, rejected, NO pending claim');
+// Rule 2: amount mismatch (receipt text names a different amount) -> 400, rejected, NO pending claim
+r = await joinCode(M1.addr, '5000000');
+const codeAmt = r.body.code;
+const amtReceipt = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: String(BigInt(codeAmt.exact_units) + 1000n), nonce: codeAmt.nonce, ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: amtReceipt,
+  signature: M1.sign(agentSigningText(amtReceipt)), nonce: codeAmt.nonce } }));
+assert.equal(r.status, 400);
+assert(db.joinClaims.some(c => c.code_nonce === codeAmt.nonce && c.status === 'rejected'));
+assert(!db.joinClaims.some(c => c.code_nonce === codeAmt.nonce && c.status === 'pending'));
+ok('POST /join/claim with receipt amount != code exact amount -> 400, rejected, NO pending claim (dual match: amount must equal code exact)');
+// Rule 3 boundary: receipt at 29 minutes -> 201 (inside the window)
+r = await joinCode(M1.addr, '5000000');
+const code29 = r.body.code;
+db.joinCodes.find(c => c.nonce === code29.nonce).ts = new Date(Date.now() - 29 * 60 * 1000).toISOString();
+const receipt29 = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: code29.exact_units, nonce: code29.nonce, ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: receipt29,
+  signature: M1.sign(agentSigningText(receipt29)), nonce: code29.nonce } }));
+assert.equal(r.status, 201, JSON.stringify(r.body)); assert.equal(r.body.claim.status, 'pending');
+ok('POST /join/claim at 29 minutes after issuance -> 201 pending (inside the 30-minute window)');
+// Rule 3 boundary: receipt at 31 minutes -> 410 (expired); sweep TRUE-DELETES the code row,
+// while the consumed code's receipt record survives (it is not in the deletion category)
+r = await joinCode(M1.addr, '5000000');
+const code31 = r.body.code;
+db.joinCodes.find(c => c.nonce === code31.nonce).ts = new Date(Date.now() - 31 * 60 * 1000).toISOString();
+const receipt31 = buildJoinPrepared({ poolAddress: POOL, address: M1.addr,
+  exactUnits: code31.exact_units, nonce: code31.nonce, ts: Date.now() });
+r = await j(await call('POST', '/join/claim', { body: { prepared: receipt31,
+  signature: M1.sign(agentSigningText(receipt31)), nonce: code31.nonce } }));
+assert.equal(r.status, 410);
+r = await j(await call('POST', '/sweep', { key: KEY }));
+assert(!db.joinCodes.some(c => c.nonce === code31.nonce), 'expired issued code row must be truly deleted by sweep');
+assert(db.joinClaims.some(c => c.code_nonce === code29.nonce && c.status === 'pending'),
+  'a consumed code\'s receipt record survives sweep (not in the deletion category)');
+ok('POST /join/claim at 31 minutes -> 410; sweep truly deletes the expired code row, receipt records survive');
 // expired code -> 410; sweep deletes stale issued codes, expires stale pending claims
 const oldJoinTs = new Date(Date.now() - 61 * 60 * 1000).toISOString();
 const oldClaimTs = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
