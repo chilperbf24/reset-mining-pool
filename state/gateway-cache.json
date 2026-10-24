@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-24T18:48:13.349Z",
+  "fetched_at": "2026-10-24T19:04:33.240Z",
   "state": {
     "tip": {
-      "height": 972963,
-      "hash": "00000000000000000000bc94fa94dc2f872bc889be56f6c0096c5d96315b37e1"
+      "height": 972964,
+      "hash": "00000000000000000001a30225af95ec8fe4dfe17705b9234afb837e0caf0b2e"
     },
-    "counted": 972958,
+    "counted": 972959,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 596,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 583
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 972963,
+        "last_beat": 972964,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 972961,
       "claim_end": 972963,
       "end": 972966,
-      "window_open": true,
-      "S": "1245132342",
+      "window_open": false,
+      "S": "1554507342",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 536,
-      "claim_deposit": "383173529376",
+      "claim_count": 538,
+      "claim_deposit": "383194529376",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 972963,
+    "source_height": 972964,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "83102",
+        "fair_share_estimate": "103744",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -2857,7 +2857,7 @@
       0,
       0,
       22,
-      0,
+      1,
       542,
       48180,
       0
@@ -4023,7 +4023,7 @@
       0,
       0,
       23,
-      0,
+      1,
       542,
       52998,
       0
@@ -5834,7 +5834,7 @@
     ],
     [
       "ad5ef3f0b4ce602eca60e8c2076d1b74fad6cfc879e8a5a7baa47d00f4c70c14",
-      2711619939,
+      2731619939,
       0,
       0,
       14,
