@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-25T04:26:35.990Z",
+  "fetched_at": "2026-10-25T04:39:20.672Z",
   "state": {
     "tip": {
       "height": 973016,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 600,
+      "lock": 599,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 600
+      "claim": 595
     },
     "per_address": 6,
     "params": {
@@ -46,8 +46,8 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973015,
-        "active": false
+        "last_beat": 973016,
+        "active": true
       }
     ],
     "lottery": {
@@ -910,8 +910,8 @@
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 512,
-      "claim_deposit": "399168678903",
+      "claim_count": 517,
+      "claim_deposit": "399250678903",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973015,
+    "source_height": 973016,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "60023",
+        "fair_share_estimate": "60011",
         "strikes": 0,
         "clean": 8,
         "last_result": {
@@ -1064,7 +1064,7 @@
       0,
       0,
       23,
-      0,
+      1,
       551,
       46951,
       0
@@ -2098,7 +2098,7 @@
       0,
       0,
       22,
-      0,
+      1,
       551,
       46951,
       0
@@ -2186,7 +2186,7 @@
       0,
       0,
       23,
-      0,
+      1,
       551,
       46951,
       0
@@ -2714,7 +2714,7 @@
       0,
       0,
       14,
-      0,
+      1,
       551,
       93903,
       0
@@ -3715,7 +3715,7 @@
       0,
       0,
       10,
-      0,
+      1,
       551,
       150245,
       0
@@ -4085,7 +4085,7 @@
     ],
     [
       "65d06b44c02dec374a2f79c0a341da8891b57f1f091e6c0a67689fad70ba6316",
-      50632595,
+      60931891,
       0,
       0,
       21,
