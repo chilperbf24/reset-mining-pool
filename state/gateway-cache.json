@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-25T17:44:18.236Z",
+  "fetched_at": "2026-10-25T17:55:03.018Z",
   "state": {
     "tip": {
-      "height": 973099,
-      "hash": "000000000000000000010c2561fe2da746503dadc754808d483db253c26ff827"
+      "height": 973100,
+      "hash": "00000000000000000000e066af1406e001bdd15a6d18c802867ed5dd36682c7d"
     },
-    "counted": 973094,
+    "counted": 973095,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 589,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 102
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -47,7 +47,7 @@
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
         "last_beat": 973099,
-        "active": true
+        "active": false
       }
     ],
     "lottery": {
@@ -906,12 +906,12 @@
       "claim_end": 973101,
       "end": 973104,
       "window_open": true,
-      "S": "628950495",
+      "S": "938325495",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 498,
-      "claim_deposit": "347293782146",
+      "claim_count": 499,
+      "claim_deposit": "347303782146",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -947,14 +947,14 @@
       "balance": "7163695",
       "deposit": "25573592",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 567,
         "claim": {
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "46313",
+        "fair_share_estimate": "69093",
         "strikes": 0,
         "clean": 20,
         "last_result": {
@@ -3293,7 +3293,7 @@
     ],
     [
       "4b2241dc6bcf2e9393ea7416185d14c237841b6d95fd0b29c5c83fdc289e16b1",
-      230185667,
+      330185667,
       0,
       0,
       21,
@@ -6300,7 +6300,7 @@
       0,
       0,
       22,
-      0,
+      1,
       565,
       48956,
       0
