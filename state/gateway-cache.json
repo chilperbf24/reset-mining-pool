@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-25T10:44:17.935Z",
+  "fetched_at": "2026-10-25T10:59:16.395Z",
   "state": {
     "tip": {
-      "height": 973058,
-      "hash": "0000000000000000000056d027ed1c74a0735b960167138c7611aa7bff70028e"
+      "height": 973060,
+      "hash": "00000000000000000001dabd02398981fe9811467de4ece37cdc523369750c76"
     },
-    "counted": 973053,
+    "counted": 973055,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 593,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 118
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973058,
+        "last_beat": 973060,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 973057,
       "claim_end": 973059,
       "end": 973062,
-      "window_open": true,
-      "S": "937465569",
+      "window_open": false,
+      "S": "1556215569",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 512,
-      "claim_deposit": "417659914547",
+      "claim_count": 513,
+      "claim_deposit": "417669914547",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973058,
+    "source_height": 973060,
     "header_error": null
   },
   "accounts": {
@@ -947,14 +947,14 @@
       "balance": "6582902",
       "deposit": "25573592",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 560,
         "claim": {
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "57401",
+        "fair_share_estimate": "95285",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -1724,7 +1724,7 @@
       0,
       0,
       10,
-      0,
+      1,
       558,
       45377,
       0
