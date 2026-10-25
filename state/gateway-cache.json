@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-25T01:39:15.004Z",
+  "fetched_at": "2026-10-25T01:54:16.804Z",
   "state": {
     "tip": {
-      "height": 972999,
-      "hash": "0000000000000000000006388a5bd5b01cdd948c24d6a8ed171a6c45f1bbdfb1"
+      "height": 973000,
+      "hash": "00000000000000000000217370b01ec7770128504b15927dc3ad7cb76cd190b4"
     },
-    "counted": 972994,
+    "counted": 972995,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 599,
-      "unlock": 599,
-      "withdraw": 599,
+      "lock": 600,
+      "unlock": 600,
+      "withdraw": 600,
       "guess": 600,
-      "claim": 592
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 972999,
+        "last_beat": 973000,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 972997,
       "claim_end": 972999,
       "end": 973002,
-      "window_open": true,
-      "S": "1245888928",
+      "window_open": false,
+      "S": "1555263928",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 508,
-      "claim_deposit": "394408489130",
+      "claim_count": 512,
+      "claim_deposit": "394449489130",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 972999,
+    "source_height": 973000,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "80783",
+        "fair_share_estimate": "100833",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -2780,7 +2780,7 @@
       0,
       0,
       2,
-      0,
+      1,
       548,
       47435,
       0
@@ -3341,7 +3341,7 @@
       0,
       0,
       21,
-      0,
+      1,
       542,
       52998,
       0
@@ -3671,7 +3671,7 @@
       0,
       0,
       22,
-      0,
+      1,
       544,
       48441,
       0
@@ -3990,7 +3990,7 @@
       0,
       0,
       11,
-      0,
+      1,
       537,
       54625,
       0
