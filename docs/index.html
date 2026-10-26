@@ -153,7 +153,7 @@
 </div>
 
 </section>
-<section class="tabpage" id="tab-explorer">
+<section class="tabpage" id="tab-explorer" style="display:none">
 
 <h2 data-i18n="expNetTitle">Network overview</h2>
 <div class="grid">
@@ -187,7 +187,7 @@
 <a href="leaderboard.html"><button data-i18n="lbOpen">Open the leaderboard page</button></a></div>
 <p class="muted" data-i18n="expSourceNote">Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.</p>
 </section>
-<section class="tabpage" id="tab-ledger">
+<section class="tabpage" id="tab-ledger" style="display:none">
 <h2 data-i18n="ledgerTitle">Public ledger</h2>
 <table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thContributed">Contributed</th><th data-i18n="thPending">Pending payout</th><th data-i18n="thPaid">Paid total</th></tr>
         <tr><td class="mono">1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d</td><td>0.05000000</td><td>0.01741054</td><td>0.00000000</td></tr>
@@ -199,7 +199,7 @@
 </table>
 
 </section>
-<section class="tabpage" id="tab-reports">
+<section class="tabpage" id="tab-reports" style="display:none">
 <h2 data-i18n="reportsTitle">Round reports</h2>
 <table><thead><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr></thead><tbody id="rpBody">
         <tr data-rp="1"><td>537</td><td>0.00139696</td><td>0.55%</td><td>6</td><td class="mono">c35512a895155ceb…</td></tr>
@@ -277,7 +277,7 @@
 <p class="muted" data-i18n="reportsRatioNote">“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.</p>
 
 </section>
-<section class="tabpage" id="tab-verify">
+<section class="tabpage" id="tab-verify" style="display:none">
 <h2 data-i18n="verifyTitle">Verify it yourself</h2>
 <div class="card">
 <p data-i18n="verify1">Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the
@@ -290,7 +290,7 @@ altering a single share makes verification fail.</p>
 </div>
 
 </section>
-<section class="tabpage" id="tab-markets">
+<section class="tabpage" id="tab-markets" style="display:none">
 
 <p class="muted" data-i18n="mktNote">RESET itself is not listed on any centralized exchange, so it has no CEX price. TNK is the token of its underlying network (Trac) and does trade — its live price is below.</p>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
@@ -320,12 +320,12 @@ altering a single share makes verification fail.</p>
 </div>
 <table><tr><th data-i18n="dexBid">Bid</th><th data-i18n="dexQty">Amount</th><th data-i18n="dexAsk">Ask</th><th data-i18n="dexQty">Amount</th></tr><tr><td>0.125</td><td>1.61</td><td>0.143</td><td>200</td></tr><tr><td>0.1</td><td>50</td><td>0.144</td><td>18</td></tr><tr><td>0.01</td><td>250</td><td>0.145</td><td>40</td></tr><tr><td>0.001</td><td>2500</td><td>0.15</td><td>5</td></tr><tr><td>—</td><td>—</td><td>0.15</td><td>1997.76</td></tr><tr><td>—</td><td>—</td><td>0.16</td><td>5</td></tr><tr><td>—</td><td>—</td><td>0.17</td><td>5</td></tr><tr><td>—</td><td>—</td><td>0.18</td><td>5</td></tr><tr><td>—</td><td>—</td><td>1.00</td><td>250</td></tr><tr><td>—</td><td>—</td><td>1.50</td><td>250</td></tr></table></div><p class="muted"><span data-i18n="dexUpdated">DEX data snapshot</span>: 2026-10-26T13:48:21.730480Z</p>
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-26 14:11:44 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-26 14:13:46 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":66,"dissolved":null,"updated":"2026-10-26 14:11:44 UTC","snapshot_ms":1793023904588,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"1741054","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"1273489","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"926589","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"349763","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"2449818","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"494581","paid_units":"0","closed":null}}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"22366761","threshold_units":"1000000","rounds_settled":66,"dissolved":null,"updated":"2026-10-26 14:13:46 UTC","snapshot_ms":1793024026684,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"1741054","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"1273489","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"926589","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"1173155","pending_units":"349763","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"2449818","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"494581","paid_units":"0","closed":null}}};
 const REGISTRY_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/calc";
 const REGISTRY_EXIT_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/exit";
 const REGISTRY_JOIN_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/join";
@@ -591,7 +591,6 @@ function applyLang() {
   document.getElementById('langBtn').textContent = t.langBtn;
   syncThemeBtn();
   const stEl = document.getElementById('snapshotTime'); if (stEl) stEl.textContent = snapshotTimeText();
-  renderTnkStamp();
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
@@ -846,9 +845,9 @@ async function aiJoinClaim() {
   box.innerHTML = '<div>' + t.aiClaimOk + '</div>' +
     '<div class="mono">claim #' + esc(String(j.claim.id)) + ' · ' + esc(j.claim.address_hex) + ' · exact ' + esc(j.claim.exact_units) + ' units</div>';
 }
-applyLang();
 const _initHash = (location.hash || '').slice(1);
-showTab(_initHash === 'join' ? 'overview' : (_initHash || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview'));
+showTab(_initHash === 'join' ? 'overview' : (_initHash || 'overview'));
+applyLang();
 if (_initHash === 'join') setTimeout(() => { const el = document.getElementById('join'); if (el) el.scrollIntoView(); }, 80);
 </script>
 </body></html>
