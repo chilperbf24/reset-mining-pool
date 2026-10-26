@@ -307,6 +307,8 @@ ${watchRows}
 let market = null;
 try { if (existsSync(`${ROOT}/market.json`)) market = JSON.parse(readFileSync(`${ROOT}/market.json`, 'utf8')); } catch {}
 const dexPairs = (Array.isArray(market?.pairs) ? market.pairs : []).filter(p => p && p.pair);
+// RESET first: the pool's own token leads, other pairs keep their feed order.
+dexPairs.sort((a, b) => (a.pair.startsWith('RESET') ? 0 : 1) - (b.pair.startsWith('RESET') ? 0 : 1));
 const dexVal = v => (v == null || v === '' ? '—' : esc(String(v)));
 let dexHtml;
 if (dexPairs.length) {
