@@ -300,11 +300,9 @@ ${watchRows}
 }
 
 // --- Markets tab ------------------------------------------------------------
-// TNK price is LIVE in the visitor's browser: CoinGecko sends CORS *, the
-// RESET gateway does not, so the page script polls CoinGecko every 30 s.
-// The RESET network card below reuses this generator's snapshot instead.
+// The RESET network card below reuses this generator's snapshot.
 // The official-DEX block reads an optional market.json at the repo root
-// (to be written by a future DEX-node feeder); without pairs data it renders
+// (written by the DEX-node feeder); without pairs data it renders
 // a placeholder, so feeding data later needs no structural change.
 let market = null;
 try { if (existsSync(`${ROOT}/market.json`)) market = JSON.parse(readFileSync(`${ROOT}/market.json`, 'utf8')); } catch {}
@@ -349,18 +347,6 @@ if (!gwState) {
 }
 const marketsHtml = `
 <p class="muted" data-i18n="mktNote">RESET itself is not listed on any centralized exchange, so it has no CEX price. TNK is the token of its underlying network (Trac) and does trade — its live price is below.</p>
-<h2 data-i18n="mktTnkTitle">TNK — live price</h2>
-<div class="card">
- <div class="grid">
-  <div class="stat"><b id="tnkPrice">—</b><span data-i18n="mktPrice">TNK price (USD)</span></div>
-  <div class="stat"><b id="tnkChange">—</b><span data-i18n="mktChange">24h change</span></div>
-  <div class="stat"><b id="tnkVol">—</b><span data-i18n="mktVol">24h volume (USD)</span></div>
-  <div class="stat"><b id="tnkMcap">—</b><span data-i18n="mktMcap">Market cap (USD)</span></div>
- </div>
- <table style="margin-top:10px"><tr><th data-i18n="thExchange">Exchange</th><th data-i18n="thLastPrice">Last price (USD)</th><th data-i18n="thVolume">Volume (TNK)</th></tr>
- <tbody id="tnkExBody"><tr><td colspan="3" class="muted">—</td></tr></tbody></table>
- <p class="muted" id="tnkStamp" style="margin-bottom:0"></p>
-</div>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
 ${netCard}
 <h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
@@ -586,9 +572,6 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  lbNotFound: "This address is not in the current miners snapshot.",
  expSourceNote: "Data: public gateway reset.openmayhem.ai, snapshotted when this page was generated. Live lookup of arbitrary addresses needs a CORS proxy — that is stage 2.",
  mktNote: "RESET itself is not listed on any centralized exchange, so it has no CEX price. TNK is the token of its underlying network (Trac) and does trade — its live price is below.",
- mktTnkTitle: "TNK — live price", mktPrice: "TNK price (USD)", mktChange: "24h change", mktVol: "24h volume (USD)", mktMcap: "Market cap (USD)",
- mktUpdated: "Last updated", mktCgNote: "Source: CoinGecko · refreshes every 30 s",
- thExchange: "Exchange", thLastPrice: "Last price (USD)", thVolume: "Volume (TNK)",
  mktNetTitle: "RESET network", mktAddresses: "Addresses in the network",
  mktSnapNote: "Snapshot data — refreshed about every 10 minutes when this page is regenerated.",
  dexTitle: "Official DEX · RESET/USDC · TNK/USDC",
@@ -712,9 +695,6 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  lbNotFound: "该地址不在当前矿工快照名单里。",
  expSourceNote: "数据来源：公开网关 reset.openmayhem.ai，页面生成时抓取的快照。任意地址的实时查询需要跨域代理——那是第二阶段。",
  mktNote: "RESET 本身未在任何中心化交易所上市，没有 CEX 价格。TNK 是其底层网络（Trac）的代币，有真实交易——下方为其实时行情。",
- mktTnkTitle: "TNK — 实时行情", mktPrice: "TNK 价格（USD）", mktChange: "24 小时涨跌", mktVol: "24 小时成交量（USD）", mktMcap: "市值（USD）",
- mktUpdated: "最后更新", mktCgNote: "数据源 CoinGecko · 每 30 秒刷新",
- thExchange: "交易所", thLastPrice: "最新价（USD）", thVolume: "成交量（TNK）",
  mktNetTitle: "RESET 网络动态", mktAddresses: "全网地址数",
  mktSnapNote: "快照数据——页面每次重新生成时更新，约每 10 分钟一次。",
  dexTitle: "官方 DEX · RESET/USDC · TNK/USDC",
@@ -1046,12 +1026,6 @@ document.getElementById('fpAmt').addEventListener('keydown', e => { if (e.key ==
 // only links there; nothing on this page files or submits an exit.
 // The registry gate (worker EXIT_OPEN) and the executor gate
 // (lib/exit-exec.mjs ARMED) are unchanged by this move.
-// --- Markets tab: TNK live price, polled client-side from CoinGecko (CORS *).
-// Failures are silent: the last good values stay on screen and the next
-// 30 s cycle retries. Nothing else on this page makes network calls.
-let tnkStamp = '';
-function renderTnkStamp() { const el = document.getElementById('tnkStamp'); if (el) el.textContent = tnkStamp ? (T[lang].mktUpdated + ' ' + tnkStamp + ' · ' + T[lang].mktCgNote) : T[lang].mktCgNote; }
-function tnkNum(x, d) { return x == null || isNaN(x) ? '—' : Number(x).toLocaleString('en-US', { maximumFractionDigits: d == null ? 0 : d }); }
 async function aiJoinCode() {
   const t = T[lang];
   const box = document.getElementById('aiCodeResult');
@@ -1096,37 +1070,6 @@ async function aiJoinClaim() {
   box.innerHTML = '<div>' + t.aiClaimOk + '</div>' +
     '<div class="mono">claim #' + esc(String(j.claim.id)) + ' · ' + esc(j.claim.address_hex) + ' · exact ' + esc(j.claim.exact_units) + ' units</div>';
 }
-async function refreshTnk() {
-  try {
-    const rs = await Promise.all([
-      fetch('https://api.coingecko.com/api/v3/simple/price?ids=trac-network&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true'),
-      fetch('https://api.coingecko.com/api/v3/coins/trac-network/tickers') ]);
-    if (!rs[0].ok || !rs[1].ok) return;
-    const pr = await rs[0].json(), tk = await rs[1].json();
-    const d = pr && pr['trac-network']; if (!d) return;
-    document.getElementById('tnkPrice').textContent = '$' + Number(d.usd).toFixed(6);
-    const ch = Number(d.usd_24h_change), chEl = document.getElementById('tnkChange');
-    chEl.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%';
-    chEl.style.color = ch >= 0 ? 'var(--accent)' : 'var(--warn)';
-    document.getElementById('tnkVol').textContent = '$' + tnkNum(d.usd_24h_vol);
-    document.getElementById('tnkMcap').textContent = '$' + tnkNum(d.usd_market_cap);
-    const byName = {};
-    for (const t of (tk.tickers || [])) {
-      if (t.target !== 'USDT') continue;
-      const id = (t.market && t.market.identifier) || '';
-      const nm = id === 'gate' ? 'Gate' : (id === 'mxc' || id === 'mexc') ? 'MEXC' : null;
-      if (!nm || byName[nm] || !t.converted_last) continue;
-      byName[nm] = '<tr><td>' + nm + '</td><td>$' + Number(t.converted_last.usd).toFixed(6) + '</td><td>' + tnkNum(t.volume, 2) + '</td></tr>';
-    }
-    const rows = ['MEXC', 'Gate'].map(n => byName[n]).filter(Boolean);
-    if (rows.length) document.getElementById('tnkExBody').innerHTML = rows.join('');
-    const now = new Date(), p = n => String(n).padStart(2, '0');
-    tnkStamp = p(now.getHours()) + ':' + p(now.getMinutes()) + ':' + p(now.getSeconds());
-    renderTnkStamp();
-  } catch (e) { /* keep last values; retry next cycle */ }
-}
-refreshTnk();
-setInterval(refreshTnk, 30000);
 applyLang();
 const _initHash = (location.hash || '').slice(1);
 showTab(_initHash === 'join' ? 'overview' : (_initHash || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview'));
