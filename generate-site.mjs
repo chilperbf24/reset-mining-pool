@@ -484,9 +484,10 @@ const html = `<!doctype html>
 <p data-i18n="expNote">To be clear: nothing is asked for the operator. The team's principal stays the team's own share throughout — only its yield is given away, and every movement is publicly verifiable. And as with everything in this pool: pooling grants access, not extra yield, and custody is trusted — see the rules above.</p>
 </div>
 
+<div id="liveBanner" class="muted">Checking live ledger…</div>
 <div class="grid">
- <div class="stat"><b>${formatCoin(total)}</b><span data-i18n="statTotal">Total contributed (RESET)</span></div>
- <div class="stat"><b>${contributors.length}</b><span data-i18n="statContributors">Contributors</span></div>
+ <div class="stat"><b id="liveTotal">${formatCoin(total)}</b><span data-i18n="statTotal">Total contributed (RESET)</span></div>
+ <div class="stat"><b id="liveContributors">${contributors.length}</b><span data-i18n="statContributors">Contributors</span></div>
  <div class="stat"><b>${chainDeposit}</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
  <div class="stat"><b>${chainBalance}</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
  <div class="stat"><b>${chainRound}</b><span data-i18n="statRound">Current Mine round</span></div>
@@ -1075,6 +1076,29 @@ const _initHash = (location.hash || '').slice(1);
 showTab(_initHash === 'join' ? 'overview' : (_initHash || 'overview'));
 applyLang();
 if (_initHash === 'join') setTimeout(() => { const el = document.getElementById('join'); if (el) el.scrollIntoView(); }, 80);
+// Live ledger: read the published ledger file directly (GitHub raw, CORS *,
+// CDN cache ~5 min) instead of waiting for the next 10-min site snapshot.
+// The visitor's own server endpoint (http, non-TLS) cannot be read from an
+// https page (mixed content) and its ports are currently blocked, so raw
+// GitHub is the live source today; if the server later gets https + open
+// ports, swap LIVE_LEDGER_URL to it in one place. On any failure, keep the
+// embedded snapshot — never blank the page.
+const LIVE_LEDGER_URL = 'https://raw.githubusercontent.com/chilperbf24/reset-mining-pool/main/state/live-ledger.json';
+function liveLedger() {
+  const banner = document.getElementById('liveBanner'); if (!banner) return;
+  fetch(LIVE_LEDGER_URL, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); }).then(function (d) {
+    if (!d || !d.contributors) throw new Error('bad ledger');
+    let total = 0n; const liveContrib = {};
+    Object.entries(d.contributors).forEach(function (pair) { const c = pair[1]; total += BigInt(c.contributed || 0); liveContrib[pair[0]] = { contributed_units: String(c.contributed || 0), pending_units: String(c.pending || 0), paid_units: String(c.paid_total || 0), closed: c.closed ? { total_units: c.closed.total_units, principal_units: c.closed.principal_units, earnings_units: c.closed.earnings_units, at: c.closed.at } : null }; });
+    const oldTotal = SNAPSHOT.total_units, oldCount = Object.keys(SNAPSHOT.contributors).length, newCount = Object.keys(liveContrib).length;
+    SNAPSHOT.contributors = liveContrib; SNAPSHOT.total_units = total.toString(); if (d.rounds) SNAPSHOT.rounds_settled = d.rounds.length;
+    const tEl = document.getElementById('liveTotal'); if (tEl) tEl.textContent = fmt(total);
+    const cEl = document.getElementById('liveContributors'); if (cEl) cEl.textContent = String(newCount);
+    banner.textContent = (lang === 'zh' ? '实时账本：' : 'Live ledger: ') + newCount + (lang === 'zh' ? ' 名出资人，总计 ' : ' contributors, total ') + fmt(total) + ' RESET' + ((total.toString() !== oldTotal || newCount !== oldCount) ? (lang === 'zh' ? '（比快照新）' : ' (newer than snapshot)') : (lang === 'zh' ? '（与快照一致）' : ' (same as snapshot)'));
+    if (lastQuery) lookup();
+  }).catch(function () { banner.textContent = lang === 'zh' ? '实时账本暂不可用，显示快照数据。' : 'Live ledger unavailable, showing snapshot data.'; });
+}
+liveLedger(); setInterval(liveLedger, 60000);
 </script>
 </body></html>`;
 
