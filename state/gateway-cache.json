@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-26T09:22:56.709Z",
+  "fetched_at": "2026-10-26T09:34:18.127Z",
   "state": {
     "tip": {
-      "height": 973219,
-      "hash": "000000000000000000017f471c5cc2569340c6627586560c31a85f44c43d7c93"
+      "height": 973220,
+      "hash": "00000000000000000000d1ab34e09fbc3e18644a438b2ed400723789651aed88"
     },
-    "counted": 973214,
+    "counted": 973215,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -21,7 +21,7 @@
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 98
+      "claim": 598
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973219,
+        "last_beat": 973220,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 973221,
       "end": 973224,
       "window_open": true,
-      "S": "630800927",
+      "S": "940175927",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 502,
-      "claim_deposit": "460775745756",
+      "claim_count": 505,
+      "claim_deposit": "461133649396",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973219,
+    "source_height": 973220,
     "header_error": null
   },
   "accounts": {
@@ -947,14 +947,14 @@
       "balance": "9331837",
       "deposit": "25573592",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 587,
         "claim": {
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "35010",
+        "fair_share_estimate": "52140",
         "strikes": 0,
         "clean": 15,
         "last_result": {
@@ -3689,7 +3689,7 @@
     ],
     [
       "572b9cacd416a82c3c7d41924eff7ec52a0d48bb20e902412777cedced81d403",
-      32000000,
+      44093806,
       0,
       0,
       13,
@@ -5266,7 +5266,7 @@
       0,
       0,
       23,
-      0,
+      1,
       585,
       41078,
       0
@@ -7169,7 +7169,7 @@
       0,
       0,
       20,
-      0,
+      1,
       584,
       40768,
       0
@@ -7253,11 +7253,11 @@
     ],
     [
       "ed4e5cfcc6208cfea4e77c09388bb31bb30a83e57334cdbaffd7a27be696f4ce",
-      327125862,
+      337903640,
       0,
       0,
       18,
-      0,
+      1,
       585,
       1343787,
       0
