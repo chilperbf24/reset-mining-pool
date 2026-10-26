@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T14:58:25.884976Z",
+  "updated": "2026-10-26T15:08:26.488946Z",
   "source": "intercom-dex market-feed on new server, /v1/market/view",
   "pairs": [
     {
@@ -10,13 +10,9 @@
       "high24h": null,
       "low24h": null,
       "trades24h": 4,
-      "bestBuy": "0.125",
+      "bestBuy": "0.01",
       "bestSell": "0.143",
       "bids": [
-        [
-          "0.125",
-          "1.61"
-        ],
         [
           "0.01",
           "250"
@@ -44,8 +40,16 @@
           "1997.76"
         ],
         [
-          "1.00",
-          "250"
+          "0.16",
+          "5"
+        ],
+        [
+          "0.17",
+          "5"
+        ],
+        [
+          "1",
+          "1"
         ],
         [
           "1.50",
@@ -56,24 +60,16 @@
           "250"
         ],
         [
-          "3.00",
-          "1000"
-        ],
-        [
-          "3.50",
-          "1000"
-        ],
-        [
-          "4.00",
-          "1000"
+          "2.50",
+          "250"
         ]
       ]
     },
     {
       "pair": "RESET/USDC",
-      "last": "51",
+      "last": "53.999994693278",
       "change24h": null,
-      "volume24h": "2110.955683",
+      "volume24h": "2111.409992",
       "high24h": null,
       "low24h": null,
       "trades24h": 244,
@@ -86,7 +82,7 @@
         ],
         [
           "54",
-          "0.2"
+          "0.1246239"
         ],
         [
           "53",
@@ -105,20 +101,20 @@
           "0.2"
         ],
         [
-          "47",
-          "5"
-        ],
-        [
-          "46.00",
-          "4.14090478"
-        ],
-        [
           "45.1",
           "0.3"
         ],
         [
-          "45.00",
+          "45",
+          "1"
+        ],
+        [
+          "44.00",
           "4.14090478"
+        ],
+        [
+          "43.73",
+          "0.51837093"
         ]
       ],
       "asks": [
@@ -166,6 +162,22 @@
     }
   ],
   "trades": [
+    {
+      "id": "6d0a4fc1514f4790664093cdef160863c8b209a05cae497450055092ea56daa5",
+      "pair": "RESET/USDC",
+      "price": "53.999994693278",
+      "amount": "0.0753761",
+      "usdc": "4.070309",
+      "seller": {
+        "trac": "trac197s6v56nm3fyn4vese906t8j0w6j8ac73fc4fm2zd907mqjyy2qq2u3f22",
+        "sol": "5eDHdt52rnqFiREXcFuRx5Pi2GDcQP7DaxVMbVhnnDyP"
+      },
+      "buyer": {
+        "trac": "trac1ycpgkc3hegvqpjnnv0k8f9dfrnamj3wxu8ppu54r6u75c58gz34s2dr778",
+        "sol": "8qJ9BeP2XDKUUZvf8FV5zQELVuvXnYyJfBnuSBT7Q4e"
+      },
+      "settledAt": 1793027242
+    },
     {
       "id": "c10e26c6759947c759228b7be3e7c43d3e1cc2920f15959b4beedd44a8fdb210",
       "pair": "RESET/USDC",
