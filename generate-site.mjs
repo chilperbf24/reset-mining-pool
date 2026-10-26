@@ -434,7 +434,7 @@ const html = `<!doctype html>
 
 <div class="card">
  <h3 data-i18n="aiJoinTitle" style="margin-top:0">AI-signed join — let your AI do the transfer</h3>
- <p class="muted" data-i18n="aiJoinIntro">Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands.</p>
+ <p class="muted" data-i18n="aiJoinIntro">Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. If your AI does not have join-pay.mjs, clone the whole public pool repo first (a single-file download will fail on missing imports); official-signer transfer plus a separately signed receipt is an explicitly allowed fallback.</p>
  <p><input id="aiAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"></p>
  <p><input id="aiAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.001, e.g. 0.05"> <button onclick="aiJoinCode()" data-i18n="aiJoinBtn">Generate join code</button></p>
  <div id="aiCodeResult" style="margin-top:10px"></div>
@@ -444,7 +444,7 @@ const html = `<!doctype html>
   <p><button onclick="aiJoinClaim()" data-i18n="aiClaimBtn">Submit receipt</button></p>
   <div id="aiClaimResult" style="margin-top:10px"></div>
  </div>
- <p class="muted" data-i18n="aiJoinNote">Notes: the join code is valid 30 minutes — execute and submit the receipt inside that window, or the code is automatically deleted and you must issue a fresh one. A submitted receipt waits up to 24 hours for its inflow, then expires visibly. The 0.03 TNK transfer fee is paid by your own wallet — if it holds no TNK, your AI must stop and report, never improvise. Already transferred but no pending claim shows? Paste your receipt below to submit it late (within the 30 minutes) — it credits on the next re-check. Never re-transfer.</p>
+ <p class="muted" data-i18n="aiJoinNote">Notes: the join code is valid 30 minutes — execute and submit the receipt inside that window, or the code is automatically deleted and you must issue a fresh one. A submitted receipt waits up to 24 hours for its inflow, then expires visibly. The 0.03 TNK transfer fee is paid by your own wallet — if it holds no TNK, your AI must stop and report, never improvise. Already transferred but no pending claim shows? Paste your receipt below to submit it late (within the 30 minutes) — it credits on the next re-check. Never re-transfer. If the pool already credited the inflow by fingerprint, no receipt is needed.</p>
 </div>
 
 <div class="callout"><b data-i18n="joinWarnTitle">⚠ Before you transfer</b><br><span data-i18n="joinWarn">Only ever transfer the exact amount the calculator gives you. A transfer with a wrong or rounded tail cannot be matched automatically and is parked as <b>unclaimed</b>. Claiming it needs no GitHub account and no signature: the amount's tail is checked against the address it belongs to — if they match, it is credited (ask the operator to run the claim, or see the README). A brand-new address that appears nowhere on the network yet may also land in unclaimed first — same claim path.</span></div>
@@ -620,7 +620,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpValidNote: "This amount is valid for 30 minutes (until {time}) — transfer within the window. If no matching transfer arrives in time, the calculation record is deleted automatically; please calculate again.",
  fpTimeLeft: "Time left", fpExpired: "Expired — please calculate again.",
  aiJoinTitle: "AI-signed join — let your AI do the transfer",
- aiJoinIntro: "Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands.",
+ aiJoinIntro: "Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. If your AI does not have join-pay.mjs, clone the whole public pool repo first (a single-file download will fail on missing imports); official-signer transfer plus a separately signed receipt is an explicitly allowed fallback.",
  aiJoinBtn: "Generate join code",
  aiCodeOk: "Join code issued — valid 30 minutes (transfer + receipt inside that window, or it is auto-deleted). Give the whole block below to your own AI.",
  aiCodeErr: "Could not issue a join code: ",
@@ -629,7 +629,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  aiClaimBtn: "Submit receipt",
  aiClaimOk: "Receipt verified — pending claim registered. The pool credits it automatically when an inflow of exactly this amount lands (up to 24 hours).",
  aiClaimErr: "Receipt rejected: ",
- aiJoinNote: "Notes: the join code is valid 30 minutes — execute and submit the receipt inside that window, or the code is automatically deleted and you must issue a fresh one. A submitted receipt waits up to 24 hours for its inflow, then expires visibly. The 0.03 TNK transfer fee is paid by your own wallet — if it holds no TNK, your AI must stop and report, never improvise. Already transferred but no pending claim shows? Paste your receipt below to submit it late (within the 30 minutes) — it credits on the next re-check. Never re-transfer.",
+ aiJoinNote: "Notes: the join code is valid 30 minutes — execute and submit the receipt inside that window, or the code is automatically deleted and you must issue a fresh one. A submitted receipt waits up to 24 hours for its inflow, then expires visibly. The 0.03 TNK transfer fee is paid by your own wallet — if it holds no TNK, your AI must stop and report, never improvise. Already transferred but no pending claim shows? Paste your receipt below to submit it late (within the 30 minutes) — it credits on the next re-check. Never re-transfer. If the pool already credited the inflow by fingerprint, no receipt is needed.",
  exitTitle: "Leave the pool — full exit",
  exitIntro: "Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.",
  exitHow: "<b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.",
@@ -743,7 +743,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpValidNote: "本金额有效期 30 分钟（至 {time}），请在有效期内转账；超时未到账，该计算记录将自动删除，请重新计算。",
  fpTimeLeft: "剩余时间", fpExpired: "已过期，请重新计算。",
  aiJoinTitle: "AI 签名入池——让你的 AI 去转账",
- aiJoinIntro: "三步、复制两次：（1）在这里生成入池码；（2）把整段码发给自己的 AI——它会把金额念回给你、你点头后它一分不差地转账并签回执；（3）把签好的回执粘贴到下方。码本身搬不动钱（只有你自己的签名器能转钱），回执证明申报人就是地址本人，池子只在 exact 金额真到账时才入账。",
+ aiJoinIntro: "三步、复制两次：（1）在这里生成入池码；（2）把整段码发给自己的 AI——它会把金额念回给你、你点头后它一分不差地转账并签回执；（3）把签好的回执粘贴到下方。码本身搬不动钱（只有你自己的签名器能转钱），回执证明申报人就是地址本人，池子只在 exact 金额真到账时才入账。如果你的 AI 没有 join-pay.mjs，先整库克隆公开仓库（只下载单个文件会缺依赖跑不起来）；官方签名器转账 + 单独签回执是明确允许的兜底。",
  aiJoinBtn: "生成入池码",
  aiCodeOk: "入池码已签发，有效期 30 分钟（转账和回执都要在这 30 分钟内完成，超时未交回执会被自动删除）。请把下面整段发给自己的 AI。",
  aiCodeErr: "签发入池码失败：",
@@ -752,7 +752,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  aiClaimBtn: "提交回执",
  aiClaimOk: "回执验签通过，已登记待核销。exact 金额到账后池子自动入账（最长等待 24 小时）。",
  aiClaimErr: "回执被拒绝：",
- aiJoinNote: "说明：入池码有效期 30 分钟——转账和提交回执都必须在这 30 分钟内完成，超时未交回执的码会被自动删除，需重新发码。已提交的回执最长等待 24 小时到账，超时会显示为过期。0.03 TNK 转账费由你自己的钱包付——钱包没有 TNK 时，你的 AI 必须停下报告，绝不自作主张。已经转过账但没有待核销状态？把回执粘贴到下方补交（30 分钟内）——下趟复核即入账。切勿重复转账。",
+ aiJoinNote: "说明：入池码有效期 30 分钟——转账和提交回执都必须在这 30 分钟内完成，超时未交回执的码会被自动删除，需重新发码。已提交的回执最长等待 24 小时到账，超时会显示为过期。0.03 TNK 转账费由你自己的钱包付——钱包没有 TNK 时，你的 AI 必须停下报告，绝不自作主张。已经转过账但没有待核销状态？把回执粘贴到下方补交（30 分钟内）——下趟复核即入账。切勿重复转账。如果池子已经按指纹入账，就不需要再交回执。",
  exitTitle: "退出拼池——全额退出",
  exitIntro: "退出是你的权利，不是向谁申请批准：验证通过的退出申请会被自动执行。三件事先讲明——<b>只退全额</b>（本金＋待分收益一次结清）；到账需<b>约 24 小时</b>（合约的 144 个比特币块退出等待期）；若某笔退出会让池子质押跌破 0.1，<b>全池解散、所有人一并结清</b>。",
  exitHow: "<b>证明是你本人，不用转币——用签名。</b>你的币在池子里，钱包可能是空的；签名零成本、零余额可办。服务器会签发一份一次性声明（官方签名消息格式），你用自己的签名器签好后把签名提交回来即可。申请和提交可以由任何人代劳——包括你自己的 AI——但只有你的私钥能签。而且退出款<b>只打回你账本上的地址本人</b>：整个流程没有任何一步能改收款地址。",
