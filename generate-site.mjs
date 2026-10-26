@@ -509,16 +509,16 @@ ${poolStatusHtml}
 </div>
 
 </section>
-<section class="tabpage" id="tab-explorer">
+<section class="tabpage" id="tab-explorer" style="display:none">
 ${explorerHtml}
 </section>
-<section class="tabpage" id="tab-ledger">
+<section class="tabpage" id="tab-ledger" style="display:none">
 <h2 data-i18n="ledgerTitle">Public ledger</h2>
 <table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thContributed">Contributed</th><th data-i18n="thPending">Pending payout</th><th data-i18n="thPaid">Paid total</th></tr>${contributorRows}
 </table>
 ${settledHtml}
 </section>
-<section class="tabpage" id="tab-reports">
+<section class="tabpage" id="tab-reports" style="display:none">
 <h2 data-i18n="reportsTitle">Round reports</h2>
 <table><thead><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr></thead><tbody id="rpBody">${reportRows}
 </tbody></table>
@@ -530,7 +530,7 @@ ${settledHtml}
 <p class="muted" data-i18n="reportsRatioNote">“Share of deposit” divides each round's claim by the pool's current on-chain deposit (the same denominator for every round), so rounds stay comparable as the deposit grows.</p>
 
 </section>
-<section class="tabpage" id="tab-verify">
+<section class="tabpage" id="tab-verify" style="display:none">
 <h2 data-i18n="verifyTitle">Verify it yourself</h2>
 <div class="card">
 <p data-i18n="verify1">Each round report publishes its full inputs: the contributor snapshot, the claim amount (match it against the
@@ -543,7 +543,7 @@ altering a single share makes verification fail.</p>
 </div>
 
 </section>
-<section class="tabpage" id="tab-markets">
+<section class="tabpage" id="tab-markets" style="display:none">
 ${marketsHtml}
 </section>
 <p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">${updated}</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
@@ -817,7 +817,6 @@ function applyLang() {
   document.getElementById('langBtn').textContent = t.langBtn;
   syncThemeBtn();
   const stEl = document.getElementById('snapshotTime'); if (stEl) stEl.textContent = snapshotTimeText();
-  renderTnkStamp();
   document.title = t.title;
   document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
   if (lastQuery) lookup();
@@ -1072,9 +1071,9 @@ async function aiJoinClaim() {
   box.innerHTML = '<div>' + t.aiClaimOk + '</div>' +
     '<div class="mono">claim #' + esc(String(j.claim.id)) + ' · ' + esc(j.claim.address_hex) + ' · exact ' + esc(j.claim.exact_units) + ' units</div>';
 }
-applyLang();
 const _initHash = (location.hash || '').slice(1);
-showTab(_initHash === 'join' ? 'overview' : (_initHash || (() => { try { return localStorage.getItem('pool-tab'); } catch (e) { return null; } })() || 'overview'));
+showTab(_initHash === 'join' ? 'overview' : (_initHash || 'overview'));
+applyLang();
 if (_initHash === 'join') setTimeout(() => { const el = document.getElementById('join'); if (el) el.scrollIntoView(); }, 80);
 </script>
 </body></html>`;
