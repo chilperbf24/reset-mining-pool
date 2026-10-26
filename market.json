@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T13:18:19.926416Z",
+  "updated": "2026-10-26T13:28:20.526823Z",
   "source": "intercom-dex market-feed on new server, /v1/market/view",
   "pairs": [
     {
@@ -56,31 +56,31 @@
           "5"
         ],
         [
+          "0.16",
+          "5"
+        ],
+        [
+          "0.165",
+          "5"
+        ],
+        [
           "0.17",
           "5"
         ],
         [
-          "0.18",
+          "0.17",
           "5"
-        ],
-        [
-          "1",
-          "1"
-        ],
-        [
-          "4.50",
-          "1000"
         ]
       ]
     },
     {
       "pair": "RESET/USDC",
-      "last": "53",
+      "last": "52",
       "change24h": null,
-      "volume24h": "2080.96611",
+      "volume24h": "2084.84611",
       "high24h": null,
       "low24h": null,
-      "trades24h": 274,
+      "trades24h": 269,
       "bestBuy": "55",
       "bestSell": "56",
       "bids": [
@@ -89,7 +89,7 @@
           "0.2"
         ],
         [
-          "52",
+          "54",
           "0.2"
         ],
         [
@@ -127,8 +127,8 @@
       ],
       "asks": [
         [
-          "56.0",
-          "0.02119698"
+          "56",
+          "0.0191"
         ],
         [
           "57",
@@ -170,6 +170,22 @@
     }
   ],
   "trades": [
+    {
+      "id": "9dac22a34b3bcd9fdfaf0497c7e42b9201c9be989492188fd2e6b70a690d86a0",
+      "pair": "RESET/USDC",
+      "price": "52",
+      "amount": "0.2",
+      "usdc": "10.4",
+      "seller": {
+        "trac": "trac1wgl9q5m4zsntg5r3th0z668gk8zjud3r6ee0j4kgc30tyn4uzdas8e5xn9",
+        "sol": "9ej2UHwmZKtp6BE6PkHnpCxFAPLNfsntvf29D59GAE45"
+      },
+      "buyer": {
+        "trac": "trac1ycpgkc3hegvqpjnnv0k8f9dfrnamj3wxu8ppu54r6u75c58gz34s2dr778",
+        "sol": "8qJ9BeP2XDKUUZvf8FV5zQELVuvXnYyJfBnuSBT7Q4e"
+      },
+      "settledAt": 1793020830
+    },
     {
       "id": "6e258cab122d5cdae50dbb5eb9d5cfb81945a6c670cdd77f63d685e31f59c189",
       "pair": "RESET/USDC",
