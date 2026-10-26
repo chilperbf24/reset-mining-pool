@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-26T21:18:48.733177Z",
+  "updated": "2026-10-26T21:28:49.309068Z",
   "source": "intercom-dex market-feed on new server, /v1/market/view",
   "pairs": [
     {
@@ -12,11 +12,20 @@
       "trades24h": 4,
       "bestBuy": "0.08",
       "bestSell": "0.139",
-      "bids": [],
+      "bids": [
+        [
+          "0.08",
+          "200"
+        ]
+      ],
       "asks": [
         [
           "0.139",
           "200"
+        ],
+        [
+          "0.14",
+          "40"
         ],
         [
           "0.144",
@@ -28,6 +37,10 @@
         ],
         [
           "0.16",
+          "5"
+        ],
+        [
+          "0.165",
           "5"
         ],
         [
@@ -43,16 +56,8 @@
           "5"
         ],
         [
-          "1.00",
-          "250"
-        ],
-        [
-          "1.50",
-          "250"
-        ],
-        [
-          "2.00",
-          "250"
+          "1",
+          "1"
         ]
       ]
     },
@@ -60,10 +65,10 @@
       "pair": "RESET/USDC",
       "last": "44",
       "change24h": null,
-      "volume24h": "1473.234602",
+      "volume24h": "1472.674602",
       "high24h": null,
       "low24h": null,
-      "trades24h": 110,
+      "trades24h": 109,
       "bestBuy": "45",
       "bestSell": "53",
       "bids": [
@@ -73,11 +78,11 @@
         ],
         [
           "44.00",
-          "4.12243462"
+          "3.92183033"
         ],
         [
           "43.00",
-          "4.32743462"
+          "4.32683033"
         ],
         [
           "42.00",
@@ -96,26 +101,30 @@
           "7.711"
         ],
         [
+          "35.78",
+          "0.63356399"
+        ],
+        [
           "35.01",
           "0.45905656"
         ],
         [
           "35",
           "0.77"
-        ],
-        [
-          "34.91",
-          "0.11389697"
         ]
       ],
       "asks": [
+        [
+          "53.0",
+          "0.02538973"
+        ],
         [
           "53",
           "0.1"
         ],
         [
           "54",
-          "0.0233"
+          "0.0327"
         ],
         [
           "54",
@@ -123,11 +132,15 @@
         ],
         [
           "54.27",
-          "0.205"
+          "0.405"
         ],
         [
           "55",
           "0.14"
+        ],
+        [
+          "59",
+          "0.0136"
         ],
         [
           "59",
@@ -140,19 +153,27 @@
         [
           "63.32",
           "0.2391"
-        ],
-        [
-          "64.33",
-          "1.2353584"
-        ],
-        [
-          "67",
-          "1"
         ]
       ]
     }
   ],
   "trades": [
+    {
+      "id": "c6b9bc73f4d63ffb197ca5431f518373f80aa54732a6b471a4f122a0dc54f31f",
+      "pair": "RESET/USDC",
+      "price": "44",
+      "amount": "0.2",
+      "usdc": "8.8",
+      "seller": {
+        "trac": "trac1wgljf7ler3pmsmm6hvv5vqev6fv6refv8c68tkwfac06g9m5cnqspfjzc8",
+        "sol": "7eKdNPJqnJrpdMnrPn7gNpukUWhjAdYsyh1cpbmsDUAH"
+      },
+      "buyer": {
+        "trac": "trac1wuf48s02km2dt3uytj4tyu7wpgeeh3zzagpzhfs2xh66d20m470qu8j2p4",
+        "sol": "asbQX1dviP9wpspdPAc29zLrbnKfYaapW8Fif5K7cWX"
+      },
+      "settledAt": 1793050045
+    },
     {
       "id": "27c4ee5f38bc7f9c8f68bf40fa6096bdadbea13e2ce7ecb6585c62e68a36cfdd",
       "pair": "RESET/USDC",
@@ -296,22 +317,6 @@
         "sol": "4iiJUGe3KCtcVVxyxBRbpcyDcgFpwp8qkk5eArvWmtZx"
       },
       "settledAt": 1793042965
-    },
-    {
-      "id": "162172ea3e8ccbb54a584b2f6db96459c07e3203147dd2f77a34c94477272b23",
-      "pair": "RESET/USDC",
-      "price": "54",
-      "amount": "0.21",
-      "usdc": "11.34",
-      "seller": {
-        "trac": "trac1wgljf7ler3pmsmm6hvv5vqev6fv6refv8c68tkwfac06g9m5cnqspfjzc8",
-        "sol": "7eKdNPJqnJrpdMnrPn7gNpukUWhjAdYsyh1cpbmsDUAH"
-      },
-      "buyer": {
-        "trac": "trac1wuf48s02km2dt3uytj4tyu7wpgeeh3zzagpzhfs2xh66d20m470qu8j2p4",
-        "sol": "asbQX1dviP9wpspdPAc29zLrbnKfYaapW8Fif5K7cWX"
-      },
-      "settledAt": 1793042600
     }
   ]
 }
