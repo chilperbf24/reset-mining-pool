@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-26T06:57:39.856Z",
+  "fetched_at": "2026-10-26T07:06:10.084Z",
   "state": {
     "tip": {
-      "height": 973203,
-      "hash": "000000000000000000015b13eb4c20f0b0386f2aa59eb3bb999d0b44b6f7eb04"
+      "height": 973204,
+      "hash": "000000000000000000004f6355e1359282f7da688270b6bcf3d7178652643a7b"
     },
-    "counted": 973198,
+    "counted": 973199,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 598,
+      "lock": 597,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 577
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973203,
+        "last_beat": 973204,
         "active": true
       }
     ],
@@ -905,8 +905,8 @@
       "start": 973201,
       "claim_end": 973203,
       "end": 973206,
-      "window_open": true,
-      "S": "1249220207",
+      "window_open": false,
+      "S": "1558595207",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973203,
+    "source_height": 973204,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "25573592",
           "q": 1000
         },
-        "fair_share_estimate": "70164",
+        "fair_share_estimate": "87540",
         "strikes": 0,
         "clean": 12,
         "last_result": {
@@ -3029,7 +3029,7 @@
     ],
     [
       "47125e43595ce8c7ca693c993f1134b98e00ec902298b5cf17bcf4db386f2c39",
-      10000000,
+      20000000,
       0,
       0,
       3,
@@ -4514,7 +4514,7 @@
     ],
     [
       "76b0f972225f4d6607915866d69bfc1681c0fb3528e817d061bcc969e0a322a7",
-      10000000,
+      20000000,
       0,
       0,
       3,
@@ -5735,7 +5735,7 @@
     ],
     [
       "b0c6a0c9e89d28204f9ac97d58bc681f31b22365460251e48b6b3daa72eb7151",
-      10000000,
+      201234500,
       0,
       0,
       0,
