@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-26T19:46:16.578Z",
+  "fetched_at": "2026-10-26T19:59:16.786Z",
   "state": {
     "tip": {
-      "height": 973281,
-      "hash": "0000000000000000000171891c58b490073a77db0ed90a302369a7b8c805a102"
+      "height": 973282,
+      "hash": "00000000000000000000c2d5c8923cf3d37ae6e6b19bc891bd477883724e6222"
     },
-    "counted": 973276,
+    "counted": 973277,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -21,7 +21,7 @@
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 585
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973281,
+        "last_beat": 973282,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 973279,
       "claim_end": 973281,
       "end": 973284,
-      "window_open": true,
-      "S": "1250018991",
+      "window_open": false,
+      "S": "1559393991",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 469,
-      "claim_deposit": "476211149596",
+      "claim_count": 472,
+      "claim_deposit": "476543379624",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973281,
+    "source_height": 973282,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "95782",
+        "fair_share_estimate": "119405",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -1779,7 +1779,7 @@
       0,
       0,
       0,
-      0,
+      1,
       595,
       1224852,
       0
@@ -2714,7 +2714,7 @@
       0,
       0,
       11,
-      0,
+      1,
       595,
       39229,
       0
@@ -5200,7 +5200,7 @@
       0,
       0,
       14,
-      0,
+      1,
       594,
       39455,
       0
