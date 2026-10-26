@@ -681,8 +681,10 @@ const joinTextFor = (pool, address, exactUnits, nonce) =>
   `JOIN pool. Pool ${pool} member ${address} amount ${BigInt(exactUnits)} code ${nonce}`;
 const joinSigningText = p => 'reset-chat/v1\n' + stableJSON(
   { v: p.v, kind: p.kind, addr: p.addr, text: p.text, ts: p.ts, nonce: p.nonce });
-const joinCodeBlock = ({ pool, address, planned, fp, exact, nonce, expiresAt }) => {
+const joinCodeBlock = ({ pool, address, planned, fp, exact, nonce, expiresAt, ts }) => {
   const fmt = u => `${(BigInt(u) / 100000000n).toString()}.${(BigInt(u) % 100000000n).toString().padStart(8, '0')}`;
+  const receiptTs = ts ?? Date.now();
+  const receiptPrepared = { v: 1, kind: 'agent', addr: address, text: joinTextFor(pool, address, exact, nonce), ts: receiptTs, nonce };
   return [
     `RESET pool join code — give this whole block to your own AI.`,
     `Pool: ${pool}`,
@@ -695,8 +697,12 @@ const joinCodeBlock = ({ pool, address, planned, fp, exact, nonce, expiresAt }) 
     `2. Transfer exactly ${exact} units — digit for digit. Never round, never split, never substitute another amount.`,
     `3. The transfer fee is 0.03 TNK paid by the member wallet. If the wallet holds no TNK, STOP and report — do not improvise.`,
     `4. After the gateway accepts the transfer, sign the receipt statement (same official agent format as an exit intent) and return the signed receipt block to your owner for submission.`,
-    `5. HOW TO TRANSFER — two allowed ways, do not invent a third. PREFERRED: clone the whole public pool repo (https://github.com/chilperbf24/reset-mining-pool) so join-pay.mjs is present with its lib/ files and the official signer beside it, then use that atomic script: it transfers and signs the receipt as ONE command. Do NOT download join-pay.mjs alone — its imports will fail. FALLBACK (explicitly allowed): transfer the exact amount with your own official signer, then sign the join receipt statement separately and return the full receipt block to your owner for submission within 30 minutes. A fallback transfer still credits on re-check.`,
+    `5. HOW TO TRANSFER — sign the receipt text in this block, do not download anything. Transfer the exact amount with your own official signer, then sign the receipt statement below exactly as written and return the full receipt block (prepared + signature + nonce) to your owner for submission within 30 minutes. OPTIONAL (not required): if you want atomic transfer+sign, clone the whole public pool repo (https://github.com/chilperbf24/reset-mining-pool) so join-pay.mjs is present with its lib/ files and the official signer beside it — do NOT download join-pay.mjs alone, its imports will fail.`,
     `6. LATE RECEIPT / ALREADY CREDITED — if the transfer already landed, submit the receipt anyway WITHIN the 30-minute window and it credits on re-check — NEVER re-transfer. If the pool already credited the inflow by fingerprint, a receipt is no longer needed; do not sign anything just to close the code. After 30 minutes the code is deleted and you must issue a fresh code.`,
+    `Receipt to sign — copy exactly, do not download anything:`,
+    joinSigningText(receiptPrepared),
+    `Prepared (submit this object with your signature):`,
+    JSON.stringify(receiptPrepared),
     `{"pool":"${pool}","address":"${address}","planned_units":"${planned}","fp_units":"${fp}","exact_units":"${exact}","nonce":"${nonce}"}`,
   ].join('\n');
 };
@@ -751,7 +757,7 @@ async function postJoinCode(request, env) {
   const issuedAt = new Date();
   const expiresAt = new Date(issuedAt.getTime() + JOIN_CODE_TTL_MS).toISOString();
   const text = joinCodeBlock({ pool, address: addressHex, planned: planned.toString(),
-    fp: fp.toString(), exact: exact.toString(), nonce, expiresAt });
+    fp: fp.toString(), exact: exact.toString(), nonce, expiresAt, ts: issuedAt.getTime() });
   const r = await env.REGISTRY_DB.prepare(
     `INSERT INTO join_codes (ts, address_hex, planned_units, fp_units, exact_units, nonce, status, payload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
     .bind(issuedAt.toISOString(), addressHex, planned.toString(), fp.toString(), exact.toString(),
