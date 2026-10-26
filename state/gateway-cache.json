@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-26T23:57:28.374Z",
+  "fetched_at": "2026-10-26T23:57:46.591Z",
   "state": {
     "tip": {
-      "height": 973310,
-      "hash": "0000000000000000000069dbea25fae071fe4d96a5d4341aea3af1d41225e93b"
+      "height": 973311,
+      "hash": "000000000000000000010388f02f8e91de135261852d4bc6c1cb9f8b09ef5893"
     },
-    "counted": 973305,
+    "counted": 973306,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -18,10 +18,10 @@
     "capacity_left": 600,
     "capacity_by_type": {
       "lock": 600,
-      "unlock": 599,
+      "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 590
+      "claim": 598
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973310,
+        "last_beat": 973311,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 973311,
       "end": 973314,
       "window_open": true,
-      "S": "941698207",
+      "S": "1251073207",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 468,
-      "claim_deposit": "483165737629",
+      "claim_count": 470,
+      "claim_deposit": "483186737629",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973310,
+    "source_height": 973311,
     "header_error": null
   },
   "accounts": {
@@ -954,7 +954,7 @@
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "71119",
+        "fair_share_estimate": "94479",
         "strikes": 0,
         "clean": 5,
         "last_result": {
@@ -987,7 +987,7 @@
       0,
       0,
       11,
-      0,
+      1,
       594,
       43401,
       0
@@ -6982,7 +6982,7 @@
       0,
       0,
       11,
-      0,
+      1,
       600,
       38677,
       0
