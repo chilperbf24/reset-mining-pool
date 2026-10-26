@@ -434,7 +434,7 @@ const html = `<!doctype html>
 
 <div class="card">
  <h3 data-i18n="aiJoinTitle" style="margin-top:0">AI-signed join — let your AI do the transfer</h3>
- <p class="muted" data-i18n="aiJoinIntro">Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. If your AI does not have join-pay.mjs, clone the whole public pool repo first (a single-file download will fail on missing imports); official-signer transfer plus a separately signed receipt is an explicitly allowed fallback.</p>
+ <p class="muted" data-i18n="aiJoinIntro">Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. The code block already contains the exact receipt text to sign — your AI signs that text with its own official signer and downloads nothing.</p>
  <p><input id="aiAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"></p>
  <p><input id="aiAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.001, e.g. 0.05"> <button onclick="aiJoinCode()" data-i18n="aiJoinBtn">Generate join code</button></p>
  <div id="aiCodeResult" style="margin-top:10px"></div>
@@ -620,7 +620,7 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpValidNote: "This amount is valid for 30 minutes (until {time}) — transfer within the window. If no matching transfer arrives in time, the calculation record is deleted automatically; please calculate again.",
  fpTimeLeft: "Time left", fpExpired: "Expired — please calculate again.",
  aiJoinTitle: "AI-signed join — let your AI do the transfer",
- aiJoinIntro: "Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. If your AI does not have join-pay.mjs, clone the whole public pool repo first (a single-file download will fail on missing imports); official-signer transfer plus a separately signed receipt is an explicitly allowed fallback.",
+ aiJoinIntro: "Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. The code block already contains the exact receipt text to sign — your AI signs that text with its own official signer and downloads nothing.",
  aiJoinBtn: "Generate join code",
  aiCodeOk: "Join code issued — valid 30 minutes (transfer + receipt inside that window, or it is auto-deleted). Give the whole block below to your own AI.",
  aiCodeErr: "Could not issue a join code: ",
@@ -743,7 +743,7 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpValidNote: "本金额有效期 30 分钟（至 {time}），请在有效期内转账；超时未到账，该计算记录将自动删除，请重新计算。",
  fpTimeLeft: "剩余时间", fpExpired: "已过期，请重新计算。",
  aiJoinTitle: "AI 签名入池——让你的 AI 去转账",
- aiJoinIntro: "三步、复制两次：（1）在这里生成入池码；（2）把整段码发给自己的 AI——它会把金额念回给你、你点头后它一分不差地转账并签回执；（3）把签好的回执粘贴到下方。码本身搬不动钱（只有你自己的签名器能转钱），回执证明申报人就是地址本人，池子只在 exact 金额真到账时才入账。如果你的 AI 没有 join-pay.mjs，先整库克隆公开仓库（只下载单个文件会缺依赖跑不起来）；官方签名器转账 + 单独签回执是明确允许的兜底。",
+ aiJoinIntro: "三步、复制两次：（1）在这里生成入池码；（2）把整段码发给自己的 AI——它会把金额念回给你、你点头后它一分不差地转账并签回执；（3）把签好的回执粘贴到下方。码本身搬不动钱（只有你自己的签名器能转钱），回执证明申报人就是地址本人，池子只在 exact 金额真到账时才入账。码块里已经附了要签的回执原文，你的 AI 用自己的官方签名器签那段文本就行，不用下载任何东西。",
  aiJoinBtn: "生成入池码",
  aiCodeOk: "入池码已签发，有效期 30 分钟（转账和回执都要在这 30 分钟内完成，超时未交回执会被自动删除）。请把下面整段发给自己的 AI。",
  aiCodeErr: "签发入池码失败：",
