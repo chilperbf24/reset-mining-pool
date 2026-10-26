@@ -33,6 +33,15 @@ const REPO = 'chilperbf24/reset-mining-pool';
 const DRY = process.argv.includes('--dry-run');
 const LOCK = `${ROOT}/.publish.lock`;
 const STATUS = `${ROOT}/state/publish-status.json`;
+// Dedicated main worktree for publishing ONLY the ledger files.
+// The old method (commit + pull --rebase in this worktree) broke when
+// this worktree's branch diverged from main (v2 cherry-pick, Oct 2026):
+// every rebase failed, stranded commits piled up, and the website ledger
+// stayed stale for days. This worktree is never used for edits, so a
+// reset --hard origin/main in it is safe and a push is always a clean
+// fast-forward — no rebase, no force-push, no branch merge, ever.
+const PUBLISH_DIR = `${ROOT}-publish`;
+import { readdirSync } from 'node:fs';
 
 const run = (cmd, args) => new Promise((res, rej) => {
   execFile(cmd, args, { cwd: ROOT, timeout: 120000, maxBuffer: 4 * 1024 * 1024 },
@@ -86,50 +95,74 @@ function acquireLock() {
   }
 }
 
+const runIn = (dir, cmd, args) => new Promise((res, rej) => {
+  execFile(cmd, args, { cwd: dir, timeout: 120000, maxBuffer: 4 * 1024 * 1024 },
+    (e, out, err) => (e ? rej(new Error(`${cmd} ${args[0]} failed: ${String(err || e.message).slice(0, 300)}`)) : res(String(out))));
+});
+const publishableFiles = () => {
+  const files = ['state/live-ledger.json', 'state/rehearsal-loss-log.json', 'state/exit-cases.json'];
+  try {
+    for (const f of readdirSync(`${ROOT}/reports`)) {
+      if (/^live-round-\d+\.json$/.test(f)) files.push(`reports/${f}`);
+    }
+  } catch {}
+  return files.filter(p => existsSync(`${ROOT}/${p}`));
+};
+const ensurePublishDir = async () => {
+  if (!existsSync(`${PUBLISH_DIR}/.git`)) {
+    try { await run('git', ['worktree', 'prune']); } catch {}
+    await run('git', ['worktree', 'add', PUBLISH_DIR, 'origin/main']);
+  }
+};
+const syncPublishDir = async () => {
+  await ensurePublishDir();
+  await runIn(PUBLISH_DIR, 'git', ['fetch', 'origin', 'main']);
+  await runIn(PUBLISH_DIR, 'git', ['reset', '--hard', 'origin/main']);
+};
+const diffFiles = () => publishableFiles().filter(p => {
+  try { return readFileSync(`${ROOT}/${p}`).toString() !== readFileSync(`${PUBLISH_DIR}/${p}`).toString(); }
+  catch { return true; }
+});
+const copyDiffFiles = files => {
+  for (const p of files) {
+    const src = readFileSync(`${ROOT}/${p}`);
+    try { readFileSync(`${PUBLISH_DIR}/${p}`); } catch { /* parent may not exist */ }
+    writeFileSync(`${PUBLISH_DIR}/${p}`, src);
+  }
+};
+
 async function main() {
   if (!acquireLock()) { console.log(JSON.stringify({ published: false, reason: 'locked' })); return; }
   try {
     refreshExitCases();
-    const status = await run('git', ['status', '--porcelain=v1', '--', 'state/live-ledger.json', 'state/rehearsal-loss-log.json', 'state/exit-cases.json', 'reports/']);
-    const files = status.split('\n').map(l => l.slice(3).trim()).filter(Boolean)
-      .filter(p => p === 'state/live-ledger.json' || p === 'state/rehearsal-loss-log.json' || p === 'state/exit-cases.json' || /^reports\/live-round-\d+\.json$/.test(p));
     const localRound = localLastRound();
-    // A previous run may have committed but failed to push (dirty-tree
-    // rebase refusal, proxy flap): stranded local commits are publishable
-    // work too, not "no changes".
-    let stranded = 0;
-    try { stranded = parseInt(await run('git', ['rev-list', '--count', 'origin/main..HEAD']), 10) || 0; } catch {}
-    if (!files.length && !stranded) {
-      writeStatus({ last_attempt: new Date().toISOString(), local_last_round: localRound, published_last_round: await publishedLastRound(), error: null });
+    await syncPublishDir();
+    const files = diffFiles();
+    if (!files.length) {
+      writeStatus({ last_attempt: new Date().toISOString(), local_last_round: localRound, published_last_round: localRound, error: null });
       console.log(JSON.stringify({ published: false, reason: 'no ledger changes' }));
       return;
     }
-    if (DRY) { console.log(JSON.stringify({ published: false, dryRun: true, wouldCommit: files, stranded })); return; }
-
-    if (files.length) {
-      writeStatus({ last_attempt: new Date().toISOString(), local_last_round: localRound, published_last_round: localRound });
-      await run('git', ['add', '--', ...files, 'state/publish-status.json']);
-      await run('git', ['commit', '-m', 'auto-publish ledger state']);
-    }
+    if (DRY) { console.log(JSON.stringify({ published: false, dryRun: true, wouldCommit: files })); return; }
     let pushed = false, lastErr = null;
     for (let attempt = 0; attempt < 2 && !pushed; attempt++) {
       try {
-        // --autostash: unrelated working-tree changes (e.g. pool-worker.mjs
-        // tuning left uncommitted) must not wedge the rebase — that exact
-        // refusal ("cannot pull with rebase: You have unstaged changes")
-        // is what a stranded publish hits. Autostash restores them
-        // byte-identical immediately after the rebase.
-        await run('git', ['pull', '--rebase', '--autostash', 'origin', 'main']);
-        await run('git', ['push', 'origin', 'main']);
+        if (attempt > 0) await syncPublishDir();
+        copyDiffFiles(files);
+        const now = new Date().toISOString();
+        writeFileSync(`${PUBLISH_DIR}/state/publish-status.json`, JSON.stringify({ ...readStatus(), last_attempt: now, last_success: now, local_last_round: localRound, published_last_round: localRound, error: null }, null, 2) + '\n');
+        await runIn(PUBLISH_DIR, 'git', ['add', '--', ...files, 'state/publish-status.json']);
+        await runIn(PUBLISH_DIR, 'git', ['commit', '-m', 'auto-publish ledger state']);
+        // Publish worktree is detached HEAD, so push HEAD explicitly —
+        // `git push origin main` would push a stale local main branch
+        // and fail non-fast-forward even when HEAD is current.
+        await runIn(PUBLISH_DIR, 'git', ['push', 'origin', 'HEAD:main']);
         pushed = true;
-      } catch (e) {
-        lastErr = e;
-        try { await run('git', ['rebase', '--abort']); } catch {}
-      }
+      } catch (e) { lastErr = e; }
     }
     if (!pushed) {
       writeStatus({ last_attempt: new Date().toISOString(), local_last_round: localRound, error: `push failed: ${lastErr?.message ?? ''}`.slice(0, 300) });
-      console.log(JSON.stringify({ published: false, committed: files.length > 0, reason: `push failed, will retry next pass: ${lastErr?.message ?? ''}` }));
+      console.log(JSON.stringify({ published: false, reason: `push failed, will retry next pass: ${lastErr?.message ?? ''}` }));
       return;
     }
     writeStatus({ last_attempt: new Date().toISOString(), last_success: new Date().toISOString(), local_last_round: localRound, published_last_round: localRound, error: null });
