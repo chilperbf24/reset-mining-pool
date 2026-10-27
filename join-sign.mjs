@@ -9,8 +9,7 @@
 //   2. Give the WHOLE code block to your own AI. The block's instructions
 //      are hard rules: read the pool address + exact amount back to you
 //      and wait for your nod; transfer EXACTLY that amount (digit for
-//      digit) to the pool address; if your wallet holds no TNK for the
-//      0.03 TNK fee, STOP and report — never split or alter the amount.
+//      digit) to the pool address; never split or alter the amount.
 //   3. After the gateway accepts the transfer, sign the receipt with YOUR
 //      signer wallet (this script — it uses the official signer keystore
 //      code, so the signature is exactly what the registry verifies):

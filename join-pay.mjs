@@ -68,7 +68,6 @@ export function readbackBlock(code) {
     `  Member:           ${code.address_hex}`,
     `  Transfer EXACTLY: ${fmt(code.exact_units)} RESET (${code.exact_units} units)`,
     `  Code nonce:       ${code.nonce}`,
-    `  Transfer fee:     0.03 TNK from the member wallet (no TNK -> STOP and report).`,
   ].join('\n');
 }
 
