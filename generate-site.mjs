@@ -25,7 +25,6 @@ const REGISTRY_ENDPOINT = 'https://reset-pool-registry.tyrodcamp.workers.dev/cal
 // Exit requests go to the same Worker (POST /exit, POST /exit/verify —
 // the signed-message flow documented in lib/exit.mjs).
 const REGISTRY_EXIT_ENDPOINT = REGISTRY_ENDPOINT.replace(/\/calc$/, '/exit');
-const REGISTRY_JOIN_ENDPOINT = REGISTRY_ENDPOINT.replace(/\/calc$/, '/join');
 
 // --- Explorer data: public gateway reads, snapshotted at generation time.
 // The gateway sends no CORS headers, so browsers cannot call it directly;
@@ -432,21 +431,6 @@ const html = `<!doctype html>
  <div id="fpResult" style="margin-top:10px"></div>
 </div>
 
-<div class="card">
- <h3 data-i18n="aiJoinTitle" style="margin-top:0">AI-signed join — let your AI do the transfer</h3>
- <p class="muted" data-i18n="aiJoinIntro">Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. The code block already contains the exact receipt text to sign — your AI signs that text with its own official signer and downloads nothing.</p>
- <p><input id="aiAddr" data-i18n-ph="queryPh" placeholder="Your RESET address, e.g. 2479c2e7…"></p>
- <p><input id="aiAmt" data-i18n-ph="fpAmtPh" placeholder="Planned amount — a multiple of 0.001, e.g. 0.05"> <button onclick="aiJoinCode()" data-i18n="aiJoinBtn">Generate join code</button></p>
- <div id="aiCodeResult" style="margin-top:10px"></div>
- <div style="margin-top:14px">
-  <p class="muted" data-i18n="aiClaimIntro">After your AI has transferred and signed the receipt, paste the signed receipt block (prepared + signature + nonce) here:</p>
-  <p><textarea id="aiReceipt" rows="5" style="width:100%;box-sizing:border-box" data-i18n-ph="aiReceiptPh" placeholder='{"prepared": {...}, "signature": "…", "nonce": "…"}'></textarea></p>
-  <p><button onclick="aiJoinClaim()" data-i18n="aiClaimBtn">Submit receipt</button></p>
-  <div id="aiClaimResult" style="margin-top:10px"></div>
- </div>
- <p class="muted" data-i18n="aiJoinNote">Notes: the join code is valid 30 minutes — execute and submit the receipt inside that window, or the code is automatically deleted and you must issue a fresh one. A submitted receipt waits up to 24 hours for its inflow, then expires visibly. Already transferred but no pending claim shows? Paste your receipt below to submit it late (within the 30 minutes) — it credits on the next re-check. Never re-transfer. If the pool already credited the inflow by fingerprint, no receipt is needed.</p>
-</div>
-
 <div class="callout"><b data-i18n="joinWarnTitle">⚠ Before you transfer</b><br><span data-i18n="joinWarn">Only ever transfer the exact amount the calculator gives you. A transfer with a wrong or rounded tail cannot be matched automatically and is parked as <b>unclaimed</b>. Claiming it needs no GitHub account and no signature: the amount's tail is checked against the address it belongs to — if they match, it is credited (ask the operator to run the claim, or see the README). A brand-new address that appears nowhere on the network yet may also land in unclaimed first — same claim path.</span></div>
 
 <h2 data-i18n="rulesTitle">Rules — the honest version</h2>
@@ -555,7 +539,6 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const SNAPSHOT = ${JSON.stringify(snapshotData)};
 const REGISTRY_ENDPOINT = ${JSON.stringify(REGISTRY_ENDPOINT)};
 const REGISTRY_EXIT_ENDPOINT = ${JSON.stringify(REGISTRY_EXIT_ENDPOINT)};
-const REGISTRY_JOIN_ENDPOINT = ${JSON.stringify(REGISTRY_JOIN_ENDPOINT)};
 const T = {
 en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBtn: "中文",
  tabOverview: "Overview", tabLedger: "Ledger", tabReports: "Reports", tabVerify: "Verify", tabExplorer: "Explorer", tabMarkets: "Markets",
@@ -620,17 +603,6 @@ en: { title: "RESET Mining Pool — mine together below the 0.1 minimum", langBt
  fpPanelCheck: "Before you transfer, double-check that the amount's decimal tail matches the one shown here exactly — every digit matters.",
  fpValidNote: "This amount is valid for 30 minutes (until {time}) — transfer within the window. If no matching transfer arrives in time, the calculation record is deleted automatically; please calculate again.",
  fpTimeLeft: "Time left", fpExpired: "Expired — please calculate again.",
- aiJoinTitle: "AI-signed join — let your AI do the transfer",
- aiJoinIntro: "Three steps, two copy-pastes: (1) generate a join code here; (2) give the whole code block to your own AI — it reads the amount back to you, you nod, it transfers exactly that amount and signs a receipt; (3) paste the signed receipt below. The code moves no money by itself (only your own signer can transfer), the receipt proves the claim is really yours, and the pool credits it only when an inflow of exactly that amount actually lands. The code block already contains the exact receipt text to sign — your AI signs that text with its own official signer and downloads nothing.",
- aiJoinBtn: "Generate join code",
- aiCodeOk: "Join code issued — valid 30 minutes (transfer + receipt inside that window, or it is auto-deleted). Give the whole block below to your own AI.",
- aiCodeErr: "Could not issue a join code: ",
- aiClaimIntro: "After your AI has transferred and signed the receipt, paste the signed receipt block (prepared + signature + nonce) here:",
- aiReceiptPh: '{"prepared": {...}, "signature": "…", "nonce": "…"}',
- aiClaimBtn: "Submit receipt",
- aiClaimOk: "Receipt verified — pending claim registered. The pool credits it automatically when an inflow of exactly this amount lands (up to 24 hours).",
- aiClaimErr: "Receipt rejected: ",
- aiJoinNote: "Notes: the join code is valid 30 minutes — execute and submit the receipt inside that window, or the code is automatically deleted and you must issue a fresh one. A submitted receipt waits up to 24 hours for its inflow, then expires visibly. Already transferred but no pending claim shows? Paste your receipt below to submit it late (within the 30 minutes) — it credits on the next re-check. Never re-transfer. If the pool already credited the inflow by fingerprint, no receipt is needed.",
  exitTitle: "Leave the pool — full exit",
  exitIntro: "Exiting is your right, not a favor: a verified request is executed automatically. Three things to know — <b>exits are full only</b> (principal + pending earnings, settled in one payment); payout takes <b>about 24 hours</b> (the contract's 144-block exit wait); and if an exit would leave the pool's deposit below 0.1, <b>the whole pool is dissolved and everyone is settled</b> instead.",
  exitHow: "<b>No transfer is needed to prove it is you — a signature is.</b> Your coins are inside the pool, so your wallet may be empty; signing costs nothing and works at zero balance. The server issues a one-time statement (the official signed-message format); you sign it with your own signer and submit the signature. Anyone — including your own AI — can file the request and carry the submission, but only your key can sign. And the payout can only ever go to your own ledger address: no step in this flow can name a different payee.",
@@ -743,17 +715,6 @@ zh: { title: "RESET 拼池 — 不够 0.1 也能一起挖", langBtn: "English",
  fpPanelCheck: "转账前请核对：金额的小数尾数必须与此处显示的完全一致，一位都不能差。",
  fpValidNote: "本金额有效期 30 分钟（至 {time}），请在有效期内转账；超时未到账，该计算记录将自动删除，请重新计算。",
  fpTimeLeft: "剩余时间", fpExpired: "已过期，请重新计算。",
- aiJoinTitle: "AI 签名入池——让你的 AI 去转账",
- aiJoinIntro: "三步、复制两次：（1）在这里生成入池码；（2）把整段码发给自己的 AI——它会把金额念回给你、你点头后它一分不差地转账并签回执；（3）把签好的回执粘贴到下方。码本身搬不动钱（只有你自己的签名器能转钱），回执证明申报人就是地址本人，池子只在 exact 金额真到账时才入账。码块里已经附了要签的回执原文，你的 AI 用自己的官方签名器签那段文本就行，不用下载任何东西。",
- aiJoinBtn: "生成入池码",
- aiCodeOk: "入池码已签发，有效期 30 分钟（转账和回执都要在这 30 分钟内完成，超时未交回执会被自动删除）。请把下面整段发给自己的 AI。",
- aiCodeErr: "签发入池码失败：",
- aiClaimIntro: "你的 AI 转账并签好回执后，把签好的回执块（prepared＋signature＋nonce）粘贴到这里：",
- aiReceiptPh: '{"prepared": {...}, "signature": "…", "nonce": "…"}',
- aiClaimBtn: "提交回执",
- aiClaimOk: "回执验签通过，已登记待核销。exact 金额到账后池子自动入账（最长等待 24 小时）。",
- aiClaimErr: "回执被拒绝：",
- aiJoinNote: "说明：入池码有效期 30 分钟——转账和提交回执都必须在这 30 分钟内完成，超时未交回执的码会被自动删除，需重新发码。已提交的回执最长等待 24 小时到账，超时会显示为过期。已经转过账但没有待核销状态？把回执粘贴到下方补交（30 分钟内）——下趟复核即入账。切勿重复转账。如果池子已经按指纹入账，就不需要再交回执。",
  exitTitle: "退出拼池——全额退出",
  exitIntro: "退出是你的权利，不是向谁申请批准：验证通过的退出申请会被自动执行。三件事先讲明——<b>只退全额</b>（本金＋待分收益一次结清）；到账需<b>约 24 小时</b>（合约的 144 个比特币块退出等待期）；若某笔退出会让池子质押跌破 0.1，<b>全池解散、所有人一并结清</b>。",
  exitHow: "<b>证明是你本人，不用转币——用签名。</b>你的币在池子里，钱包可能是空的；签名零成本、零余额可办。服务器会签发一份一次性声明（官方签名消息格式），你用自己的签名器签好后把签名提交回来即可。申请和提交可以由任何人代劳——包括你自己的 AI——但只有你的私钥能签。而且退出款<b>只打回你账本上的地址本人</b>：整个流程没有任何一步能改收款地址。",
@@ -1028,50 +989,6 @@ document.getElementById('fpAmt').addEventListener('keydown', e => { if (e.key ==
 // only links there; nothing on this page files or submits an exit.
 // The registry gate (worker EXIT_OPEN) and the executor gate
 // (lib/exit-exec.mjs ARMED) are unchanged by this move.
-async function aiJoinCode() {
-  const t = T[lang];
-  const box = document.getElementById('aiCodeResult');
-  const rawAddr = document.getElementById('aiAddr').value.trim();
-  const addr = normalizeAddress(rawAddr);
-  const amtStr = document.getElementById('aiAmt').value.trim();
-  const err = m => { box.innerHTML = '<span style="color:var(--warn)">' + esc(m) + '</span>'; };
-  if (!addr) { err(t.fpErrAddr); return; }
-  if (addr === SNAPSHOT.pool_address) { box.innerHTML = '<div class="warnbar">' + t.fpErrPool + '</div>'; return; }
-  if (!/^(0|[1-9][0-9]*)(\.[0-9]{1,8})?$/.test(amtStr)) { err(t.fpErrAmt); return; }
-  const parts = amtStr.split('.');
-  const planned = BigInt(parts[0]) * 100000000n + BigInt(((parts[1] || '') + '00000000').slice(0, 8));
-  if (planned <= 0n || planned % 100000n !== 0n) { err(t.fpErrAmt); return; }
-  let r, j;
-  try {
-    r = await fetch(REGISTRY_JOIN_ENDPOINT + '/code', { method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ address: addr, planned_units: planned.toString() }) });
-    j = await r.json();
-  } catch (e) { err(t.aiCodeErr + String(e)); return; }
-  if (!j.ok) { err(t.aiCodeErr + (j.error || ('HTTP ' + r.status))); return; }
-  const code = j.code;
-  box.innerHTML = '<div class="muted">' + t.aiCodeOk + '</div>' +
-    '<pre class="mono" id="aiCodeText" style="white-space:pre-wrap;word-break:break-all">' + esc(code.text) + '</pre>' +
-    '<button id="aiCodeCopyBtn">' + t.copyBtn + '</button> ' +
-    '<span class="muted">nonce ' + esc(code.nonce) + ' · exact ' + esc(code.exact_units) + ' units</span>';
-  document.getElementById('aiCodeCopyBtn').addEventListener('click', ev => copyText(code.text, ev.currentTarget));
-}
-async function aiJoinClaim() {
-  const t = T[lang];
-  const box = document.getElementById('aiClaimResult');
-  let sub;
-  try { sub = JSON.parse(document.getElementById('aiReceipt').value.trim()); }
-  catch { box.innerHTML = '<span style="color:var(--warn)">' + esc(t.aiClaimErr + 'not JSON') + '</span>'; return; }
-  let r, j;
-  try {
-    r = await fetch(REGISTRY_JOIN_ENDPOINT + '/claim', { method: 'POST',
-      headers: { 'content-type': 'application/json' }, body: JSON.stringify(sub) });
-    j = await r.json();
-  } catch (e) { box.innerHTML = '<span style="color:var(--warn)">' + esc(t.aiClaimErr + String(e)) + '</span>'; return; }
-  if (!j.ok) { box.innerHTML = '<span style="color:var(--warn)">' + esc(t.aiClaimErr + (j.error || ('HTTP ' + r.status))) + '</span>'; return; }
-  box.innerHTML = '<div>' + t.aiClaimOk + '</div>' +
-    '<div class="mono">claim #' + esc(String(j.claim.id)) + ' · ' + esc(j.claim.address_hex) + ' · exact ' + esc(j.claim.exact_units) + ' units</div>';
-}
 const _initHash = (location.hash || '').slice(1);
 showTab(_initHash === 'join' ? 'overview' : (_initHash || 'overview'));
 applyLang();

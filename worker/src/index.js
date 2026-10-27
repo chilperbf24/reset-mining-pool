@@ -886,8 +886,8 @@ export default {
       if (url.pathname === '/exit/verify' && request.method === 'POST') return await postExitVerify(request, env);
       if (url.pathname === '/exit/pending' && request.method === 'GET') return await getExitPending(request, env);
       if (url.pathname === '/exit/resolve' && request.method === 'POST') return await postExitResolve(request, env);
-      if (url.pathname === '/join/code' && request.method === 'POST') return await postJoinCode(request, env);
-      if (url.pathname === '/join/claim' && request.method === 'POST') return await postJoinClaim(request, env);
+      if (url.pathname === '/join/code' && request.method === 'POST') return json({ ok: false, error: 'AI join removed — use plain transfer with the calculator amount, credited by fingerprint' }, 410);
+      if (url.pathname === '/join/claim' && request.method === 'POST') return json({ ok: false, error: 'AI join removed — use plain transfer with the calculator amount, credited by fingerprint' }, 410);
       if (url.pathname === '/join/claims' && request.method === 'GET') return await getJoinClaims(request, env);
       if (url.pathname === '/join/fulfill' && request.method === 'POST') return await postJoinFulfill(request, env);
       if (url.pathname === '/health' && request.method === 'GET') return await getHealth(env);
