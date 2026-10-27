@@ -6,51 +6,51 @@
   "contributors": {
     "1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d": {
       "contributed": "5000000",
-      "pending": "3578712",
+      "pending": "3604801",
       "paid_total": "0"
     },
     "0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7": {
       "contributed": "3657260",
-      "pending": "2617638",
+      "pending": "2636721",
       "paid_total": "0"
     },
     "4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6": {
       "contributed": "2661039",
-      "pending": "1904588",
+      "pending": "1918473",
       "paid_total": "0"
     },
     "cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3": {
       "contributed": "2082555",
-      "pending": "878673",
+      "pending": "889539",
       "paid_total": "0"
     },
     "ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d": {
       "contributed": "8216449",
-      "pending": "5469652",
+      "pending": "5512524",
       "paid_total": "0"
     },
     "d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d": {
       "contributed": "1658858",
-      "pending": "1104239",
+      "pending": "1112894",
       "paid_total": "0"
     },
     "1c4dd9d49ba0881f2927091a4f413b8b4e833c77624ca29c287eaab6e9422fc8": {
       "contributed": "1071748",
-      "pending": "115208",
+      "pending": "120800",
       "paid_total": "0"
     },
     "4c3d13ad3213d0482bdda13d8e9fd4f47fa763f2c5635ba9c664a5ab93ae7c6c": {
       "contributed": "623323",
-      "pending": "67001",
+      "pending": "70253",
       "paid_total": "0"
     },
     "1ee8a7f2e2a20ed2b219a60b634116d3f8944f96e5b88bc60b0945cada8b31e4": {
       "contributed": "919716",
-      "pending": "44140",
+      "pending": "48939",
       "paid_total": "0"
     }
   },
-  "carry_units": "5",
+  "carry_units": "4",
   "fee_total_units": "0",
   "events": [
     {
@@ -1689,6 +1689,17 @@
       },
       "prev": "703baa93702e2db6522c25f1d55c87b5e6f9d7633580958f12fe2cd9bfb8f781",
       "hash": "3e5fa5949127116016f9f277b21b661a4809d3df91b2122bf14b3df53e0bce04"
+    },
+    {
+      "i": 147,
+      "type": "round_settled",
+      "data": {
+        "round": 613,
+        "claim_amount_units": "135092",
+        "snapshot_hash": "784c1cf90f64dcb882de0b355ce0a870eed4987d8db137025824c4f5d89ca1fd"
+      },
+      "prev": "3e5fa5949127116016f9f277b21b661a4809d3df91b2122bf14b3df53e0bce04",
+      "hash": "98530e2cfb00b40f21b90e42524b505b3b684adc28fd815fb44ffb70c6a02139"
     }
   ],
   "rounds": [
@@ -2371,6 +2382,11 @@
       "round": 612,
       "claim_amount_units": "136026",
       "report_hash": "121222210dd9032ba54390d046c3754eae1e1a03a8a393c1f68aa20d5b6a452a"
+    },
+    {
+      "round": 613,
+      "claim_amount_units": "135092",
+      "report_hash": "05993375c9c7ae2c3f1955113761b3a7546097b25a165cb4b493da7ee4e12f3d"
     }
   ],
   "payouts": []
