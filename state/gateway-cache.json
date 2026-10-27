@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-27T11:16:22.695Z",
+  "fetched_at": "2026-10-27T11:20:32.598Z",
   "state": {
     "tip": {
-      "height": 973385,
-      "hash": "00000000000000000001be8aad83c70fbdf64bdfee877b05af908f24b77f144a"
+      "height": 973386,
+      "hash": "0000000000000000000137d23c86488d2c1f88a555951ccf9602b74e5eafac7c"
     },
-    "counted": 973380,
+    "counted": 973381,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,9 +17,9 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 574,
+      "lock": 600,
       "unlock": 600,
-      "withdraw": 597,
+      "withdraw": 600,
       "guess": 600,
       "claim": 600
     },
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973385,
+        "last_beat": 973386,
         "active": true
       }
     ],
@@ -906,7 +906,7 @@
       "claim_end": 973383,
       "end": 973386,
       "window_open": false,
-      "S": "14186545",
+      "S": "323561545",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
@@ -939,12 +939,12 @@
         "amount": "0"
       }
     },
-    "source_height": 973385,
+    "source_height": 973386,
     "header_error": null,
     "validators": {
       "connected": 50,
-      "v1Ready": 6,
-      "eligible": 6
+      "v1Ready": 8,
+      "eligible": 8
     }
   },
   "accounts": {
@@ -959,7 +959,7 @@
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "1150",
+        "fair_share_estimate": "26247",
         "strikes": 0,
         "clean": 17,
         "last_result": {
