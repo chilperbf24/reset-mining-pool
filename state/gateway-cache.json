@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-27T18:59:18.021Z",
+  "fetched_at": "2026-10-27T19:14:16.250Z",
   "state": {
     "tip": {
-      "height": 973442,
-      "hash": "00000000000000000001d36873a8b779ac692d3473ed1f283396bad1f9943e7b"
+      "height": 973444,
+      "hash": "00000000000000000001e60fedd94df887f1553e4099d503e77d520292dcd858"
     },
-    "counted": 973437,
+    "counted": 973439,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 592,
+      "lock": 598,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 569
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973442,
+        "last_beat": 973444,
         "active": true
       }
     ],
@@ -905,8 +905,8 @@
       "start": 973441,
       "claim_end": 973443,
       "end": 973446,
-      "window_open": true,
-      "S": "942852791",
+      "window_open": false,
+      "S": "1561602791",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973442,
+    "source_height": 973444,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -952,14 +952,14 @@
       "balance": "6460613",
       "deposit": "36489747",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 624,
         "claim": {
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "68834",
+        "fair_share_estimate": "114007",
         "strikes": 0,
         "clean": 1,
         "last_result": {
@@ -1076,7 +1076,7 @@
     ],
     [
       "03cb924476bb088a362098aa2d474218e0f03f54f1d5135cf8dc167309646574",
-      2212954768,
+      2412954768,
       0,
       0,
       10,
@@ -1835,7 +1835,7 @@
     ],
     [
       "22a01f164742652d5928707864f423b90b9e7736cb46669a825776a2ccb829d4",
-      1932265540,
+      2032265540,
       0,
       0,
       17,
@@ -1923,7 +1923,7 @@
     ],
     [
       "26028b6237ca1800ca7363ec7495a91cfbb945c6e1c21e52a3d73d4c50e8146b",
-      3350000000,
+      3370000000,
       0,
       0,
       18,
