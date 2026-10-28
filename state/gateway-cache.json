@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-28T18:19:25.603Z",
+  "fetched_at": "2026-10-28T18:24:04.963Z",
   "state": {
     "tip": {
-      "height": 973579,
-      "hash": "00000000000000000000b7614d20a690468186ba479bea449a14c8ba76b3a342"
+      "height": 973580,
+      "hash": "000000000000000000001b1ebd09f8cc443853440687acd474b0196c40681c98"
     },
-    "counted": 973574,
+    "counted": 973575,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -21,7 +21,7 @@
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 201
+      "claim": 599
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973579,
+        "last_beat": 973580,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 973581,
       "end": 973584,
       "window_open": true,
-      "S": "635542736",
+      "S": "944917736",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 399,
-      "claim_deposit": "547966323303",
+      "claim_count": 404,
+      "claim_deposit": "548690521865",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973579,
+    "source_height": 973580,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -952,14 +952,14 @@
       "balance": "9359437",
       "deposit": "36489747",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 647,
         "claim": {
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "42321",
+        "fair_share_estimate": "62840",
         "strikes": 0,
         "clean": 23,
         "last_result": {
@@ -1674,7 +1674,7 @@
       0,
       0,
       1,
-      0,
+      1,
       645,
       33732,
       0
@@ -3511,7 +3511,7 @@
       0,
       0,
       1,
-      0,
+      1,
       645,
       33732,
       0
@@ -5953,7 +5953,7 @@
       0,
       0,
       10,
-      0,
+      1,
       645,
       280048,
       0
@@ -6569,7 +6569,7 @@
       0,
       0,
       7,
-      0,
+      1,
       645,
       134992,
       0
@@ -6646,7 +6646,7 @@
       50000000,
       0,
       6,
-      0,
+      1,
       644,
       1935135,
       0
