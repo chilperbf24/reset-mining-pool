@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T16:48:50.405961Z",
+  "updated": "2026-10-28T16:58:49.958272Z",
   "source": "https://reset.much.fun/v1/market/view (public market-feed, no login)",
   "pairs": [
     {
@@ -26,12 +26,12 @@
     },
     {
       "pair": "RESET/USDC",
-      "last": "6.412999522556",
-      "change24h": "-0.743480019097",
-      "volume24h": "3785.86039",
+      "last": "7",
+      "change24h": "-0.72",
+      "volume24h": "3942.642075",
       "high24h": null,
       "low24h": null,
-      "trades24h": 203,
+      "trades24h": 209,
       "bestBuy": "7",
       "bestSell": "8.462",
       "bids": [
@@ -44,12 +44,20 @@
           "2.5"
         ],
         [
+          "6.25",
+          "5"
+        ],
+        [
           "6",
           "2.5"
         ],
         [
           "6",
-          "2"
+          "1"
+        ],
+        [
+          "5",
+          "10"
         ],
         [
           "5",
@@ -66,14 +74,6 @@
         [
           "2",
           "8"
-        ],
-        [
-          "1.2",
-          "13"
-        ],
-        [
-          "0.8",
-          "20"
         ]
       ],
       "asks": [
@@ -90,10 +90,6 @@
           "1.82433148"
         ],
         [
-          "8.5",
-          "11"
-        ],
-        [
           "11",
           "1"
         ],
@@ -115,12 +111,112 @@
         ],
         [
           "12.39",
+          "1"
+        ],
+        [
+          "12.89",
           "1"
         ]
       ]
     }
   ],
   "trades": [
+    {
+      "id": "6bf117f53f69f61f2c1cf4f7c4b0d7889c8d7586c0c27f9922397510d2974d5c",
+      "pair": "RESET/USDC",
+      "price": "7",
+      "amount": "1",
+      "usdc": "7",
+      "seller": {
+        "trac": "trac17duuptup598xqjna39vktwupdkv9y6wujhrg5ttdcy4qunt85nzs7m3078",
+        "sol": "6uTRmgDpxmQxkVCKKZHru3FYVFeeZ9uaBi2sbRv3o3uk"
+      },
+      "buyer": {
+        "trac": "trac15l9lfvv9q5xj6087u8f3dc8d659udg2n6fyxpxwvp3vhfmnw0a2szz657v",
+        "sol": "3b3LsB2UupFixfyqftLei1RfNnPvhmGRBnE2T4g74zqz"
+      },
+      "settledAt": 1793206648
+    },
+    {
+      "id": "944eabb48946b1cb4462c009adec052e3dd48a9f0692eeadb42cb8be5b79c44d",
+      "pair": "RESET/USDC",
+      "price": "4.999999943441",
+      "amount": "7.95633709",
+      "usdc": "39.781685",
+      "seller": {
+        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
+        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
+      },
+      "buyer": {
+        "trac": "trac1zex3kh4d7fjryda3p9dezzfe3j3mc6uawefj58mhf6dc77hpjx2spyv03k",
+        "sol": "AqQu9hC96c1H2Bz6jVGo3jcAq4Vqd51x1VbLU5JumaXN"
+      },
+      "settledAt": 1793206593
+    },
+    {
+      "id": "bed31d960ed1b3f59cb0d96d2fbf6cbf7e38756a722dffb5a370366f15aa0b36",
+      "pair": "RESET/USDC",
+      "price": "5",
+      "amount": "5",
+      "usdc": "25",
+      "seller": {
+        "trac": "trac17duuptup598xqjna39vktwupdkv9y6wujhrg5ttdcy4qunt85nzs7m3078",
+        "sol": "6uTRmgDpxmQxkVCKKZHru3FYVFeeZ9uaBi2sbRv3o3uk"
+      },
+      "buyer": {
+        "trac": "trac15l9lfvv9q5xj6087u8f3dc8d659udg2n6fyxpxwvp3vhfmnw0a2szz657v",
+        "sol": "3b3LsB2UupFixfyqftLei1RfNnPvhmGRBnE2T4g74zqz"
+      },
+      "settledAt": 1793206577
+    },
+    {
+      "id": "686a0e319a09ce0990e3738a868bf7740eab3aa528415b3dbb26a0af7b67553d",
+      "pair": "RESET/USDC",
+      "price": "5",
+      "amount": "1",
+      "usdc": "5",
+      "seller": {
+        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
+        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
+      },
+      "buyer": {
+        "trac": "trac15l9lfvv9q5xj6087u8f3dc8d659udg2n6fyxpxwvp3vhfmnw0a2szz657v",
+        "sol": "3b3LsB2UupFixfyqftLei1RfNnPvhmGRBnE2T4g74zqz"
+      },
+      "settledAt": 1793206546
+    },
+    {
+      "id": "c030ed50fc5a3d4309f7faf5da85162fc62909c402fd240dc30720155b80af05",
+      "pair": "RESET/USDC",
+      "price": "5",
+      "amount": "10",
+      "usdc": "50",
+      "seller": {
+        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
+        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
+      },
+      "buyer": {
+        "trac": "trac1h6wy8yzujjgxp7afsvxqtasa9rdcddr38t5h4f63d2440cnlh7qslzs755",
+        "sol": "bX7dRs4k8hLJGzPRLL1o7sdVnyNibaxNTLFwMC6Z7qh"
+      },
+      "settledAt": 1793206435
+    },
+    {
+      "id": "cf623519bd127e59bd6e2f08676d8fda81f7b69ad97a60ee7b503f99f5c468ce",
+      "pair": "RESET/USDC",
+      "price": "6",
+      "amount": "5",
+      "usdc": "30",
+      "seller": {
+        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
+        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
+      },
+      "buyer": {
+        "trac": "trac15l9lfvv9q5xj6087u8f3dc8d659udg2n6fyxpxwvp3vhfmnw0a2szz657v",
+        "sol": "3b3LsB2UupFixfyqftLei1RfNnPvhmGRBnE2T4g74zqz"
+      },
+      "settledAt": 1793206193
+    },
     {
       "id": "0fa856ae22643c5b2bd2797e014ab8e11c1f3adcef1b4edcca842b8cb7e9625d",
       "pair": "RESET/USDC",
@@ -184,102 +280,6 @@
         "sol": "FVesVrMm43b7f8xv5kzc8N7Ciu9WkvwPfDKdyuU8vUXX"
       },
       "settledAt": 1793203395
-    },
-    {
-      "id": "74d6580fb0fdfaa4be45902a1b062852a3c8ef60c359eaf7946c5b4da914e5f7",
-      "pair": "RESET/USDC",
-      "price": "6.412999841102",
-      "amount": "2.14804964",
-      "usdc": "13.775442",
-      "seller": {
-        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
-        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
-      },
-      "buyer": {
-        "trac": "trac1phyvdpvhg68jnevw39vtdt5dm4t5w7gwd8tcaxtca3pag3hqsvyqqh6fl3",
-        "sol": "6xd6uPKzKu6shRqPchD7v5pjBce3KXKuCmLGJSk2Cy24"
-      },
-      "settledAt": 1793203370
-    },
-    {
-      "id": "af4a1e79a23f007b51fbdab1a52c0168ec857bd1870b8b04cca4c513797c2c91",
-      "pair": "RESET/USDC",
-      "price": "8.462",
-      "amount": "0.09",
-      "usdc": "0.76158",
-      "seller": {
-        "trac": "trac1phyvdpvhg68jnevw39vtdt5dm4t5w7gwd8tcaxtca3pag3hqsvyqqh6fl3",
-        "sol": "6xd6uPKzKu6shRqPchD7v5pjBce3KXKuCmLGJSk2Cy24"
-      },
-      "buyer": {
-        "trac": "trac148typrwsecannp6ajpmnhk72adled8rx53g44krpnh3l4us85rrskd79ru",
-        "sol": "AdHy9iYHUAPJw36dRKvMbpuaGBiz8xkik99cWbX8BE4s"
-      },
-      "settledAt": 1793202487
-    },
-    {
-      "id": "0fb4b36b12f1458effec40d43584a0bd8c4aaef3d9a2e04254c8f7bb0cc27a4c",
-      "pair": "RESET/USDC",
-      "price": "10.5",
-      "amount": "1",
-      "usdc": "10.5",
-      "seller": {
-        "trac": "trac17duuptup598xqjna39vktwupdkv9y6wujhrg5ttdcy4qunt85nzs7m3078",
-        "sol": "6uTRmgDpxmQxkVCKKZHru3FYVFeeZ9uaBi2sbRv3o3uk"
-      },
-      "buyer": {
-        "trac": "trac1n7ezsw4fwvuc6dkgnn25t86nvgudxrn7569d9gxjpgreay7gwecqm2z7mx",
-        "sol": "CVp7F5tE8BzbLLTq7Bap88qne8AxWbh8qtPBooPRzE9C"
-      },
-      "settledAt": 1793201652
-    },
-    {
-      "id": "7ec264645592168283b727f27d1bac4e2ff76f1088fc111883136b855d88a5cd",
-      "pair": "RESET/USDC",
-      "price": "10.5",
-      "amount": "1",
-      "usdc": "10.5",
-      "seller": {
-        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
-        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
-      },
-      "buyer": {
-        "trac": "trac1n7ezsw4fwvuc6dkgnn25t86nvgudxrn7569d9gxjpgreay7gwecqm2z7mx",
-        "sol": "CVp7F5tE8BzbLLTq7Bap88qne8AxWbh8qtPBooPRzE9C"
-      },
-      "settledAt": 1793201507
-    },
-    {
-      "id": "9ab316ceb9dafd86a30dc786c158305b1abed185b02601c6e713af5941aeaccb",
-      "pair": "RESET/USDC",
-      "price": "7",
-      "amount": "3",
-      "usdc": "21",
-      "seller": {
-        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
-        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
-      },
-      "buyer": {
-        "trac": "trac10j5ef3mgrnja3vvr67xugthtmgy672j5apw63e0m6eq7gkc4x5ssrd78fz",
-        "sol": "BT8rwT82vmnBvGjts6M8ZbMPwsTQiTRKVv46J3FMx2x8"
-      },
-      "settledAt": 1793201454
-    },
-    {
-      "id": "1f2e70f96e8b2bb9faa59c05aa011305e4e051a341716c0fc6931a9463263c0e",
-      "pair": "RESET/USDC",
-      "price": "7",
-      "amount": "10",
-      "usdc": "70",
-      "seller": {
-        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
-        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
-      },
-      "buyer": {
-        "trac": "trac10j5ef3mgrnja3vvr67xugthtmgy672j5apw63e0m6eq7gkc4x5ssrd78fz",
-        "sol": "BT8rwT82vmnBvGjts6M8ZbMPwsTQiTRKVv46J3FMx2x8"
-      },
-      "settledAt": 1793201348
     }
   ]
 }
