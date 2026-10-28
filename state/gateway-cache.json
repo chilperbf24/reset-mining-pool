@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-28T13:19:25.777Z",
+  "fetched_at": "2026-10-28T13:34:17.322Z",
   "state": {
     "tip": {
-      "height": 973557,
-      "hash": "0000000000000000000120f6f82b8a8fc7dcfdf50dbce6865f126e68283681ce"
+      "height": 973558,
+      "hash": "00000000000000000001764d9f91f9117dde46f969b8102395d5f35be81df8c0"
     },
-    "counted": 973552,
+    "counted": 973553,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 599,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 599
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973557,
+        "last_beat": 973558,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 973555,
       "claim_end": 973557,
       "end": 973560,
-      "window_open": true,
-      "S": "1254045156",
+      "window_open": false,
+      "S": "1563420156",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 401,
-      "claim_deposit": "377480179104",
+      "claim_count": 405,
+      "claim_deposit": "377532074166",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973557,
+    "source_height": 973558,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -959,7 +959,7 @@
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "121224",
+        "fair_share_estimate": "151109",
         "strikes": 0,
         "clean": 19,
         "last_result": {
@@ -2774,7 +2774,7 @@
       0,
       0,
       23,
-      0,
+      1,
       641,
       34265,
       0
@@ -3819,7 +3819,7 @@
       0,
       0,
       18,
-      0,
+      1,
       641,
       34265,
       0
@@ -4237,7 +4237,7 @@
       0,
       0,
       23,
-      0,
+      1,
       641,
       34265,
       0
@@ -6877,7 +6877,7 @@
       0,
       0,
       23,
-      0,
+      1,
       641,
       75024,
       0
