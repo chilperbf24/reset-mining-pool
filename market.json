@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-28T04:28:48.788625Z",
+  "updated": "2026-10-28T04:38:52.661815Z",
   "source": "https://reset.much.fun/v1/market/view (public market-feed, no login)",
   "pairs": [
     {
@@ -11,20 +11,12 @@
       "low24h": null,
       "trades24h": 4,
       "bestBuy": null,
-      "bestSell": "0.16",
+      "bestSell": "0.5",
       "bids": [],
       "asks": [
         [
-          "0.16",
-          "5"
-        ],
-        [
-          "0.17",
-          "5"
-        ],
-        [
-          "1",
-          "1"
+          "1.50",
+          "249"
         ],
         [
           "2.00",
@@ -34,15 +26,23 @@
     },
     {
       "pair": "RESET/USDC",
-      "last": "8.199999658198",
+      "last": "16.05",
       "change24h": null,
-      "volume24h": "5000.570197",
+      "volume24h": "5028.720197",
       "high24h": null,
       "low24h": null,
-      "trades24h": 210,
-      "bestBuy": "12",
+      "trades24h": 212,
+      "bestBuy": "20",
       "bestSell": "16.9",
       "bids": [
+        [
+          "20",
+          "0.1"
+        ],
+        [
+          "12.1",
+          "2.72727272"
+        ],
         [
           "8.30",
           "2"
@@ -56,15 +56,7 @@
           "1"
         ],
         [
-          "8.10",
-          "2"
-        ],
-        [
           "8",
-          "2"
-        ],
-        [
-          "7.32",
           "2"
         ],
         [
@@ -129,6 +121,38 @@
     }
   ],
   "trades": [
+    {
+      "id": "d1b62dbc55e0a85ec5fedca18a341e89711ec0b77466a49fac0a9b18927780f7",
+      "pair": "RESET/USDC",
+      "price": "16.05",
+      "amount": "1",
+      "usdc": "16.05",
+      "seller": {
+        "trac": "trac15l9lfvv9q5xj6087u8f3dc8d659udg2n6fyxpxwvp3vhfmnw0a2szz657v",
+        "sol": "3b3LsB2UupFixfyqftLei1RfNnPvhmGRBnE2T4g74zqz"
+      },
+      "buyer": {
+        "trac": "trac1u7rhaqagcgu0xf7eqxpzl375mqnahc4clf3crrej8vzqa8n5fcrs50zrd7",
+        "sol": "3TTc4CMtCqCJy571Y8DnGrUbc1f3DUHCC8rGNoS8EEtP"
+      },
+      "settledAt": 1793162239
+    },
+    {
+      "id": "de8c42d851dcc4b69bc4191cc08ba2e5dd62555d74ca556beb11ca0c1bd19d16",
+      "pair": "RESET/USDC",
+      "price": "12.1",
+      "amount": "1",
+      "usdc": "12.1",
+      "seller": {
+        "trac": "trac15l9lfvv9q5xj6087u8f3dc8d659udg2n6fyxpxwvp3vhfmnw0a2szz657v",
+        "sol": "3b3LsB2UupFixfyqftLei1RfNnPvhmGRBnE2T4g74zqz"
+      },
+      "buyer": {
+        "trac": "trac1u7rhaqagcgu0xf7eqxpzl375mqnahc4clf3crrej8vzqa8n5fcrs50zrd7",
+        "sol": "3TTc4CMtCqCJy571Y8DnGrUbc1f3DUHCC8rGNoS8EEtP"
+      },
+      "settledAt": 1793161910
+    },
     {
       "id": "9aa63d45b39e1dad822d793124015653a0c92ab702c1bbd3efd9d64f3435d621",
       "pair": "RESET/USDC",
@@ -256,38 +280,6 @@
         "sol": "3TTc4CMtCqCJy571Y8DnGrUbc1f3DUHCC8rGNoS8EEtP"
       },
       "settledAt": 1793157873
-    },
-    {
-      "id": "79e5d8f21188247aa9ff8640da6fe54a62dd08c1285dd91e559c91eacc635ed1",
-      "pair": "RESET/USDC",
-      "price": "8.1",
-      "amount": "1",
-      "usdc": "8.1",
-      "seller": {
-        "trac": "trac1qnfsnurk9u02meq0zz3gm3ug6xxdpcm5jeg5cy6su3807zln6vjs6gqx42",
-        "sol": "tum8esDrmeAiEnFjV6ZsHULUhAgJ8kcSXcBvje7tusD"
-      },
-      "buyer": {
-        "trac": "trac1hja62vzdf8qkakqszahqg5wnkpsualp4sew4e2p4yyrm9ex62jzswel9az",
-        "sol": "J6ziyC9YWiaaMisds6nRwMGQEM2SmE8VLPFSxnWdHC6d"
-      },
-      "settledAt": 1793157739
-    },
-    {
-      "id": "501206206cb15745a9dd38b709d12bf88bc8ec1d36b6332c7b920fc887718e17",
-      "pair": "RESET/USDC",
-      "price": "8.2",
-      "amount": "2",
-      "usdc": "16.4",
-      "seller": {
-        "trac": "trac17duuptup598xqjna39vktwupdkv9y6wujhrg5ttdcy4qunt85nzs7m3078",
-        "sol": "6uTRmgDpxmQxkVCKKZHru3FYVFeeZ9uaBi2sbRv3o3uk"
-      },
-      "buyer": {
-        "trac": "trac1u7rhaqagcgu0xf7eqxpzl375mqnahc4clf3crrej8vzqa8n5fcrs50zrd7",
-        "sol": "3TTc4CMtCqCJy571Y8DnGrUbc1f3DUHCC8rGNoS8EEtP"
-      },
-      "settledAt": 1793157632
     }
   ]
 }
