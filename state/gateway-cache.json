@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-28T21:37:34.245Z",
+  "fetched_at": "2026-10-28T21:49:26.473Z",
   "state": {
     "tip": {
-      "height": 973599,
-      "hash": "000000000000000000003b3cd6d935a494faebfa3b3448b00b09c29ce1b4057f"
+      "height": 973600,
+      "hash": "0000000000000000000148c3840626e97bdbbc7c71e0403cdb84ee94da81515a"
     },
-    "counted": 973594,
+    "counted": 973595,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -21,7 +21,7 @@
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 591
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973599,
+        "last_beat": 973600,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 973597,
       "claim_end": 973599,
       "end": 973602,
-      "window_open": true,
-      "S": "1254497178",
+      "window_open": false,
+      "S": "1563872178",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 412,
-      "claim_deposit": "548875856888",
+      "claim_count": 414,
+      "claim_deposit": "548967879227",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973599,
+    "source_height": 973600,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -959,7 +959,7 @@
           "d": "36489747",
           "q": 1000
         },
-        "fair_share_estimate": "83400",
+        "fair_share_estimate": "103950",
         "strikes": 0,
         "clean": 2,
         "last_result": {
@@ -1175,7 +1175,7 @@
     ],
     [
       "06f8d903cdda8eed5cecdfba50c6df47a88b265f7019d162b4fcbcf64d899c9c",
-      312171377,
+      425339590,
       0,
       0,
       10,
@@ -5502,7 +5502,7 @@
       0,
       0,
       16,
-      0,
+      1,
       648,
       141845,
       0
@@ -6580,7 +6580,7 @@
       0,
       0,
       10,
-      0,
+      1,
       648,
       169783,
       0
