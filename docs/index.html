@@ -120,8 +120,8 @@
  <div class="stat"><b>0.46591301</b><span data-i18n="statDeposit">Locked deposit on-chain</span></div>
  <div class="stat"><b>0.02227270</b><span data-i18n="statBalance">Pool balance on-chain</span></div>
  <div class="stat"><b>669</b><span data-i18n="statRound">Current Mine round</span></div>
- <div class="stat"><b>186</b><span data-i18n="statSettled">Rounds settled</span></div>
- <div class="stat"><b>0.22779775</b><span data-i18n="statEarnings">Cumulative earnings — all settled rounds (RESET)</span></div>
+ <div class="stat"><b>187</b><span data-i18n="statSettled">Rounds settled</span></div>
+ <div class="stat"><b>0.22927623</b><span data-i18n="statEarnings">Cumulative earnings — all settled rounds (RESET)</span></div>
  <div class="stat"><b>0.32%</b><span data-i18n="statYieldLatest">Latest settled round — yield as % of deposit</span></div>
  <div class="stat"><b>0.33%</b><span data-i18n="statYieldAvg7">Avg per-round yield as % of deposit (last 7 settled)</span></div>
  <div class="stat"><b>0.0078%</b><span data-i18n="statNetShare">Pool deposit as % of network-wide stake</span></div>
@@ -143,14 +143,14 @@
 
 <h2 data-i18n="expNetTitle">Network overview</h2>
 <div class="grid">
- <div class="stat"><b><a href="https://mempool.space/block/00000000000000000001aa88d83ca1c20c282eb2c3a0ffb3d1169f07001340db" target="_blank" rel="noopener">973711</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>973706</b><span data-i18n="expCounted">Counted height</span></div>
+ <div class="stat"><b><a href="https://mempool.space/block/0000000000000000000114f397b44d25a9e25791cb79dd699f082b4d5fdaafa2" target="_blank" rel="noopener">973712</a></b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>973707</b><span data-i18n="expCounted">Counted height</span></div>
  <div class="stat"><b>669</b><span data-i18n="expRound">Current round</span></div>
  <div class="stat"><b>973711–973713 <span data-i18n="expOpen">open</span></b><span data-i18n="expWindow">Claim window (blocks)</span></div>
- <div class="stat"><b>6.37277138</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>9.46652138</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
  <div class="stat"><b>18.56250000</b><span data-i18n="expGuideline">Round guideline (RESET)</span></div>
- <div class="stat"><b>172</b><span data-i18n="expClaims">Claims this round</span></div>
- <div class="stat"><b>4073.11822447</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
+ <div class="stat"><b>243</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>5065.62600720</b><span data-i18n="expClaimDeposit">Claiming deposit (RESET)</span></div>
 </div>
 <h2 data-i18n="expLastTitle">Last settled round</h2>
 <div class="card">
@@ -166,7 +166,7 @@
 </div>
 <h2 data-i18n="expWatchTitle">Watched addresses</h2>
 <table><tr><th data-i18n="thContributor">Address</th><th data-i18n="thBalance">Balance</th><th data-i18n="thDeposit">Deposit</th><th data-i18n="thClaimNow">Claim this round</th><th data-i18n="thFair">Fair estimate</th><th data-i18n="thStrikes">Strikes / clean</th><th data-i18n="thLast">Last result</th></tr>
-<tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab('overview');setTimeout(function(){document.getElementById('join').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a></td><td>0.02227270</td><td>0.46591301</td><td>level 1000</td><td>0.00072888</td><td>0 / 19</td><td>#667: 0.00147848</td></tr>
+<tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6 <span class="badge" data-i18n="expPoolTag">pool</span> <a href="#join" onclick="showTab('overview');setTimeout(function(){document.getElementById('join').scrollIntoView()},60);return false;" data-i18n="poolJoinLink">join via the calculator ↓</a></td><td>0.02227270</td><td>0.46591301</td><td>level 1000</td><td>0.00087068</td><td>0 / 19</td><td>#667: 0.00147848</td></tr>
 </table>
 <div class="card"><b data-i18n="lbTitle">Staking leaderboard</b>
 <p class="muted" data-i18n="lbCardNote">Every staking address ranked by deposit, with balances — 15 per page on its own page.</p>
@@ -176,21 +176,22 @@
 <section class="tabpage" id="tab-ledger" style="display:none">
 <h2 data-i18n="ledgerTitle">Public ledger</h2>
 <table><tr><th data-i18n="thContributor">Contributor</th><th data-i18n="thContributed">Contributed</th><th data-i18n="thPending">Pending payout</th><th data-i18n="thPaid">Paid total</th></tr>
-        <tr><td class="mono">1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d</td><td>0.05000000</td><td>0.04930538</td><td>0.00000000</td></tr>
-        <tr><td class="mono">0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7</td><td>0.03657260</td><td>0.03606428</td><td>0.00000000</td></tr>
-        <tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6</td><td>0.02661039</td><td>0.02624031</td><td>0.00000000</td></tr>
-        <tr><td class="mono">cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3</td><td>0.02082555</td><td>0.01441708</td><td>0.00000000</td></tr>
-        <tr><td class="mono">ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d</td><td>0.08216449</td><td>0.07691110</td><td>0.00000000</td></tr>
-        <tr><td class="mono">d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d</td><td>0.01658858</td><td>0.01552721</td><td>0.00000000</td></tr>
-        <tr><td class="mono">1c4dd9d49ba0881f2927091a4f413b8b4e833c77624ca29c287eaab6e9422fc8</td><td>0.01071748</td><td>0.00404950</td><td>0.00000000</td></tr>
-        <tr><td class="mono">4c3d13ad3213d0482bdda13d8e9fd4f47fa763f2c5635ba9c664a5ab93ae7c6c</td><td>0.00623323</td><td>0.00235505</td><td>0.00000000</td></tr>
-        <tr><td class="mono">1ee8a7f2e2a20ed2b219a60b634116d3f8944f96e5b88bc60b0945cada8b31e4</td><td>0.00919716</td><td>0.00292780</td><td>0.00000000</td></tr>
+        <tr><td class="mono">1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d</td><td>0.05000000</td><td>0.04959090</td><td>0.00000000</td></tr>
+        <tr><td class="mono">0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7</td><td>0.03657260</td><td>0.03627313</td><td>0.00000000</td></tr>
+        <tr><td class="mono">4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6</td><td>0.02661039</td><td>0.02639227</td><td>0.00000000</td></tr>
+        <tr><td class="mono">cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3</td><td>0.02082555</td><td>0.01453600</td><td>0.00000000</td></tr>
+        <tr><td class="mono">ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d</td><td>0.08216449</td><td>0.07738030</td><td>0.00000000</td></tr>
+        <tr><td class="mono">d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d</td><td>0.01658858</td><td>0.01562194</td><td>0.00000000</td></tr>
+        <tr><td class="mono">1c4dd9d49ba0881f2927091a4f413b8b4e833c77624ca29c287eaab6e9422fc8</td><td>0.01071748</td><td>0.00411070</td><td>0.00000000</td></tr>
+        <tr><td class="mono">4c3d13ad3213d0482bdda13d8e9fd4f47fa763f2c5635ba9c664a5ab93ae7c6c</td><td>0.00623323</td><td>0.00239064</td><td>0.00000000</td></tr>
+        <tr><td class="mono">1ee8a7f2e2a20ed2b219a60b634116d3f8944f96e5b88bc60b0945cada8b31e4</td><td>0.00919716</td><td>0.00298032</td><td>0.00000000</td></tr>
 </table>
 
 </section>
 <section class="tabpage" id="tab-reports" style="display:none">
 <h2 data-i18n="reportsTitle">Round reports</h2>
 <table><thead><tr><th data-i18n="thRound">Round</th><th data-i18n="thClaim">Claim received (RESET)</th><th data-i18n="thRatio">Share of deposit</th><th data-i18n="thShares">Shares</th><th data-i18n="thHash">Report hash</th></tr></thead><tbody id="rpBody">
+        <tr data-rp="1"><td>667</td><td>0.00147848</td><td>0.32%</td><td>9</td><td class="mono">f7ae75bac790c7e1…</td></tr>
         <tr data-rp="1"><td>666</td><td>0.00149875</td><td>0.32%</td><td>9</td><td class="mono">1b52cb962b0e612c…</td></tr>
         <tr data-rp="1"><td>665</td><td>0.00148099</td><td>0.32%</td><td>9</td><td class="mono">229740b5fa6d36d3…</td></tr>
         <tr data-rp="1"><td>664</td><td>0.00148672</td><td>0.32%</td><td>9</td><td class="mono">3df46f023c2c7b63…</td></tr>
@@ -405,11 +406,11 @@ altering a single share makes verification fail.</p>
 <h2 data-i18n="mktNetTitle">RESET network</h2>
 <div class="grid">
  <div class="stat"><b>669</b><span data-i18n="expRound">Current round</span></div>
- <div class="stat"><b>973711</b><span data-i18n="expTip">Bitcoin tip</span></div>
- <div class="stat"><b>172</b><span data-i18n="expClaims">Claims this round</span></div>
+ <div class="stat"><b>973712</b><span data-i18n="expTip">Bitcoin tip</span></div>
+ <div class="stat"><b>243</b><span data-i18n="expClaims">Claims this round</span></div>
  <div class="stat"><b>5988.25144552</b><span data-i18n="lbTotalStaked">Total staked (RESET)</span></div>
  <div class="stat"><b>530</b><span data-i18n="mktAddresses">Addresses in the network</span></div>
- <div class="stat"><b>6.37277138</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
+ <div class="stat"><b>9.46652138</b><span data-i18n="expStock">Mine stock (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="mktSnapNote">Snapshot data — refreshed about every 10 minutes when this page is regenerated.</p>
 <h2 data-i18n="dexTitle">Official DEX · RESET/USDC · TNK/USDC</h2>
@@ -429,12 +430,12 @@ altering a single share makes verification fail.</p>
 </div>
 <table><tr><th data-i18n="dexBid">Bid</th><th data-i18n="dexQty">Amount</th><th data-i18n="dexAsk">Ask</th><th data-i18n="dexQty">Amount</th></tr><tr><td>—</td><td>—</td><td>0.17</td><td>1.03</td></tr><tr><td>—</td><td>—</td><td>1</td><td>1</td></tr></table></div><p class="muted"><span data-i18n="dexUpdated">DEX data snapshot</span>: 2026-10-29T16:18:53.251644Z</p>
 </section>
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-29 16:18:55 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-29 16:19:20 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"25890948","threshold_units":"1000000","rounds_settled":186,"dissolved":null,"updated":"2026-10-29 16:18:55 UTC","snapshot_ms":1793290735885,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"4930538","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"3606428","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"2624031","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"2082555","pending_units":"1441708","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"7691110","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"1552721","paid_units":"0","closed":null},"1c4dd9d49ba0881f2927091a4f413b8b4e833c77624ca29c287eaab6e9422fc8":{"contributed_units":"1071748","pending_units":"404950","paid_units":"0","closed":null},"4c3d13ad3213d0482bdda13d8e9fd4f47fa763f2c5635ba9c664a5ab93ae7c6c":{"contributed_units":"623323","pending_units":"235505","paid_units":"0","closed":null},"1ee8a7f2e2a20ed2b219a60b634116d3f8944f96e5b88bc60b0945cada8b31e4":{"contributed_units":"919716","pending_units":"292780","paid_units":"0","closed":null}}};
+const SNAPSHOT = {"pool_address":"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6","total_units":"25890948","threshold_units":"1000000","rounds_settled":187,"dissolved":null,"updated":"2026-10-29 16:19:20 UTC","snapshot_ms":1793290760947,"contributors":{"1f1613f19eff94f3adc79f8d48f8b186368b6c44b31905355cfe9bdee98a001d":{"contributed_units":"5000000","pending_units":"4959090","paid_units":"0","closed":null},"0f9af20bf4b6e0913540f338fde4e3010c0151da0b94fc9f205a5216d53403a7":{"contributed_units":"3657260","pending_units":"3627313","paid_units":"0","closed":null},"4150cf82f0189371818a22d5f5b10d52aadf9108c78020cc97fc002df6eaaca6":{"contributed_units":"2661039","pending_units":"2639227","paid_units":"0","closed":null},"cbbfcf705caffcb42e58219f7594a5e8920853246f75a9a06fce42eee5c5ced3":{"contributed_units":"2082555","pending_units":"1453600","paid_units":"0","closed":null},"ad44e5cd85ad654f572b2b9c48f2fa0fc952397b00b2e438ddd72cfa2d48af4d":{"contributed_units":"8216449","pending_units":"7738030","paid_units":"0","closed":null},"d8b5931a32506cd93af6aeeb568567871cdcb422c87265cd77d44b40e682ad6d":{"contributed_units":"1658858","pending_units":"1562194","paid_units":"0","closed":null},"1c4dd9d49ba0881f2927091a4f413b8b4e833c77624ca29c287eaab6e9422fc8":{"contributed_units":"1071748","pending_units":"411070","paid_units":"0","closed":null},"4c3d13ad3213d0482bdda13d8e9fd4f47fa763f2c5635ba9c664a5ab93ae7c6c":{"contributed_units":"623323","pending_units":"239064","paid_units":"0","closed":null},"1ee8a7f2e2a20ed2b219a60b634116d3f8944f96e5b88bc60b0945cada8b31e4":{"contributed_units":"919716","pending_units":"298032","paid_units":"0","closed":null}}};
 const REGISTRY_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/calc";
 const REGISTRY_EXIT_ENDPOINT = "https://reset-pool-registry.tyrodcamp.workers.dev/exit";
 const T = {
