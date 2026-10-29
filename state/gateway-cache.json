@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-29T05:09:17.079Z",
+  "fetched_at": "2026-10-29T05:14:10.190Z",
   "state": {
     "tip": {
-      "height": 973647,
-      "hash": "00000000000000000001826ead444c90563fef7783c4a5238a49d23875cc9820"
+      "height": 973648,
+      "hash": "00000000000000000001df2937bcfc0540b8bc9eed3aa4c45fc9f3c1afdde316"
     },
-    "counted": 973642,
+    "counted": 973643,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 599,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 598
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973647,
+        "last_beat": 973648,
         "active": true
       }
     ],
@@ -905,8 +905,8 @@
       "start": 973645,
       "claim_end": 973647,
       "end": 973650,
-      "window_open": true,
-      "S": "1255233311",
+      "window_open": false,
+      "S": "1564608311",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973647,
+    "source_height": 973648,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -959,7 +959,7 @@
           "d": "46591301",
           "q": 1000
         },
-        "fair_share_estimate": "115256",
+        "fair_share_estimate": "143662",
         "strikes": 0,
         "clean": 9,
         "last_result": {
