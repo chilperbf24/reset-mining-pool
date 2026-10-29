@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-29T21:17:30.702Z",
+  "fetched_at": "2026-10-29T21:17:48.767Z",
   "state": {
     "tip": {
-      "height": 973742,
-      "hash": "0000000000000000000134047c688cd6a94df0e2478c84ef1ba1d6c889708022"
+      "height": 973743,
+      "hash": "00000000000000000001c955a60203deddeff550880cf56ecd44689f9eadff6d"
     },
-    "counted": 973737,
+    "counted": 973738,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 598,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 307
+      "claim": 598
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973742,
+        "last_beat": 973743,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 973743,
       "end": 973746,
       "window_open": true,
-      "S": "946754418",
+      "S": "1256129418",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 355,
-      "claim_deposit": "583252365837",
+      "claim_count": 360,
+      "claim_deposit": "583357009043",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973742,
+    "source_height": 973743,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -952,14 +952,14 @@
       "balance": "3047192",
       "deposit": "46591301",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 674,
         "claim": {
           "d": "46591301",
           "q": 1000
         },
-        "fair_share_estimate": "75628",
+        "fair_share_estimate": "100323",
         "strikes": 0,
         "clean": 0,
         "last_result": {
@@ -1069,7 +1069,7 @@
       0,
       0,
       0,
-      0,
+      1,
       672,
       31174,
       0
@@ -1608,7 +1608,7 @@
       0,
       0,
       4,
-      0,
+      1,
       672,
       31174,
       0
@@ -2015,7 +2015,7 @@
       0,
       0,
       23,
-      0,
+      1,
       672,
       31174,
       0
@@ -3280,7 +3280,7 @@
       0,
       0,
       11,
-      0,
+      1,
       672,
       170349,
       0
@@ -3665,7 +3665,7 @@
       0,
       0,
       9,
-      0,
+      1,
       672,
       31174,
       0
