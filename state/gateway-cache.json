@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-30T08:07:12.737Z",
+  "fetched_at": "2026-10-30T08:19:18.248Z",
   "state": {
     "tip": {
-      "height": 973789,
-      "hash": "000000000000000000018fb47295ff3949f6ebdf20e179890f3421ae75cf91fa"
+      "height": 973792,
+      "hash": "0000000000000000000166873ec883c559ee345a713313b4036cc0a447508b0b"
     },
-    "counted": 973784,
+    "counted": 973787,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 595,
+      "lock": 600,
       "unlock": 600,
       "withdraw": 600,
       "guess": 600,
-      "claim": 237
+      "claim": 600
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973789,
+        "last_beat": 973792,
         "active": true
       }
     ],
@@ -905,13 +905,13 @@
       "start": 973789,
       "claim_end": 973791,
       "end": 973794,
-      "window_open": true,
-      "S": "637571619",
+      "window_open": false,
+      "S": "1565696619",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 363,
-      "claim_deposit": "588443728499",
+      "claim_count": 365,
+      "claim_deposit": "614399269218",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973789,
+    "source_height": 973792,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -952,14 +952,14 @@
       "balance": "4252490",
       "deposit": "46591301",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 682,
         "claim": {
           "d": "46591301",
           "q": 1000
         },
-        "fair_share_estimate": "50481",
+        "fair_share_estimate": "118730",
         "strikes": 0,
         "clean": 7,
         "last_result": {
@@ -1696,7 +1696,7 @@
       0,
       0,
       5,
-      0,
+      1,
       647,
       196529,
       0
@@ -4761,7 +4761,7 @@
     ],
     [
       "9fde15a2bb1f0af4899d39a2eeca4b7aa6175d0c8cd7730bdc7ab72b765ca0d3",
-      1731791902,
+      1896762427,
       0,
       0,
       1,
@@ -6316,7 +6316,7 @@
       800000000,
       0,
       16,
-      0,
+      1,
       680,
       90441320,
       0
