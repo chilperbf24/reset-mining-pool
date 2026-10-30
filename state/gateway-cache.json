@@ -1,11 +1,11 @@
 {
-  "fetched_at": "2026-10-30T17:07:18.675Z",
+  "fetched_at": "2026-10-30T17:19:20.236Z",
   "state": {
     "tip": {
-      "height": 973849,
-      "hash": "0000000000000000000183b62751c30c05e5142d3c92ef96df5a74a6de15fd60"
+      "height": 973850,
+      "hash": "000000000000000000006b874f57e0d9639500abeed5af0cb39dd42b81a2a635"
     },
-    "counted": 973844,
+    "counted": 973845,
     "bits": {
       "header": 0,
       "lock": 12,
@@ -17,11 +17,11 @@
     },
     "capacity_left": 600,
     "capacity_by_type": {
-      "lock": 598,
-      "unlock": 600,
+      "lock": 599,
+      "unlock": 598,
       "withdraw": 600,
       "guess": 600,
-      "claim": 233
+      "claim": 598
     },
     "per_address": 6,
     "params": {
@@ -46,7 +46,7 @@
       {
         "addr": "999e181fa53f8278bc3b745b58b0c620c1a7f66aa625439e145d5b2e09193105",
         "registered": true,
-        "last_beat": 973849,
+        "last_beat": 973850,
         "active": true
       }
     ],
@@ -906,12 +906,12 @@
       "claim_end": 973851,
       "end": 973854,
       "window_open": true,
-      "S": "638068642",
+      "S": "947443642",
       "C": "44550000000",
       "vein_buffer": "0",
       "last_guideline": "1856250000",
-      "claim_count": 367,
-      "claim_deposit": "567506947336",
+      "claim_count": 373,
+      "claim_deposit": "570299363559",
       "params": {
         "mine_capacity": "44550000000",
         "mine_bonus_per_mille": 100,
@@ -939,7 +939,7 @@
         "amount": "0"
       }
     },
-    "source_height": 973849,
+    "source_height": 973850,
     "header_error": null,
     "validators": {
       "connected": 50,
@@ -952,14 +952,14 @@
       "balance": "5660451",
       "deposit": "46591301",
       "exits": [],
-      "moves_this_height": 1,
+      "moves_this_height": 0,
       "mine": {
         "r": 692,
         "claim": {
           "d": "46591301",
           "q": 1000
         },
-        "fair_share_estimate": "52384",
+        "fair_share_estimate": "77402",
         "strikes": 0,
         "clean": 17,
         "last_result": {
@@ -1069,7 +1069,7 @@
       0,
       0,
       13,
-      0,
+      1,
       690,
       32262,
       0
@@ -2169,7 +2169,7 @@
       0,
       0,
       11,
-      0,
+      1,
       690,
       96786,
       0
@@ -2862,7 +2862,7 @@
       0,
       0,
       21,
-      0,
+      1,
       690,
       3843564,
       0
@@ -3280,7 +3280,7 @@
       0,
       0,
       23,
-      0,
+      1,
       690,
       210618,
       0
@@ -3738,8 +3738,8 @@
     ],
     [
       "6e31778c7808b41cfa0080f90c5a98f40ed9b3a81697b2127415c837d50709d1",
-      20032812,
       0,
+      20032812,
       0,
       5,
       1,
@@ -3995,7 +3995,7 @@
       0,
       0,
       8,
-      0,
+      1,
       690,
       32262,
       0
@@ -4497,11 +4497,11 @@
     ],
     [
       "8fd274a575ab2a6bcbdf6e100091b9a60a06c0d66ef4e178940ec62507c55071",
-      1304051701,
+      1485782520,
       0,
       0,
       20,
-      0,
+      1,
       690,
       4207164,
       0
@@ -5894,7 +5894,7 @@
     ],
     [
       "d960ef1b92b92a13db61a89127020e6816d0fdef072282a1c1f428aa159cc498",
-      41131666,
+      66131666,
       0,
       0,
       0,
@@ -6048,8 +6048,8 @@
     ],
     [
       "de26749e3c8bc65ebd1d25c9e93ed9e178d26539e2cc9dc56de1904de27f22c4",
-      50136183,
       0,
+      50136183,
       0,
       22,
       1,
