@@ -1,18 +1,31 @@
 {
-  "updated": "2026-10-31T07:08:49.994965Z",
+  "updated": "2026-10-31T07:18:48.748490Z",
   "source": "https://reset.much.fun/v1/market/view (public market-feed, no login)",
   "pairs": [
     {
       "pair": "TNK/USDC",
       "last": "0.15",
-      "change24h": "-0.85",
-      "volume24h": "20",
+      "change24h": "0",
+      "volume24h": "0.15",
       "high24h": null,
       "low24h": null,
-      "trades24h": 2,
-      "bestBuy": null,
+      "trades24h": 1,
+      "bestBuy": "2.5",
       "bestSell": "0.15",
-      "bids": [],
+      "bids": [
+        [
+          "2.5",
+          "1"
+        ],
+        [
+          "1.5",
+          "0.5"
+        ],
+        [
+          "1",
+          "2"
+        ]
+      ],
       "asks": [
         [
           "0.15",
@@ -43,11 +56,11 @@
     {
       "pair": "RESET/USDC",
       "last": "8.3",
-      "change24h": "-0.136765403174",
-      "volume24h": "619.684552",
+      "change24h": "0.079043161726",
+      "volume24h": "618.725886",
       "high24h": null,
       "low24h": null,
-      "trades24h": 46,
+      "trades24h": 45,
       "bestBuy": "8.3",
       "bestSell": "8.5",
       "bids": [
@@ -76,6 +89,10 @@
           "30"
         ],
         [
+          "6.50",
+          "3.02"
+        ],
+        [
           "6.5",
           "2.4"
         ],
@@ -86,10 +103,6 @@
         [
           "6.31",
           "5"
-        ],
-        [
-          "5.797",
-          "3.8035029"
         ]
       ],
       "asks": [
