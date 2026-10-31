@@ -43,8 +43,8 @@
  <div class="stat"><b>0.25890948</b><span data-i18n="stTotal">Total contributed (RESET)</span></div>
  <div class="stat"><b>9</b><span data-i18n="stContrib">Contributors</span></div>
  <div class="stat"><b>0.46591301</b><span data-i18n="stDeposit">Locked on-chain now (RESET)</span></div>
- <div class="stat"><b>223</b><span data-i18n="stRounds">Rounds settled</span></div>
- <div class="stat"><b>0.28277103</b><span data-i18n="stEarned">Cumulative earnings (RESET)</span></div>
+ <div class="stat"><b>224</b><span data-i18n="stRounds">Rounds settled</span></div>
+ <div class="stat"><b>0.28409693</b><span data-i18n="stEarned">Cumulative earnings (RESET)</span></div>
 </div>
 <p class="muted" data-i18n="statsNote">Figures as of the snapshot time in the footer. Cumulative earnings = the sum of every settled round's claim, from the published round reports.</p>
 </section>
@@ -53,7 +53,7 @@
 <h2 data-i18n="whyTitle">Why it exists</h2>
 <p data-i18n="whyP1">The gate is in the contract itself: min_amount = 0.1 is the smallest single lock or unlock, and the smallest deposit that may claim. Below 0.1, coins cannot mine at all — they just sit idle.</p>
 <p data-i18n="whyP2">Pooling does not amplify anything. A round pays linearly: fair share = the round's guideline × your deposit ÷ the round's total claiming deposit. A solo stake of 0.3 and this pool's combined 0.3 earn exactly the same. What pooling changes is only who gets through the door.</p>
-<div class="card"><b data-i18n="fairExT">A real round, from the pool's own books</b><br><span data-i18n="fairEx">Round 704, from this pool's own settlement report: the pool claimed 0.00132453 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.25890948 (31.73%), and it was credited 0.00042035 — the same fraction of the payout as of the stake.</span></div>
+<div class="card"><b data-i18n="fairExT">A real round, from the pool's own books</b><br><span data-i18n="fairEx">Round 705, from this pool's own settlement report: the pool claimed 0.00132590 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.25890948 (31.73%), and it was credited 0.00042078 — the same fraction of the payout as of the stake.</span></div>
 </section>
 
 <section id="how">
@@ -122,11 +122,11 @@
 </ul>
 </section>
 
-<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-31 05:58:41 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
+<p class="muted"><span data-i18n="footerGen">Snapshot time</span> <span id="snapshotTime">2026-10-31 05:59:19 UTC</span>. <span data-i18n="footerNote">It is a static snapshot — no live polling, no login, no tracking.</span></p>
 <p class="muted"><span data-i18n="dataSource">Data source</span>: <a href="https://github.com/chilperbf24/reset-mining-pool" target="_blank" rel="noopener">https://github.com/chilperbf24/reset-mining-pool</a></p>
 
 <script>
-const SNAPSHOT_MS = 1793426321071;
+const SNAPSHOT_MS = 1793426359729;
 const T = {
 en: { title: "About this pool — the full introduction", langBtn: "中文", back: "← Back to the pool page",
  themeToDark: "🌙 Night", themeToLight: "☀️ Day",
@@ -138,7 +138,7 @@ en: { title: "About this pool — the full introduction", langBtn: "中文", bac
  statsNote: "Figures as of the snapshot time in the footer. Cumulative earnings = the sum of every settled round's claim, from the published round reports.",
  whyP1: "The gate is in the contract itself: min_amount = 0.1 is the smallest single lock or unlock, and the smallest deposit that may claim. Below 0.1, coins cannot mine at all — they just sit idle.",
  whyP2: "Pooling does not amplify anything. A round pays linearly: fair share = the round's guideline × your deposit ÷ the round's total claiming deposit. A solo stake of 0.3 and this pool's combined 0.3 earn exactly the same. What pooling changes is only who gets through the door.",
- fairExT: "A real round, from the pool's own books", fairEx: "Round 704, from this pool's own settlement report: the pool claimed 0.00132453 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.25890948 (31.73%), and it was credited 0.00042035 — the same fraction of the payout as of the stake.",
+ fairExT: "A real round, from the pool's own books", fairEx: "Round 705, from this pool's own settlement report: the pool claimed 0.00132590 that round. The largest position's snapshot deposit was 0.08216449 of the pool's 0.25890948 (31.73%), and it was credited 0.00042078 — the same fraction of the payout as of the stake.",
  how1: "<b>Join.</b> Use the calculator on the Overview tab: your planned amount plus your address's fingerprint tail gives your exact transfer amount, and the calculation is recorded in the pool's registry. Transfer exactly that amount; the pool checks the registry record first, then matches the amount's tail to your address, and credits the full amount — usually within about a minute. A wrong or rounded amount parks as unclaimed until it is claimed through the path described on the Overview tab.",
  how2: "<b>Stake.</b> Whenever the pool's idle balance reaches 0.1, the worker locks the whole amount in a single lock — the contract's per-operation minimum makes partial locks below 0.1 impossible, so nothing is ever locked piecemeal.",
  how3: "<b>Claim.</b> Every round, the pool files one claim at level 1000 — exactly its fair share, never more. Over-claiming would draw strikes and penalties; the pool never does it.",
@@ -188,7 +188,7 @@ zh: { title: "关于这个池子——完整介绍", langBtn: "English", back: "
  statsNote: "数字截至页脚的快照时间。累计总收益 = 全部已结算轮次 claim 之和，取自已发布的逐轮报告。",
  whyP1: "门槛写在合约里：min_amount = 0.1，既是单笔 lock/unlock 的最小金额，也是能 claim 的最小质押。不到 0.1，币根本挖不了——只能闲置。",
  whyP2: "拼池不放大任何东西。每轮按线性公式付：公平份额 = 本轮指南额 × 你的质押 ÷ 本轮参与 claim 的总质押。一个人单挖 0.3 和这个池子合并的 0.3，赚的一模一样。拼池改变的只是谁能进这道门。",
- fairExT: "真实一轮，取自池子自己的账", fairEx: "拿池子自己的结算报告举例——第 704 轮：池子这一轮领到 0.00132453。其中最大一份份额的快照质押是 0.08216449，占池子快照总额 0.25890948 的 31.73%，它分到了 0.00042035——和它占质押的比例分毫不差。",
+ fairExT: "真实一轮，取自池子自己的账", fairEx: "拿池子自己的结算报告举例——第 705 轮：池子这一轮领到 0.00132590。其中最大一份份额的快照质押是 0.08216449，占池子快照总额 0.25890948 的 31.73%，它分到了 0.00042078——和它占质押的比例分毫不差。",
  how1: "<b>入池。</b>用概览页的计算器：计划金额加上你地址的指纹尾数，就是你的精确转账金额，计算结果会记入池子的登记后台。从你的钱包精确转这个数；池子先查登记记录、再按金额尾数对上你的地址，全额计入你的出资——通常一分钟左右到账。金额转错或凑整的，会先落为待认领，按概览页的说明走认领路径。",
  how2: "<b>汇集质押。</b>池子闲置余额每攒够 0.1，worker 就整笔一锁——合约单笔最低 0.1 的限制决定了零碎金额锁不了，所以永远不拆开锁。",
  how3: "<b>逐轮 claim。</b>每一轮，池子只提交一笔 level 1000 的 claim——正好是它的公平份额，绝不多报。多报会招致 strikes 和罚没，池子从不这么干。",
